@@ -1,0 +1,35 @@
+# Local development stack (hot reload). Use:  docker compose -f docker-compose.dev.yml up
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ishlauz_db_dev
+    restart: always
+    environment:
+      POSTGRES_USER: ishla_user
+      POSTGRES_PASSWORD: ishla_password
+      POSTGRES_DB: ishla_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata_dev:/var/lib/postgresql/data
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: ishlauz_web_dev
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://ishla_user:ishla_password@db:5432/ishla_db?schema=public
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - db
+    command: sh -c "sleep 3 && npx prisma db push && npm run dev"
+
+volumes:
+  pgdata_dev:

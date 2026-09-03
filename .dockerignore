@@ -1,3 +1,11 @@
 node_modules
 .next
 .git
+.env
+.env.*
+!.env.docker.example
+npm-debug.log*
+*.md
+Dockerfile*
+docker-compose*.yml
+.dockerignore

@@ -1,36 +1,73 @@
-version: '3.8'
+# Production stack — fully containerized with automatic HTTPS.
+#   docker compose up -d --build
+#
+# Reads variables from a `.env` file in this directory (see .env.docker.example).
+# nginx-proxy + acme-companion issue and renew Let's Encrypt certificates
+# automatically based on the app's VIRTUAL_HOST / LETSENCRYPT_HOST.
 
 services:
   db:
-    image: postgres:15-alpine
-    container_name: ishlauz_db
+    image: postgres:16-alpine
+    container_name: ishla_db
     restart: always
     environment:
-      POSTGRES_USER: ishla_user
-      POSTGRES_PASSWORD: ishla_password
-      POSTGRES_DB: ishla_db
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  web:
+  app:
     build:
       context: .
-      dockerfile: Dockerfile.dev
-    container_name: ishlauz_web
+      dockerfile: Dockerfile
+    container_name: ishla_app
     restart: always
-    ports:
-      - "3000:3000"
-    environment:
-      - DATABASE_URL=postgresql://ishla_user:ishla_password@db:5432/ishla_db?schema=public
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/.next
     depends_on:
       - db
-    command: sh -c "sleep 3 && npx prisma db push && npx prisma db seed && npm run dev"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - VIRTUAL_HOST=${DOMAIN}
+      - VIRTUAL_PORT=3000
+      - LETSENCRYPT_HOST=${DOMAIN}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+    expose:
+      - "3000"
+
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy:latest
+    container_name: ishla_proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - certs:/etc/nginx/certs
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./nginx/client-max-body.conf:/etc/nginx/conf.d/client-max-body.conf:ro
+
+  acme:
+    image: nginxproxy/acme-companion:latest
+    container_name: ishla_acme
+    restart: always
+    depends_on:
+      - nginx-proxy
+    environment:
+      - DEFAULT_EMAIL=${LETSENCRYPT_EMAIL}
+    volumes:
+      - certs:/etc/nginx/certs
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - acme:/etc/acme.sh
+      - /var/run/docker.sock:/var/run/docker.sock:ro
 
 volumes:
   pgdata:
+  certs:
+  vhost:
+  html:
+  acme:

@@ -11,7 +11,7 @@ const deploymentName = 'gpt-4o-1';
 
 const openai = new OpenAI({
   baseURL: azureEndpoint,
-  apiKey: azureApiKey,
+  apiKey: azureApiKey || 'placeholder-build-key',
 });
 
 const BASE_PROMPT = `
