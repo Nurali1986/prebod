@@ -29,6 +29,24 @@ model User {
   applications Candidate[] @relation("CandidateApplications")
   practices    PracticeSession[] @relation("UserPractices")
   usage        SimulatorUsage[]  @relation("UserUsage")
+
+  teamId       Int?
+  team         Team?  @relation("TeamMembers", fields: [teamId], references: [id], onDelete: SetNull)
+  managedTeam  Team?  @relation("ManagedTeam")
+
+  @@index([teamId])
+}
+
+// A sales team owned by a manager; reps join it with the joinCode.
+model Team {
+  id        Int      @id @default(autoincrement())
+  name      String
+  joinCode  String   @unique
+  managerId Int      @unique
+  createdAt DateTime @default(now())
+
+  manager   User     @relation("ManagedTeam", fields: [managerId], references: [id], onDelete: Cascade)
+  members   User[]   @relation("TeamMembers")
 }
 
 // One row per user per day: how many simulator sessions they started and the

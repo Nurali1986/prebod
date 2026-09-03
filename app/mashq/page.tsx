@@ -8,6 +8,10 @@ export default function RepHome() {
   const [sessions, setSessions] = useState<any[]>([]);
   const [quota, setQuota] = useState<{ used: number; limit: number; remaining: number; plan?: string } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [team, setTeam] = useState<{ name: string } | null>(null);
+  const [joinInput, setJoinInput] = useState('');
+  const [joining, setJoining] = useState(false);
+  const [toast, setToast] = useState('');
 
   useEffect(() => {
     const u = localStorage.getItem('ishla_user');
@@ -16,12 +20,28 @@ export default function RepHome() {
     Promise.all([
       fetch('/api/practice').then(r => r.ok ? r.json() : []).catch(() => []),
       fetch('/api/simulator/start').then(r => r.ok ? r.json() : null).catch(() => null),
-    ]).then(([s, q]) => {
+      fetch('/api/team/join').then(r => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([s, q, t]) => {
       if (Array.isArray(s)) setSessions(s);
       if (q && !q.error) setQuota(q);
+      if (t && t.team) setTeam(t.team);
       setLoading(false);
     });
   }, []);
+
+  const showToast = (m: string) => { setToast(m); setTimeout(() => setToast(''), 2200); };
+
+  const joinTeam = async () => {
+    if (!joinInput.trim() || joining) return;
+    setJoining(true);
+    try {
+      const res = await fetch('/api/team/join', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: joinInput.trim() }) });
+      const d = await res.json();
+      if (res.ok) { setTeam({ name: d.teamName }); showToast(`"${d.teamName}" jamoasiga qo'shildingiz`); }
+      else showToast(d.error || 'Xatolik');
+    } catch { showToast('Tarmoq xatosi'); }
+    finally { setJoining(false); }
+  };
 
   const logout = async () => {
     try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
@@ -66,6 +86,13 @@ export default function RepHome() {
         .pill{font-family:var(--font-mono);font-weight:600;padding:3px 10px;border-radius:8px;font-size:13px;}
         .sess .fb{margin-top:12px;font-size:13px;white-space:pre-wrap;line-height:1.6;color:var(--ink-soft);}
         .empty{background:var(--card);border:1px dashed var(--line-strong);border-radius:12px;padding:30px;text-align:center;color:var(--muted);}
+        .join-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:24px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;}
+        .join-card .ttl{font-weight:600;font-size:14px;}
+        .join-card .row{display:flex;gap:8px;flex-wrap:wrap;}
+        .join-card input{border:1px solid var(--line-strong);border-radius:8px;padding:9px 12px;font-size:14px;font-family:var(--font-mono);letter-spacing:2px;text-transform:uppercase;width:130px;}
+        .join-card button{background:var(--violet);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-weight:600;font-size:13.5px;cursor:pointer;}
+        .team-badge{display:inline-flex;align-items:center;gap:7px;background:var(--violet-bg);color:var(--violet);padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600;}
+        .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#EFEDE4;padding:11px 18px;border-radius:8px;font-size:13.5px;z-index:60;}
         @media(max-width:640px){.stat-row{grid-template-columns:repeat(2,1fr);}.hero-call{padding:26px 18px;}}
       `}} />
       <div className="top">
@@ -91,6 +118,26 @@ export default function RepHome() {
           <div className="stat"><div className="n">{quota ? (quota.plan === 'premium' ? '∞' : quota.remaining) : '—'}</div><div className="l">Bugun qolgan</div></div>
         </div>
 
+        <div className="join-card">
+          {team ? (
+            <>
+              <span className="ttl">Jamoa</span>
+              <span className="team-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+                {team.name}
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="ttl">Jamoaga qo&apos;shilish</span>
+              <div className="row">
+                <input value={joinInput} onChange={e => setJoinInput(e.target.value)} placeholder="KOD" maxLength={6} onKeyDown={e => { if (e.key === 'Enter') joinTeam(); }} />
+                <button onClick={joinTeam} disabled={joining}>Qo&apos;shilish</button>
+              </div>
+            </>
+          )}
+        </div>
+
         <h2 className="section-title">Mashqlar tarixi</h2>
         {loading ? (
           <div className="empty">Yuklanmoqda...</div>
@@ -108,6 +155,7 @@ export default function RepHome() {
           ))
         )}
       </div>
+      {toast && <div className="toast">{toast}</div>}
     </>
   );
 }

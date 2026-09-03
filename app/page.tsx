@@ -29,6 +29,7 @@ export default function LandingPage() {
   const [hiwTab, setHiwTab] = useState<'rep' | 'manager'>('rep');
     const [loggedInUser, setLoggedInUser] = useState<any>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [joinCode, setJoinCode] = useState('');
   const [providers, setProviders] = useState<{ google: boolean; telegram: boolean; telegramBot: string | null }>({ google: false, telegram: false, telegramBot: null });
 
   useEffect(() => {
@@ -39,6 +40,11 @@ export default function LandingPage() {
 
     }
     const params = new URLSearchParams(window.location.search);
+    const jc = params.get('join');
+    if (jc && !user) {
+      setJoinCode(jc.trim().toUpperCase());
+      openSignup('rep');
+    }
     const err = params.get('err');
     if (err) {
       const map: Record<string, string> = {
@@ -118,6 +124,10 @@ export default function LandingPage() {
       
       localStorage.setItem('ishla_user', JSON.stringify(data));
       setSignupOpen(false);
+      // If they arrived via an invite link, join that team.
+      if (joinCode && data.role === 'rep') {
+        try { await fetch('/api/team/join', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: joinCode }) }); } catch {}
+      }
       const redir = new URLSearchParams(window.location.search).get('redirect');
         router.push(destForRole(data.role, redir));
     } catch (e) {
