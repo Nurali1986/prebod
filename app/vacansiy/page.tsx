@@ -751,9 +751,25 @@ export default function CandidatePanel() {
 
         .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#EFEDE4;padding:12px 20px;border-radius:8px;font-size:13.5px;opacity:0;transition:opacity .2s ease, transform .2s ease;z-index:60;pointer-events:none;}
         .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+        @media(max-width:720px){
+          .topbar{padding:0 14px;height:58px;}
+          .topnav{gap:2px;overflow-x:auto;max-width:64vw;}
+          .topnav .nav-item{padding:8px 10px;font-size:12.5px;white-space:nowrap;}
+          .brand-name{font-size:17px;}
+          .main{padding:22px 16px 70px;}
+          .jobs-grid{grid-template-columns:1fr;}
+          .apply-card,.detail-card{padding:20px 16px;}
+          .progress-bar{overflow-x:auto;gap:6px;justify-content:flex-start;}
+          .step-label{display:none;}
+          .review-row{flex-wrap:wrap;gap:2px;}
+          .chat-box{height:320px;}
+        }
+        @media(max-width:420px){
+          .topnav .nav-item{padding:7px 7px;font-size:12px;}
+        }
         `
       }} />}
-      
+
       {isProfileMode && <style dangerouslySetInnerHTML={{
         __html: `
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');

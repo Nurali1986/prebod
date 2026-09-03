@@ -55,6 +55,7 @@ const initialVacancies: any[] = [];
 
 export default function HRPanel() {
   const [view, setView] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [vacancies, setVacancies] = useState<any[]>(initialVacancies);
   const [departments, setDepartments] = useState<any[]>(initialDepartments);
   const [activeVacancyId, setActiveVacancyId] = useState<number | null>(null);
@@ -150,6 +151,9 @@ export default function HRPanel() {
     localStorage.removeItem('ishla_user');
     window.location.href = '/';
   };
+
+  // Navigate + close the mobile sidebar drawer.
+  const go = (v: string) => { setView(v); setSidebarOpen(false); };
 
   const deleteVacancy = async (id: number) => {
     if (!confirm("Ushbu vakansiyani o'chirmoqchimisiz? Barcha arizalar ham o'chadi.")) return;
@@ -456,33 +460,67 @@ export default function HRPanel() {
         .na-note{font-size:12px;color:var(--muted);font-style:italic;}
         .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#EFEDE4;padding:12px 20px;border-radius:8px;font-size:13.5px;opacity:0;transition:opacity .2s ease, transform .2s ease;z-index:60;pointer-events:none;}
         .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+        .mobile-topbar{display:none;}
+        .sidebar-backdrop{display:none;}
+        @media(max-width:900px){
+          .app{grid-template-columns:1fr;}
+          .mobile-topbar{display:flex;align-items:center;gap:12px;background:var(--ink);color:#EFEDE4;padding:0 16px;height:56px;position:sticky;top:0;z-index:45;}
+          .mobile-topbar .hbtn{background:none;border:none;color:#EFEDE4;cursor:pointer;padding:6px;display:flex;}
+          .mobile-topbar .brand-mark{width:26px;height:26px;font-size:13px;}
+          .mobile-topbar .brand-name{font-size:16px;font-family:var(--font-display);font-weight:600;}
+          .sidebar{position:fixed;left:0;top:0;bottom:0;width:236px;z-index:47;transform:translateX(-105%);transition:transform .22s ease;height:100vh;}
+          .sidebar.open{transform:translateX(0);}
+          .sidebar-backdrop.open{display:block;position:fixed;inset:0;background:rgba(20,33,61,.45);z-index:46;}
+          .main{padding:22px 18px 60px;}
+          .pagehead{flex-direction:column;align-items:flex-start;gap:14px;}
+          .stat-row{grid-template-columns:repeat(2,1fr);}
+          .vac-grid{grid-template-columns:1fr;}
+          .kanban{grid-template-columns:1fr;overflow-x:visible;}
+          .conveyor{overflow-x:auto;}
+          .vac-table{display:block;overflow-x:auto;white-space:nowrap;}
+          .modal{max-width:100%;}
+          .field-row{grid-template-columns:1fr;}
+        }
+        @media(max-width:560px){
+          .stat-row{grid-template-columns:1fr;}
+          .ai-stage-grid{grid-template-columns:1fr;}
+        }
         `
       }} />
 
+      <div className="mobile-topbar">
+        <button className="hbtn" aria-label="Menyu" onClick={() => setSidebarOpen(true)}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
+        </button>
+        <div className="brand-mark">I</div>
+        <div className="brand-name">Ishla · HR</div>
+      </div>
+      <div className={`sidebar-backdrop ${sidebarOpen ? 'open' : ''}`} onClick={() => setSidebarOpen(false)}></div>
+
       <div className="app">
-        <aside className="sidebar">
+        <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
           <div className="brand">
             <div className="brand-mark">I</div>
             <div><div className="brand-name">Ishla</div><div className="brand-tag">AI bilan yollash</div></div>
           </div>
           <ul className="nav">
-            <li className={`nav-item ${view === 'dashboard' ? 'active' : ''}`} onClick={() => setView('dashboard')}>
+            <li className={`nav-item ${view === 'dashboard' ? 'active' : ''}`} onClick={() => go('dashboard')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="9" rx="1.5" /><rect x="14" y="3" width="7" height="5" rx="1.5" /><rect x="14" y="12" width="7" height="9" rx="1.5" /><rect x="3" y="16" width="7" height="5" rx="1.5" /></svg>
               Boshqaruv paneli
             </li>
-            <li className={`nav-item ${view === 'vacancies' || view === 'detail' ? 'active' : ''}`} onClick={() => setView('vacancies')}>
+            <li className={`nav-item ${view === 'vacancies' || view === 'detail' ? 'active' : ''}`} onClick={() => go('vacancies')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="7" width="18" height="13" rx="2" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>
               Vakansiyalar
             </li>
-            <li className={`nav-item ${view === 'candidates' ? 'active' : ''}`} onClick={() => setView('candidates')}>
+            <li className={`nav-item ${view === 'candidates' ? 'active' : ''}`} onClick={() => go('candidates')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="8" r="3.2" /><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5" /><circle cx="17.5" cy="8.5" r="2.4" /><path d="M15.5 14.3c2.6.4 4.5 2.3 4.5 5.2" /></svg>
               Nomzodlar
             </li>
-            <li className={`nav-item ${view === 'interviews' ? 'active' : ''}`} onClick={() => setView('interviews')}>
+            <li className={`nav-item ${view === 'interviews' ? 'active' : ''}`} onClick={() => go('interviews')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="17" rx="2" /><path d="M3 9h18M8 2v4M16 2v4" /></svg>
               Suhbatlar
             </li>
-            <li className={`nav-item ${view === 'stats' ? 'active' : ''}`} onClick={() => setView('stats')}>
+            <li className={`nav-item ${view === 'stats' ? 'active' : ''}`} onClick={() => go('stats')}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 20V10M12 20V4M20 20v-7" /></svg>
               Statistika
             </li>

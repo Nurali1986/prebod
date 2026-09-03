@@ -28,6 +28,7 @@ export default function LandingPage() {
 
   const [hiwTab, setHiwTab] = useState<'candidate' | 'employer'>('candidate');
     const [loggedInUser, setLoggedInUser] = useState<any>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [providers, setProviders] = useState<{ google: boolean; telegram: boolean; telegramBot: string | null }>({ google: false, telegram: false, telegramBot: null });
 
   useEffect(() => {
@@ -282,9 +283,42 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
 .field input:focus{outline:2px solid var(--accent);outline-offset:1px;background:#fff;}
 .err-note{font-size:12px;color:#C1443C;margin:-4px 0 12px;display:none;text-align:left;}
 .err-note.show{display:block;}
+
+/* ===== AI effects ===== */
+@keyframes auroraDrift{0%{transform:translate(0,0) scale(1);}50%{transform:translate(28px,-18px) scale(1.15);}100%{transform:translate(0,0) scale(1);}}
+@keyframes floatY{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);}}
+@keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+@keyframes livePulse{0%,100%{box-shadow:0 0 0 0 rgba(108,92,176,.55);}50%{box-shadow:0 0 0 6px rgba(108,92,176,0);}}
+.hero{position:relative;overflow:hidden;}
+.hero-aurora{position:absolute;inset:-40px -20px auto -20px;height:520px;z-index:0;pointer-events:none;filter:blur(64px);opacity:.5;}
+.hero-aurora span{position:absolute;border-radius:50%;display:block;}
+.hero-aurora .b1{width:340px;height:340px;left:6%;top:10px;background:radial-gradient(circle,var(--accent) 0,transparent 70%);animation:auroraDrift 14s ease-in-out infinite;}
+.hero-aurora .b2{width:300px;height:300px;right:8%;top:-10px;background:radial-gradient(circle,var(--violet) 0,transparent 70%);animation:auroraDrift 18s ease-in-out infinite reverse;}
+.hero-aurora .b3{width:260px;height:260px;left:44%;top:130px;background:radial-gradient(circle,var(--success) 0,transparent 70%);animation:auroraDrift 16s ease-in-out infinite;}
+.hero .wrap{position:relative;z-index:1;}
+.hero .eyebrow{position:relative;overflow:hidden;background:linear-gradient(90deg,var(--violet-bg),#F4EFFC,var(--violet-bg));background-size:200% 100%;animation:shimmer 3.5s linear infinite;}
+.eyebrow .live-dot{width:8px;height:8px;border-radius:50%;background:var(--violet);flex-shrink:0;animation:livePulse 1.8s ease-out infinite;}
+.hero h1 em{background:linear-gradient(90deg,var(--accent-deep),var(--violet));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.role-card:hover{box-shadow:0 12px 40px rgba(108,92,176,.12);}
+.ai-spark{animation:floatY 4s ease-in-out infinite;transform-origin:center;}
+@media(prefers-reduced-motion:reduce){.hero-aurora span,.hero .eyebrow,.ai-spark{animation:none!important;}}
+
+/* ===== Mobile hamburger + drawer ===== */
+.hamburger{display:none;background:none;border:1px solid var(--line-strong);border-radius:8px;padding:8px;cursor:pointer;color:var(--ink);}
+.mobile-menu{position:fixed;inset:0;background:rgba(20,33,61,.5);backdrop-filter:blur(4px);z-index:90;display:none;}
+.mobile-menu.open{display:block;}
+.mobile-menu-panel{position:absolute;top:0;right:0;bottom:0;width:min(300px,82vw);background:var(--card);padding:20px;display:flex;flex-direction:column;gap:4px;box-shadow:-8px 0 30px rgba(0,0,0,.15);}
+.mobile-menu-panel a{padding:12px 10px;border-radius:8px;font-size:15px;font-weight:600;color:var(--ink-soft);}
+.mobile-menu-panel a:hover{background:var(--paper);color:var(--ink);}
+.mobile-menu-panel .mm-close{align-self:flex-end;background:none;border:none;cursor:pointer;color:var(--muted);padding:6px;margin-bottom:4px;}
+.mobile-menu-panel .mm-actions{margin-top:auto;display:flex;flex-direction:column;gap:10px;}
+
 @media(max-width:860px){
-  nav.mainnav,.head-actions .btn-ghost{display:none;}
-  .hero h1{font-size:33px;}
+  nav.mainnav,.head-actions{display:none;}
+  .hamburger{display:inline-flex;}
+  .hero{padding:52px 0 30px;}
+  .hero h1{font-size:31px;}
+  .hero p.sub{font-size:15px;}
   .role-grid,.role-modal .role-grid{grid-template-columns:1fr;}
   .stat-strip{grid-template-columns:repeat(2,1fr);}
   .about-grid{grid-template-columns:1fr;}
@@ -293,6 +327,13 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
   .feat-grid{grid-template-columns:repeat(2,1fr);}
   .foot-grid{grid-template-columns:1fr 1fr;}
   .cta-band{padding:36px 20px;}
+  section{padding:48px 0;}
+  .wrap{padding:0 20px;}
+}
+@media(max-width:520px){
+  .feat-grid,.stat-strip{grid-template-columns:1fr;}
+  .foot-grid{grid-template-columns:1fr;}
+  .hero h1{font-size:27px;}
 }
       `}} />
 
@@ -316,14 +357,42 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
               </>
             )}
           </div>
+          <button className="hamburger" aria-label="Menyu" onClick={() => setMobileMenuOpen(true)}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+          </button>
         </div>
       </header>
 
+      {/* MOBILE MENU */}
+      <div className={`mobile-menu ${mobileMenuOpen ? 'open' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setMobileMenuOpen(false); }}>
+        <div className="mobile-menu-panel">
+          <button className="mm-close" aria-label="Yopish" onClick={() => setMobileMenuOpen(false)}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+          <a href="/vacansiy" style={{ color: 'var(--ink)' }} onClick={() => setMobileMenuOpen(false)}>Vakansiyalar</a>
+          <a href="#qanday-ishlaydi" onClick={() => setMobileMenuOpen(false)}>Qanday ishlaydi</a>
+          <a href="#ai-imkoniyatlari" onClick={() => setMobileMenuOpen(false)}>AI imkoniyatlari</a>
+          <a href="#platforma-haqida" onClick={() => setMobileMenuOpen(false)}>Platforma haqida</a>
+          <div className="mm-actions">
+            {loggedInUser ? (
+              <button className="btn btn-primary" style={{ justifyContent: 'center' }} onClick={() => { setMobileMenuOpen(false); router.push(destForRole(loggedInUser.role)); }}>Kabinetga o&apos;tish</button>
+            ) : (
+              <>
+                <button className="btn btn-ghost" style={{ justifyContent: 'center' }} onClick={() => { setMobileMenuOpen(false); openLogin(); }}>Kirish</button>
+                <button className="btn btn-primary" style={{ justifyContent: 'center' }} onClick={() => { setMobileMenuOpen(false); setRoleModalOpen(true); }}>Ro&apos;yxatdan o&apos;tish</button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* HERO */}
       <section className="hero">
+        <div className="hero-aurora"><span className="b1"></span><span className="b2"></span><span className="b3"></span></div>
         <div className="wrap">
           <div className="eyebrow">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/><circle cx="12" cy="12" r="4"/></svg>
+            <span className="live-dot"></span>
+            <svg className="ai-spark" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/><circle cx="12" cy="12" r="4"/></svg>
             AI asosida ishlaydigan yollash platformasi
           </div>
           <h1>Ish topish va xodim tanlashning <em>aqlliroq</em> yo&apos;li</h1>
