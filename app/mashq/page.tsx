@@ -2,6 +2,92 @@
 
 import { useEffect, useState } from 'react';
 
+const STAGE_META = [
+  { key: 'tanishuv', label: 'Tanishuv', max: 12 },
+  { key: 'programma', label: 'Programma', max: 8 },
+  { key: 'yaqinlashuv', label: 'Yaqinlashuv', max: 9 },
+  { key: 'ehtiyoj', label: 'Ehtiyoj', max: 20 },
+  { key: 'taqdimot', label: 'Taqdimot', max: 20 },
+  { key: 'etiroz', label: "E'tirozlar", max: 9 },
+  { key: 'yopish', label: 'Yopish', max: 16 },
+  { key: 'followup', label: 'Follow-up', max: 6 },
+];
+
+function RadarChart({ sessions }: { sessions: any[] }) {
+  const withStages = sessions.filter((s) => s.stageScores && typeof s.stageScores === 'object');
+  if (withStages.length === 0) return null;
+
+  const N = STAGE_META.length;
+  const cx = 160, cy = 160, R = 120;
+  const angleStep = (2 * Math.PI) / N;
+  const startAngle = -Math.PI / 2;
+
+  const pointAt = (i: number, r: number) => {
+    const a = startAngle + i * angleStep;
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  };
+
+  const gridLevels = [0.25, 0.5, 0.75, 1];
+  const gridPaths = gridLevels.map((lv) => {
+    const pts = Array.from({ length: N }, (_, i) => pointAt(i, R * lv));
+    return pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ') + ' Z';
+  });
+
+  const avg: Record<string, number> = {};
+  for (const s of STAGE_META) {
+    const vals = withStages.map((sess) => (sess.stageScores as any)[s.key]).filter((v: any) => v != null);
+    avg[s.key] = vals.length ? vals.reduce((a: number, b: number) => a + b, 0) / vals.length : 0;
+  }
+
+  const avgPts = STAGE_META.map((s, i) => {
+    const pct = avg[s.key] / s.max;
+    return pointAt(i, R * pct);
+  });
+  const avgPath = avgPts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ') + ' Z';
+
+  let lastPts: number[][] | null = null;
+  let lastPath: string | null = null;
+  const latest = withStages[0];
+  if (latest) {
+    lastPts = STAGE_META.map((s, i) => {
+      const v = (latest.stageScores as any)[s.key] ?? 0;
+      return pointAt(i, R * (v / s.max));
+    });
+    lastPath = lastPts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ') + ' Z';
+  }
+
+  return (
+    <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 14, padding: '20px 10px', marginBottom: 24 }}>
+      <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 16, margin: '0 0 4px 10px' }}>Mahorat diagrammasi</h3>
+      <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '0 0 10px 10px' }}>
+        {withStages.length >= 2
+          ? <>🟣 o&apos;rtacha ({withStages.length} mashq) &nbsp; 🔵 oxirgi mashq</>
+          : <>🔵 oxirgi mashq natijasi</>}
+      </p>
+      <svg viewBox="0 0 320 320" width="100%" style={{ maxWidth: 380, display: 'block', margin: '0 auto' }}>
+        {gridPaths.map((d, i) => <path key={i} d={d} fill="none" stroke="var(--line)" strokeWidth={i === gridLevels.length - 1 ? 1.2 : 0.6} />)}
+        {STAGE_META.map((_, i) => {
+          const [x, y] = pointAt(i, R);
+          return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="var(--line)" strokeWidth={0.5} />;
+        })}
+        {withStages.length >= 2 && (
+          <path d={avgPath} fill="rgba(108,92,176,.2)" stroke="var(--violet)" strokeWidth={2} />
+        )}
+        {lastPath && (
+          <path d={lastPath} fill="rgba(59,130,246,.15)" stroke="#3b82f6" strokeWidth={2} />
+        )}
+        {withStages.length >= 2 && avgPts.map((p, i) => <circle key={'a'+i} cx={p[0]} cy={p[1]} r={3.5} fill="var(--violet)" />)}
+        {lastPts && lastPts.map((p, i) => <circle key={'l'+i} cx={p[0]} cy={p[1]} r={3.5} fill="#3b82f6" />)}
+        {STAGE_META.map((s, i) => {
+          const [x, y] = pointAt(i, R + 18);
+          const anchor = x < cx - 10 ? 'end' : x > cx + 10 ? 'start' : 'middle';
+          return <text key={i} x={x} y={y} textAnchor={anchor} dominantBaseline="central" fill="var(--ink-soft)" fontSize={10} fontFamily="var(--font-body)">{s.label}</text>;
+        })}
+      </svg>
+    </div>
+  );
+}
+
 // Salesperson (rep) home — practice-first dashboard.
 export default function RepHome() {
   const [user, setUser] = useState<any>(null);
@@ -118,6 +204,8 @@ export default function RepHome() {
           <div className="stat"><div className="n">{quota ? (quota.plan === 'premium' ? '∞' : quota.remaining) : '—'}</div><div className="l">Bugun qolgan</div></div>
         </div>
 
+        {sessions.length > 0 && <RadarChart sessions={sessions} />}
+
         <div className="join-card">
           {team ? (
             <>
@@ -150,6 +238,26 @@ export default function RepHome() {
                 <span><span className="who">{p.personaName || p.persona}</span><span className="dt">{new Date(p.createdAt).toLocaleString('uz-UZ')}</span></span>
                 <span className="pill" style={{ background: p.score >= 80 ? 'var(--success-bg)' : p.score >= 60 ? 'var(--accent-bg)' : 'var(--danger-bg)', color: scoreColor(p.score) }}>{p.score}%</span>
               </summary>
+              {p.stageScores && typeof p.stageScores === 'object' && (
+                <div style={{ marginTop: 12 }}>
+                  {STAGE_META.map((s) => {
+                    const val = (p.stageScores as any)[s.key] ?? 0;
+                    const pct = Math.round((val / s.max) * 100);
+                    const barColor = pct >= 75 ? 'var(--success)' : pct >= 50 ? 'var(--accent-deep)' : 'var(--danger)';
+                    return (
+                      <div key={s.key} style={{ marginBottom: 6 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5, marginBottom: 2 }}>
+                          <span>{s.label}</span>
+                          <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--muted)' }}>{val}/{s.max}</span>
+                        </div>
+                        <div style={{ width: '100%', height: 5, borderRadius: 4, background: 'var(--line)' }}>
+                          <div style={{ width: `${pct}%`, height: '100%', borderRadius: 4, background: barColor, transition: 'width .4s ease' }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
               {p.feedback && <div className="fb">{p.feedback}</div>}
             </details>
           ))

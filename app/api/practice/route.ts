@@ -23,7 +23,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const session = await requireUser(request);
-    const { persona, personaName, product, score, feedback } = await request.json();
+    const { persona, personaName, product, score, feedback, stageScores } = await request.json();
 
     const created = await prisma.practiceSession.create({
       data: {
@@ -32,6 +32,7 @@ export async function POST(request: Request) {
         personaName: personaName ? String(personaName) : null,
         product: product ? String(product) : null,
         score: Math.min(100, Math.max(0, Number(score) || 0)),
+        stageScores: stageScores && typeof stageScores === 'object' ? stageScores : undefined,
         feedback: feedback ? String(feedback) : null,
       },
     });

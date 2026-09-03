@@ -26,6 +26,27 @@ const CHARACTERS: Character[] = [
   { id: 'yangi', name: 'Sevara', firstName: 'Sevara', voice: 'uz-UZ-MadinaNeural', description: 'Yangi mijoz — sohani bilmaydi', avatar: 'https://randomuser.me/api/portraits/women/90.jpg', greeting: 'Assalomu alaykum. Eshitaman, gapiravering.' },
 ];
 
+const STAGE_META = [
+  { key: 'tanishuv', label: 'Tanishuv', max: 12, re: /Tanishuv[^\d]{0,8}(\d+)\s*\/\s*12/i },
+  { key: 'programma', label: 'Programma', max: 8, re: /Programm[^\d]{0,12}(\d+)\s*\/\s*8/i },
+  { key: 'yaqinlashuv', label: 'Yaqinlashuv', max: 9, re: /Yaqinlash[^\d]{0,12}(\d+)\s*\/\s*9/i },
+  { key: 'ehtiyoj', label: 'Ehtiyoj', max: 20, re: /Ehtiyoj[^\d]{0,16}(\d+)\s*\/\s*20/i },
+  { key: 'taqdimot', label: 'Taqdimot', max: 20, re: /Taqdimot[^\d]{0,8}(\d+)\s*\/\s*20/i },
+  { key: 'etiroz', label: "E'tirozlar", max: 9, re: /E.tirozlar[^\d]{0,16}(\d+)\s*\/\s*9/i },
+  { key: 'yopish', label: 'Yopish', max: 16, re: /Yopish[^\d]{0,16}(\d+)\s*\/\s*16/i },
+  { key: 'followup', label: 'Follow-up', max: 6, re: /Follow[^\d]{0,12}(\d+)\s*\/\s*6/i },
+];
+
+function parseStagesFromText(text: string): Record<string, number> | null {
+  const result: Record<string, number> = {};
+  let found = 0;
+  for (const s of STAGE_META) {
+    const m = text.match(s.re);
+    if (m) { result[s.key] = Math.min(s.max, parseInt(m[1], 10)); found++; }
+  }
+  return found >= 4 ? result : null;
+}
+
 const generateId = () => 'id-' + Math.random().toString(36).substring(2, 15);
 
 function extractCompleteSentences(buffer: string): { sentences: string[]; rest: string } {
@@ -47,6 +68,7 @@ export default function ChatPage() {
 
   const [evalText, setEvalText] = useState('');
   const [evalScore, setEvalScore] = useState<number | null>(null);
+  const [evalStages, setEvalStages] = useState<Record<string, number> | null>(null);
   const [evaluating, setEvaluating] = useState(false);
 
   const [isAuthChecking, setIsAuthChecking] = useState(true);
@@ -266,13 +288,15 @@ export default function ChatPage() {
       }
       const m = fullText.match(/JAMI\s*BALL[^\d]{0,6}(\d+)/i);
       const score = m ? Math.min(100, Math.max(0, parseInt(m[1], 10))) : null;
+      const stages = parseStagesFromText(fullText);
       setEvalText(fullText);
       setEvalScore(score);
+      setEvalStages(stages);
       if (score != null) {
         const char = CHARACTERS.find((c) => c.id === selectedCharacter);
         fetch('/api/practice', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ persona: selectedCharacter, personaName: char?.name, score, feedback: fullText }),
+          body: JSON.stringify({ persona: selectedCharacter, personaName: char?.name, score, stageScores: stages, feedback: fullText }),
         }).catch(() => {});
       }
     } catch {
@@ -284,7 +308,7 @@ export default function ChatPage() {
 
   const backToSelect = () => {
     setCallState('select'); setSelectedCharacter(null); setHistory([]);
-    setEvalText(''); setEvalScore(null);
+    setEvalText(''); setEvalScore(null); setEvalStages(null);
     fetch('/api/simulator/start').then((r) => (r.ok ? r.json() : null)).then((d) => { if (d && !d.error) setQuota(d); }).catch(() => {});
   };
 
@@ -387,10 +411,31 @@ export default function ChatPage() {
                     <div className="text-xs text-slate-400 mt-1">standart sotuv skripti bo&apos;yicha</div>
                   </div>
                 )}
-                <div className="w-full mt-3 p-4 rounded-xl bg-white/5 ring-1 ring-white/10 text-sm whitespace-pre-wrap leading-relaxed text-slate-200 max-h-[46vh] overflow-y-auto">
+                {evalStages && (
+                  <div className="w-full mt-4 p-4 rounded-xl bg-white/5 ring-1 ring-white/10">
+                    <div className="text-xs text-slate-400 mb-3 font-semibold uppercase tracking-wide">Bosqichlar bo&apos;yicha</div>
+                    {STAGE_META.map((s) => {
+                      const val = evalStages[s.key] ?? 0;
+                      const pct = Math.round((val / s.max) * 100);
+                      const barColor = pct >= 75 ? '#34d399' : pct >= 50 ? '#fbbf24' : '#f87171';
+                      return (
+                        <div key={s.key} className="mb-2.5">
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-slate-300">{s.label}</span>
+                            <span className="font-mono text-slate-400">{val}/{s.max}</span>
+                          </div>
+                          <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+                            <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: barColor }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                <div className="w-full mt-3 p-4 rounded-xl bg-white/5 ring-1 ring-white/10 text-sm whitespace-pre-wrap leading-relaxed text-slate-200">
                   {evalText}
                 </div>
-                <button onClick={backToSelect} className="mt-5 px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500">
+                <button onClick={backToSelect} className="mt-5 mb-4 px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500">
                   Yangi qo&apos;ng&apos;iroq
                 </button>
               </>

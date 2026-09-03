@@ -112,3 +112,27 @@ function clamp(n: number): number {
   if (Number.isNaN(n)) return 0;
   return Math.min(100, Math.max(0, n));
 }
+
+/**
+ * Parses per-stage scores from evaluation text.
+ * Returns an object like { tanishuv: 8, programma: 5, ... } or null.
+ */
+export function parseStageScores(text: string): Record<string, number> | null {
+  const patterns: [string, RegExp][] = [
+    ['tanishuv',    /Tanishuv[^\d]{0,8}(\d+)\s*\/\s*12/i],
+    ['programma',   /Programm[^\d]{0,12}(\d+)\s*\/\s*8/i],
+    ['yaqinlashuv', /Yaqinlash[^\d]{0,12}(\d+)\s*\/\s*9/i],
+    ['ehtiyoj',     /Ehtiyoj[^\d]{0,16}(\d+)\s*\/\s*20/i],
+    ['taqdimot',    /Taqdimot[^\d]{0,8}(\d+)\s*\/\s*20/i],
+    ['etiroz',      /E.tirozlar[^\d]{0,16}(\d+)\s*\/\s*9/i],
+    ['yopish',      /Yopish[^\d]{0,16}(\d+)\s*\/\s*16/i],
+    ['followup',    /Follow[^\d]{0,12}(\d+)\s*\/\s*6/i],
+  ];
+  const result: Record<string, number> = {};
+  let found = 0;
+  for (const [key, re] of patterns) {
+    const m = text.match(re);
+    if (m) { result[key] = Math.min(SALES_STAGES.find(s => s.key === key)!.max, parseInt(m[1], 10)); found++; }
+  }
+  return found >= 4 ? result : null;
+}
