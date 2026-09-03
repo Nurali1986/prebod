@@ -1015,19 +1015,14 @@ export default function CandidatePanel() {
               <div className="brand-name">Ishla</div>
             </div>
             <div className="topnav">
-              <div className={`nav-item ${view === 'jobs' ? 'active' : ''}`} onClick={() => setView('jobs')}>Aktiv vakansiyalar</div>
-              <div className={`nav-item ${view === 'applications' ? 'active' : ''}`} onClick={() => setView('applications')}>Mening arizalarim</div>
-              <div className="nav-item" style={{ background: 'rgba(108,92,176,0.15)', color: '#B8AAEF' }} onClick={() => {
+              <div className="nav-item" onClick={() => { window.location.href = '/'; }}>Bosh sahifa</div>
+              <div className="nav-item" onClick={() => { if (!isLoggedIn) { setAuthModalOpen(true); return; } window.location.href = '/chat'; }}>AI simulyatsiya</div>
+              <div className={`nav-item ${(view === 'jobs' || view === 'job-detail' || view === 'apply') ? 'active' : ''}`} onClick={() => setView('jobs')}>Vakansiyalar</div>
+              <div className="top-avatar" title="Profil" onClick={() => {
                 if (!isLoggedIn) { setAuthModalOpen(true); return; }
-                window.location.href = '/chat';
-              }}>💬 Sotuv mashqi</div>
-              <div className="top-avatar" onClick={() => {
                 setView('profile');
                 window.scrollTo({ top: 0, behavior: 'instant' });
               }}>{userObj ? `${userObj.firstName?.charAt(0) || ''}${userObj.lastName?.charAt(0) || ''}`.toUpperCase() : '👤'}</div>
-              {isLoggedIn && (
-                <div className="nav-item" title="Chiqish" onClick={logout} style={{ marginLeft: 2 }}>Chiqish</div>
-              )}
             </div>
           </div>
           
@@ -1393,11 +1388,11 @@ export default function CandidatePanel() {
         <div className="profile-scope">
           <div className="app">
             <aside className="sidebar">
-              <div className="brand">
-                <div className="brand-mark">N</div>
+              <div className="brand" style={{ cursor: 'pointer' }} onClick={() => setView('jobs')} title="Vakansiyalarga qaytish">
+                <div className="brand-mark">I</div>
                 <div>
-                  <div className="brand-name">Nomzod kabineti</div>
-                  <div className="brand-sub">Ish qidiruvchi profili</div>
+                  <div className="brand-name">Ishla</div>
+                  <div className="brand-sub">Nomzod kabineti</div>
                 </div>
               </div>
 
@@ -1426,15 +1421,19 @@ export default function CandidatePanel() {
                 </button>
                 <button className={`tab-btn ${view === 'resume' ? 'active' : ''}`} onClick={() => { setView('resume'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" /><path d="M14 3v5h5" /><path d="M8 13h8M8 17h5" /></svg>
-                  Rezyume (CV)
+                  CV (Rezyume)
                 </button>
                 <button className={`tab-btn ${view === 'practice' ? 'active' : ''}`} onClick={() => { setView('practice'); loadPractice(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
-                  Sotuv mahorati
+                  Mashq
                 </button>
-                <button className="tab-btn" onClick={() => { setView('jobs'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ marginTop: 24, color: '#8B93A8' }}>
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-                  Vakansiyalarga qaytish
+                <button className="tab-btn" onClick={() => { loadApplications(); setView('applications'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                  Mening arizalarim
+                </button>
+                <button className="tab-btn" onClick={logout} style={{ marginTop: 24, color: '#B5615F' }}>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                  Chiqish
                 </button>
               </nav>
 

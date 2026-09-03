@@ -70,8 +70,8 @@ export default function LandingPage() {
     if (role === 'superadmin') return '/boshqaruv';
     if (role === 'manager') return '/jamoa';
     if (role === 'employer') return '/hr';
-    if (role === 'candidate') return redir ? '/vacansiy' + decodeURIComponent(redir) : '/vacansiy';
-    return '/mashq'; // rep (default)
+    // rep and candidate share the unified cabinet at /vacansiy.
+    return redir ? '/vacansiy' + decodeURIComponent(redir) : '/vacansiy';
   };
 
   const openSignup = (role: string) => {

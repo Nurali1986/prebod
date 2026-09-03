@@ -309,7 +309,7 @@ export default function ChatPage() {
       <div className="max-w-md mx-auto min-h-screen flex flex-col px-5 py-6">
         {/* Top bar */}
         <div className="flex items-center justify-between mb-4">
-          <Link href="/mashq" className="text-sm text-slate-400 hover:text-white">← Kabinet</Link>
+          <Link href="/vacansiy" className="text-sm text-slate-400 hover:text-white">← Kabinet</Link>
           {quota && callState === 'select' && (
             <span className="text-xs text-slate-400">
               {quota.plan === 'premium' ? '⭐ Premium' : <>Bugun qolgan: <b className={quota.remaining > 0 ? 'text-emerald-400' : 'text-rose-400'}>{quota.remaining}</b>/{quota.limit}</>}
