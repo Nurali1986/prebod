@@ -55,7 +55,7 @@ export async function GET(request: Request) {
       headers: {
         'Ocp-Apim-Subscription-Key': AZURE_KEY,
         'Content-Type': 'application/ssml+xml',
-        'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3',
+        'X-Microsoft-OutputFormat': 'audio-24khz-48kbitrate-mono-mp3',
         'User-Agent': 'sales-trainer-tts'
       },
       body: ssml

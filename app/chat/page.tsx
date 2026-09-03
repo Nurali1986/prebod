@@ -93,10 +93,16 @@ export default function ChatPage() {
     const item: QueueItem = { id: generateId(), text, audioUrl: null, ready: false, failed: false };
     audioQueueRef.current.push(item);
     const voice = voiceName || CHARACTERS.find((c) => c.id === selectedCharacter)?.voice || 'uz-UZ-MadinaNeural';
-    fetch(`/api/tts?text=${encodeURIComponent(text)}&voice=${encodeURIComponent(voice)}`)
-      .then((res) => { if (!res.ok) throw new Error('tts'); return res.blob(); })
-      .then((blob) => { item.audioUrl = URL.createObjectURL(blob); item.ready = true; processQueue(); })
-      .catch(() => { item.failed = true; processQueue(); });
+    const url = `/api/tts?text=${encodeURIComponent(text)}&voice=${encodeURIComponent(voice)}`;
+    // Fetch the audio, retrying once on failure so a transient hiccup doesn't
+    // leave the call silent ("no response").
+    const attempt = (tries: number) => {
+      fetch(url)
+        .then((res) => { if (!res.ok) throw new Error('tts'); return res.blob(); })
+        .then((blob) => { item.audioUrl = URL.createObjectURL(blob); item.ready = true; processQueue(); })
+        .catch(() => { if (tries > 0) setTimeout(() => attempt(tries - 1), 400); else { item.failed = true; processQueue(); } });
+    };
+    attempt(1);
   };
 
   const clearAudioQueue = () => {
@@ -146,8 +152,8 @@ export default function ChatPage() {
   const stopAndSend = () => {
     const text = speechBufferRef.current.trim();
     stopRecognizer();
-    setStatusText('');
-    if (text) sendVoice(text);
+    if (text) { setStatusText(''); sendVoice(text); }
+    else setStatusText('Eshitilmadi — mikrofonni bosib qaytadan gapiring');
   };
 
   const toggleMic = () => { if (isListening) stopAndSend(); else startListening(); };
@@ -191,7 +197,13 @@ export default function ChatPage() {
         }
       }
       if (sentenceBuffer.trim()) enqueueSpeech(sentenceBuffer);
-      setHistory([...baseHistory, newUser, { role: 'assistant', content: fullText }]);
+      if (fullText.trim()) {
+        setHistory([...baseHistory, newUser, { role: 'assistant', content: fullText }]);
+      } else {
+        // Model returned nothing — don't leave the call silent.
+        enqueueSpeech('Uzr, eshitmadim. Qaytadan aytib yuboring.');
+        setHistory([...baseHistory, newUser]);
+      }
     } catch {
       enqueueSpeech('Uzr, aloqa uzildi. Qaytadan gapiring.');
     } finally {

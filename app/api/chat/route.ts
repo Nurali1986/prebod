@@ -146,17 +146,20 @@ export async function POST(req: NextRequest) {
 
     const isStop = message.toUpperCase() === 'STOP';
 
-    // If the rep belongs to a team, use its product + custom script.
+    // Only look up the team on evaluation (STOP), so normal conversational
+    // turns are not slowed down by an extra DB round-trip.
     let product: string | undefined;
     let scriptText: string | undefined;
-    try {
-      const info = await prisma.user.findUnique({
-        where: { id: session.id },
-        select: { team: { select: { product: true, scriptText: true } } },
-      });
-      product = info?.team?.product || undefined;
-      scriptText = info?.team?.scriptText || undefined;
-    } catch { /* ignore — fall back to defaults */ }
+    if (isStop) {
+      try {
+        const info = await prisma.user.findUnique({
+          where: { id: session.id },
+          select: { team: { select: { product: true, scriptText: true } } },
+        });
+        product = info?.team?.product || undefined;
+        scriptText = info?.team?.scriptText || undefined;
+      } catch { /* ignore — fall back to defaults */ }
+    }
 
     const messages = buildMessages(character, history, message, isStop, product, scriptText);
 
@@ -165,7 +168,7 @@ export async function POST(req: NextRequest) {
       messages: messages as any,
       stream: true,
       stream_options: { include_usage: true },
-      max_tokens: isStop ? 600 : 120,
+      max_tokens: isStop ? 600 : 80,
       temperature: 0.8,
     });
 
