@@ -93,7 +93,7 @@ export default function ManagerHome() {
         @media(max-width:640px){.cards{grid-template-columns:1fr;}.invite{flex-direction:column;align-items:flex-start;}table{display:block;overflow-x:auto;white-space:nowrap;}}
       `}} />
       <div className="top">
-        <div className="brand"><div className="brand-mark">I</div><div className="brand-name">Ishla · Jamoa</div></div>
+        <div className="brand"><div className="brand-mark">R</div><div className="brand-name">Repza · Jamoa</div></div>
         <button className="lgt" onClick={logout}>Chiqish</button>
       </div>
       <div className="wrap">

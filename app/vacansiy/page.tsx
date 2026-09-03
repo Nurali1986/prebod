@@ -1011,8 +1011,8 @@ export default function CandidatePanel() {
         <div>
           <div className="topbar">
             <div className="brand" style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
-              <div className="brand-mark">I</div>
-              <div className="brand-name">Ishla</div>
+              <div className="brand-mark">R</div>
+              <div className="brand-name">Repza</div>
             </div>
             <div className="topnav">
               <div className="nav-item" onClick={() => { window.location.href = '/'; }}>Bosh sahifa</div>
@@ -1389,9 +1389,9 @@ export default function CandidatePanel() {
           <div className="app">
             <aside className="sidebar">
               <div className="brand" style={{ cursor: 'pointer' }} onClick={() => setView('jobs')} title="Vakansiyalarga qaytish">
-                <div className="brand-mark">I</div>
+                <div className="brand-mark">R</div>
                 <div>
-                  <div className="brand-name">Ishla</div>
+                  <div className="brand-name">Repza</div>
                   <div className="brand-sub">Nomzod kabineti</div>
                 </div>
               </div>

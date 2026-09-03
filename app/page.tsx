@@ -353,7 +353,7 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
       {/* HEADER */}
       <header>
         <div className="wrap headbar">
-          <div className="brand"><div className="brand-mark">I</div><div className="brand-name">Ishla</div></div>
+          <div className="brand"><div className="brand-mark">R</div><div className="brand-name">Repza</div></div>
           <nav className="mainnav">
             <a href="#qanday-ishlaydi">Qanday ishlaydi</a>
             <a href="#ai-imkoniyatlari">AI imkoniyatlari</a>
@@ -407,7 +407,7 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
             AI sotuv murabbiyi — telefonда jonli mashq
           </div>
           <h1>Sotuvchilarni <em>AI mijoz</em> bilan mashq qildirib tayyorlang</h1>
-          <p className="sub">Ishla — har bir sotuvchi AI mijozga telefon orqali qo&apos;ng&apos;iroq qilib, standart sotuv skripti bo&apos;yicha mashq qiladigan va baho oladigan platforma. Mahoratni o&apos;lchang, o&apos;stiring, jamoani kuchaytiring.</p>
+          <p className="sub">Repza — har bir sotuvchi AI mijozga telefon orqali qo&apos;ng&apos;iroq qilib, standart sotuv skripti bo&apos;yicha mashq qiladigan va baho oladigan platforma. Mahoratni o&apos;lchang, o&apos;stiring, jamoani kuchaytiring.</p>
 
           <div className="role-grid">
             <div className="role-card candidate" onClick={() => openSignup('rep')}>
@@ -439,9 +439,9 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
           <div className="copy">
             <div className="section-head" style={{ textAlign: 'left', margin: '0 0 20px' }}>
               <div className="kicker">Platforma haqida</div>
-              <h2 style={{ fontSize: 28 }}>Ishla nima va nima uchun kerak?</h2>
+              <h2 style={{ fontSize: 28 }}>Repza nima va nima uchun kerak?</h2>
             </div>
-            <p>Ishla — sotuvchilarni real qo&apos;ng&apos;iroqdek muhitда, AI mijoz bilan mashq qildirib tayyorlaydigan platforma. Sotuvchi telefon orqali AI mijozga mahsulotni sotishga urinadi, AI esa uni standart sotuv skripti (tanishuv, ehtiyoj, taklif, e&apos;tirozlar, yopish) bo&apos;yicha baholaydi.</p>
+            <p>Repza — sotuvchilarni real qo&apos;ng&apos;iroqdek muhitда, AI mijoz bilan mashq qildirib tayyorlaydigan platforma. Sotuvchi telefon orqali AI mijozga mahsulotni sotishga urinadi, AI esa uni standart sotuv skripti (tanishuv, ehtiyoj, taklif, e&apos;tirozlar, yopish) bo&apos;yicha baholaydi.</p>
             <p>Har bir mashqdan so&apos;ng aniq ball, kuchli tomonlar va xatolar ko&apos;rsatiladi. Sotuv rahbarlari jamoaning mahorat o&apos;sishini kuzatadi, o&apos;z sotuv skriptini yuklaydi. Xohlaganlar esa nomzodlarni ham shu simulyator bilan baholab ishga oladi.</p>
           </div>
           <div className="about-cards">
@@ -487,7 +487,7 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
         <div className="wrap">
           <div className="section-head">
             <div className="kicker">AI imkoniyatlari</div>
-            <h2>Nima uchun Ishla?</h2>
+            <h2>Nima uchun Repza?</h2>
             <p>Real mijozni yo&apos;qotmasdan, xavfsiz muhitda cheksiz mashq.</p>
           </div>
           <div className="feat-grid">
@@ -524,7 +524,7 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
       <section style={{ paddingTop: 0 }}>
         <div className="wrap">
           <div className="section-head" style={{ marginBottom: 26 }}>
-            <p style={{ fontSize: 12.5, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.05em' }}>Ishla&apos;dan foydalanayotgan kompaniyalar</p>
+            <p style={{ fontSize: 12.5, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.05em' }}>Repza&apos;dan foydalanayotgan kompaniyalar</p>
           </div>
           <div className="trust-row">
             <span className="trust-chip">TechnoSoft LLC</span>
@@ -541,7 +541,7 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
         <div className="wrap">
           <div className="cta-band">
             <h2>Sotuvni AI bilan mashq qilishga tayyormisiz?</h2>
-            <p>Individual sotuvchimisiz yoki jamoa rahbari — Ishla ikkalasi uchun ham.</p>
+            <p>Individual sotuvchimisiz yoki jamoa rahbari — Repza ikkalasi uchun ham.</p>
             <div className="row">
               <button className="btn btn-primary" onClick={() => openSignup('rep')}>Sotuvchi sifatida bepul boshlash</button>
               <button className="btn btn-ghost" style={{ background: 'transparent', borderColor: 'rgba(239,237,228,0.3)', color: '#EFEDE4' }} onClick={() => openSignup('manager')}>Jamoa yaratish</button>
@@ -555,7 +555,7 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
         <div className="wrap">
           <div className="foot-grid">
             <div className="foot-col">
-              <div className="brand" style={{ marginBottom: 12 }}><div className="brand-mark">I</div><div className="brand-name">Ishla</div></div>
+              <div className="brand" style={{ marginBottom: 12 }}><div className="brand-mark">R</div><div className="brand-name">Repza</div></div>
               <p>AI mijoz bilan sotuvchilarni tayyorlaydigan sotuv-mashqi platformasi. Toshkent, O&apos;zbekiston.</p>
             </div>
             <div className="foot-col">
@@ -572,13 +572,13 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
             </div>
             <div className="foot-col">
               <h5>Aloqa</h5>
-              <a href="mailto:support@ishla.uz">support@ishla.uz</a>
+              <a href="mailto:support@repza.uz">support@repza.uz</a>
               <a href="tel:+998712001010">+998 71 200 10 10</a>
               <p>Toshkent sh., Mirzo Ulug&apos;bek tumani</p>
             </div>
           </div>
           <div className="foot-bottom">
-            <span>© 2026 Ishla. Barcha huquqlar himoyalangan.</span>
+            <span>© 2026 Repza. Barcha huquqlar himoyalangan.</span>
             <span>Maxfiylik siyosati · Foydalanish shartlari</span>
           </div>
         </div>

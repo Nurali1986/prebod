@@ -599,16 +599,16 @@ export default function SuperadminPanel() {
         <button className="hbtn" onClick={() => setSidebarOpen(true)}>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
         </button>
-        <div className="brand-mark">I</div>
-        <div className="brand-name" style={{ fontFamily: "'Fraunces',serif", fontWeight: 600 }}>Ishla · Superadmin</div>
+        <div className="brand-mark">R</div>
+        <div className="brand-name" style={{ fontFamily: "'Fraunces',serif", fontWeight: 600 }}>Repza · Superadmin</div>
       </div>
       <div className={`sidebar-backdrop ${sidebarOpen ? 'open' : ''}`} onClick={() => setSidebarOpen(false)}></div>
 
       <div className="app">
         <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
           <div className="brand">
-            <div className="brand-mark">I</div>
-            <div><div className="brand-name">Ishla</div><div className="brand-tag">Superadmin</div></div>
+            <div className="brand-mark">R</div>
+            <div><div className="brand-name">Repza</div><div className="brand-tag">Superadmin</div></div>
           </div>
           <ul className="nav">
             <li className={`nav-item ${view === 'dashboard' ? 'active' : ''}`} onClick={() => switchView('dashboard')}>
@@ -656,7 +656,7 @@ export default function SuperadminPanel() {
           </ul>
           <div className="sidebar-foot">
             <div className="avatar-sm">{userObj ? `${userObj.firstName?.charAt(0) || ''}${userObj.lastName?.charAt(0) || ''}`.toUpperCase() : 'SA'}</div>
-            <div className="who"><b>{userObj ? `${userObj.firstName} ${userObj.lastName}` : 'Superadmin'}</b><span>Superadmin · Ishla</span></div>
+            <div className="who"><b>{userObj ? `${userObj.firstName} ${userObj.lastName}` : 'Superadmin'}</b><span>Superadmin · Repza</span></div>
             <button onClick={logout} title="Chiqish" style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#9B9A8F', cursor: 'pointer', padding: 4 }}>
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             </button>
@@ -1071,7 +1071,7 @@ export default function SuperadminPanel() {
 
               <div className="settings-card">
                 <h3>Qo'llab-quvvatlash</h3>
-                <div className="setting-row"><div className="info"><b>Yordam email</b><span>Foydalanuvchilarga ko'rinadigan aloqa manzili</span></div><input type="text" defaultValue="support@ishla.uz" style={{ width: 180, textAlign: 'left' }} /></div>
+                <div className="setting-row"><div className="info"><b>Yordam email</b><span>Foydalanuvchilarga ko'rinadigan aloqa manzili</span></div><input type="text" defaultValue="support@repza.uz" style={{ width: 180, textAlign: 'left' }} /></div>
               </div>
 
               <div className="modal-actions" style={{ justifyContent: 'flex-start' }}><button className="btn btn-primary" onClick={() => showToast('Sozlamalar saqlandi')}>Saqlash</button></div>

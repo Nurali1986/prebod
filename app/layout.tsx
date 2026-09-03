@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ishla — AI asosidagi yollash platformasi",
-  description: "CV tahlili, testlar, AI sotuv simulyatori va video-taqdimot orqali nomzodlarni saralaydigan platforma.",
+  title: "Repza — AI sotuv murabbiyi",
+  description: "Sotuvchilarni AI mijoz bilan telefon-qo'ng'iroq orqali mashq qildirib, standart sotuv skripti bo'yicha baholaydigan platforma.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

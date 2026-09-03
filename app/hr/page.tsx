@@ -492,16 +492,16 @@ export default function HRPanel() {
         <button className="hbtn" aria-label="Menyu" onClick={() => setSidebarOpen(true)}>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
         </button>
-        <div className="brand-mark">I</div>
-        <div className="brand-name">Ishla · HR</div>
+        <div className="brand-mark">R</div>
+        <div className="brand-name">Repza · HR</div>
       </div>
       <div className={`sidebar-backdrop ${sidebarOpen ? 'open' : ''}`} onClick={() => setSidebarOpen(false)}></div>
 
       <div className="app">
         <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
           <div className="brand">
-            <div className="brand-mark">I</div>
-            <div><div className="brand-name">Ishla</div><div className="brand-tag">AI bilan yollash</div></div>
+            <div className="brand-mark">R</div>
+            <div><div className="brand-name">Repza</div><div className="brand-tag">AI bilan yollash</div></div>
           </div>
           <ul className="nav">
             <li className={`nav-item ${view === 'dashboard' ? 'active' : ''}`} onClick={() => go('dashboard')}>

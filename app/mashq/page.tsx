@@ -96,7 +96,7 @@ export default function RepHome() {
         @media(max-width:640px){.stat-row{grid-template-columns:repeat(2,1fr);}.hero-call{padding:26px 18px;}}
       `}} />
       <div className="top">
-        <div className="brand"><div className="brand-mark">I</div><div className="brand-name">Ishla</div></div>
+        <div className="brand"><div className="brand-mark">R</div><div className="brand-name">Repza</div></div>
         <button className="lgt" onClick={logout}>Chiqish</button>
       </div>
 
