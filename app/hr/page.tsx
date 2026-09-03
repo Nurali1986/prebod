@@ -70,7 +70,7 @@ export default function HRPanel() {
       return;
     }
     const user = JSON.parse(userStr);
-    if (user.role !== 'employer') {
+    if (user.role !== 'employer' && user.role !== 'manager' && user.role !== 'superadmin') {
       window.location.href = '/';
       return;
     }

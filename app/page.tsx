@@ -9,7 +9,7 @@ export default function LandingPage() {
   const [roleModalOpen, setRoleModalOpen] = useState(false);
   const [signupOpen, setSignupOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
-  const [signupRole, setSignupRole] = useState<'candidate' | 'employer'>('candidate');
+  const [signupRole, setSignupRole] = useState<string>('rep');
   
   // Register state
   const [suFirstName, setSuFirstName] = useState('');
@@ -26,7 +26,7 @@ export default function LandingPage() {
   const [liPass, setLiPass] = useState('');
   const [liErr, setLiErr] = useState('');
 
-  const [hiwTab, setHiwTab] = useState<'candidate' | 'employer'>('candidate');
+  const [hiwTab, setHiwTab] = useState<'rep' | 'manager'>('rep');
     const [loggedInUser, setLoggedInUser] = useState<any>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [providers, setProviders] = useState<{ google: boolean; telegram: boolean; telegramBot: string | null }>({ google: false, telegram: false, telegramBot: null });
@@ -62,11 +62,13 @@ export default function LandingPage() {
 
   const destForRole = (role: string, redir?: string | null) => {
     if (role === 'superadmin') return '/boshqaruv';
+    if (role === 'manager') return '/jamoa';
     if (role === 'employer') return '/hr';
-    return redir ? '/vacansiy' + decodeURIComponent(redir) : '/vacansiy';
+    if (role === 'candidate') return redir ? '/vacansiy' + decodeURIComponent(redir) : '/vacansiy';
+    return '/mashq'; // rep (default)
   };
 
-  const openSignup = (role: 'candidate' | 'employer') => {
+  const openSignup = (role: string) => {
     setSignupRole(role);
     setRoleModalOpen(false);
     setSuFirstName(''); setSuLastName(''); setSuEmail(''); setSuPhone(''); 
@@ -82,7 +84,8 @@ export default function LandingPage() {
   };
 
   const submitSignup = async () => {
-    const companyOk = signupRole === 'candidate' || suCompany.trim();
+    const needsCompany = signupRole === 'manager' || signupRole === 'employer';
+    const companyOk = !needsCompany || suCompany.trim();
     if (!suFirstName.trim() || !suLastName.trim() || !suEmail.trim() || !suPass.trim() || !suPassConfirm.trim() || !companyOk) {
       setSuErr('Iltimos, barcha maydonlarni to\'ldiring.');
       return;
@@ -342,7 +345,6 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
         <div className="wrap headbar">
           <div className="brand"><div className="brand-mark">I</div><div className="brand-name">Ishla</div></div>
           <nav className="mainnav">
-            <a href="/vacansiy" style={{ fontWeight: 700, color: 'var(--ink)' }}>Vakansiyalar</a>
             <a href="#qanday-ishlaydi">Qanday ishlaydi</a>
             <a href="#ai-imkoniyatlari">AI imkoniyatlari</a>
             <a href="#platforma-haqida">Platforma haqida</a>
@@ -369,7 +371,6 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
           <button className="mm-close" aria-label="Yopish" onClick={() => setMobileMenuOpen(false)}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
           </button>
-          <a href="/vacansiy" style={{ color: 'var(--ink)' }} onClick={() => setMobileMenuOpen(false)}>Vakansiyalar</a>
           <a href="#qanday-ishlaydi" onClick={() => setMobileMenuOpen(false)}>Qanday ishlaydi</a>
           <a href="#ai-imkoniyatlari" onClick={() => setMobileMenuOpen(false)}>AI imkoniyatlari</a>
           <a href="#platforma-haqida" onClick={() => setMobileMenuOpen(false)}>Platforma haqida</a>
@@ -393,32 +394,31 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
           <div className="eyebrow">
             <span className="live-dot"></span>
             <svg className="ai-spark" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/><circle cx="12" cy="12" r="4"/></svg>
-            AI asosida ishlaydigan yollash platformasi
+            AI sotuv murabbiyi — telefonда jonli mashq
           </div>
-          <h1>Ish topish va xodim tanlashning <em>aqlliroq</em> yo&apos;li</h1>
-          <p className="sub">Ishla — CV tahlilidan tortib video-taqdimotgacha butun yollash jarayonini AI yordamida avtomatlashtiradigan O&apos;zbekiston platformasi. Boshlash uchun o&apos;zingizga mos rolni tanlang.</p>
+          <h1>Sotuvchilarni <em>AI mijoz</em> bilan mashq qildirib tayyorlang</h1>
+          <p className="sub">Ishla — har bir sotuvchi AI mijozga telefon orqali qo&apos;ng&apos;iroq qilib, standart sotuv skripti bo&apos;yicha mashq qiladigan va baho oladigan platforma. Mahoratni o&apos;lchang, o&apos;stiring, jamoani kuchaytiring.</p>
 
           <div className="role-grid">
-            <div className="role-card candidate" onClick={() => openSignup('candidate')}>
-              <div className="ricon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></div>
-              <h3>Ish qidiryapman</h3>
-              <p>Vakansiyalarni ko&apos;ring, CV yuklang — AI moslik balingizni chiqaradi va arizangiz holatini kuzatib borasiz.</p>
-              <span className="go">Ro&apos;yxatdan o&apos;tish →</span>
+            <div className="role-card candidate" onClick={() => openSignup('rep')}>
+              <div className="ricon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+              <h3>Sotuvchiman</h3>
+              <p>AI mijoz bilan qo&apos;ng&apos;iroq qilib mashq qiling, sotuv mahoratingizni 100 ballik tizimda o&apos;lchang va o&apos;stiring.</p>
+              <span className="go">Bepul boshlash →</span>
             </div>
-            <div className="role-card employer" onClick={() => openSignup('employer')}>
-              <div className="ricon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 21V7l9-4 9 4v14"/><path d="M9 21V12h6v9"/></svg></div>
-              <h3>Ish beruvchiman</h3>
-              <p>Vakansiya joylang, AI saralash bosqichlarini sozlang va eng mos nomzodlarni avtomatik toping.</p>
-              <span className="go">Ro&apos;yxatdan o&apos;tish →</span>
+            <div className="role-card employer" onClick={() => openSignup('manager')}>
+              <div className="ricon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+              <h3>Sotuv bo&apos;limi rahbariman</h3>
+              <p>Jamoangizni tayyorlang: sotuvchilarni taklif qiling, o&apos;z skriptingizni yuklang, har birining mahorati o&apos;sishini kuzating.</p>
+              <span className="go">Jamoa yaratish →</span>
             </div>
           </div>
-          <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: -30, marginBottom: 46 }}>yoki <a href="/vacansiy" style={{ color: 'var(--ink)', fontWeight: 600, textDecoration: 'underline' }}>ro&apos;yxatdan o&apos;tmasdan vakansiyalarni ko&apos;rib chiqing →</a></p>
 
           <div className="stat-strip">
-            <div className="stat-box"><div className="num">1,240+</div><div className="lbl">Faol vakansiyalar</div></div>
-            <div className="stat-box"><div className="num">18,500+</div><div className="lbl">Ro&apos;yxatdan o&apos;tgan nomzodlar</div></div>
-            <div className="stat-box"><div className="num">320+</div><div className="lbl">Hamkor kompaniyalar</div></div>
-            <div className="stat-box"><div className="num">56,000+</div><div className="lbl">AI tomonidan bajarilgan tahlillar</div></div>
+            <div className="stat-box"><div className="num">8</div><div className="lbl">bosqichli sotuv skripti</div></div>
+            <div className="stat-box"><div className="num">10</div><div className="lbl">turli AI mijoz xarakteri</div></div>
+            <div className="stat-box"><div className="num">100</div><div className="lbl">ballik aniq baholash</div></div>
+            <div className="stat-box"><div className="num">24/7</div><div className="lbl">istalgan vaqt mashq</div></div>
           </div>
         </div>
       </section>
@@ -431,14 +431,14 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
               <div className="kicker">Platforma haqida</div>
               <h2 style={{ fontSize: 28 }}>Ishla nima va nima uchun kerak?</h2>
             </div>
-            <p>Ishla — ish qidiruvchilar va ish beruvchilarni sun&apos;iy intellekt yordamida bir-biriga tezroq va aniqroq bog&apos;laydigan platforma. An&apos;anaviy e&apos;lon taxtalaridan farqli o&apos;laroq, Ishla har bir vakansiya uchun avtomatik saralash bosqichlarini taklif qiladi — bu HR jamoasining vaqtini tejaydi va nomzodga o&apos;z imkoniyatlarini to&apos;liq ko&apos;rsatish uchun aniq yo&apos;l beradi.</p>
-            <p>Kompaniyalar CV moslik tahlili, bilim testlari, ochiq savollar, AI qo&apos;ng&apos;iroq orqali sotuv qobiliyatini sinash va video-taqdimot kabi bosqichlarni o&apos;zlari xohlagancha sozlaydi. Nomzodlar esa ariza topshirishdan oldin aynan qaysi bosqichlardan o&apos;tishlari kerakligini oldindan bilishadi — jarayon shaffof va adolatli bo&apos;ladi.</p>
+            <p>Ishla — sotuvchilarni real qo&apos;ng&apos;iroqdek muhitда, AI mijoz bilan mashq qildirib tayyorlaydigan platforma. Sotuvchi telefon orqali AI mijozga mahsulotni sotishga urinadi, AI esa uni standart sotuv skripti (tanishuv, ehtiyoj, taklif, e&apos;tirozlar, yopish) bo&apos;yicha baholaydi.</p>
+            <p>Har bir mashqdan so&apos;ng aniq ball, kuchli tomonlar va xatolar ko&apos;rsatiladi. Sotuv rahbarlari jamoaning mahorat o&apos;sishini kuzatadi, o&apos;z sotuv skriptini yuklaydi. Xohlaganlar esa nomzodlarni ham shu simulyator bilan baholab ishga oladi.</p>
           </div>
           <div className="about-cards">
-            <div className="about-card"><div className="n">3×</div><div className="l">tezroq boshlang&apos;ich saralash</div></div>
-            <div className="about-card"><div className="n">24/7</div><div className="l">AI orqali baholash mumkin</div></div>
-            <div className="about-card"><div className="n">5</div><div className="l">sozlanuvchi AI bosqichi</div></div>
-            <div className="about-card"><div className="n">100%</div><div className="l">shaffof ariza jarayoni</div></div>
+            <div className="about-card"><div className="n">10×</div><div className="l">ko&apos;proq mashq imkoni</div></div>
+            <div className="about-card"><div className="n">24/7</div><div className="l">istalgan vaqt AI mijoz</div></div>
+            <div className="about-card"><div className="n">0</div><div className="l">real mijozni yo&apos;qotmasdan</div></div>
+            <div className="about-card"><div className="n">100%</div><div className="l">obyektiv AI baholash</div></div>
           </div>
         </div>
       </section>
@@ -448,26 +448,26 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
         <div className="wrap">
           <div className="section-head">
             <div className="kicker">Qanday ishlaydi</div>
-            <h2>Ikki tomon uchun ham sodda jarayon</h2>
+            <h2>Sodda va samarali jarayon</h2>
             <p>Kimligingizga qarab tegishli bosqichlarni ko&apos;ring.</p>
           </div>
           <div className="hiw-tabs">
-            <div className={`hiw-tab ${hiwTab === 'candidate' ? 'active' : ''}`} onClick={() => setHiwTab('candidate')}>Nomzodlar uchun</div>
-            <div className={`hiw-tab ${hiwTab === 'employer' ? 'active' : ''}`} onClick={() => setHiwTab('employer')}>Kompaniyalar uchun</div>
+            <div className={`hiw-tab ${hiwTab === 'rep' ? 'active' : ''}`} onClick={() => setHiwTab('rep')}>Sotuvchilar uchun</div>
+            <div className={`hiw-tab ${hiwTab === 'manager' ? 'active' : ''}`} onClick={() => setHiwTab('manager')}>Rahbarlar uchun</div>
           </div>
-          <div className={`hiw-track ${hiwTab === 'candidate' ? 'active' : ''}`}>
-            <div className="hiw-step"><div className="num">1</div><h4>Ro&apos;yxatdan o&apos;ting</h4><p>Bir necha soniyada profil yarating.</p></div>
-            <div className="hiw-step"><div className="num">2</div><h4>Vakansiya tanlang</h4><p>Sizga mos e&apos;lonlarni ko&apos;rib chiqing.</p></div>
-            <div className="hiw-step"><div className="num">3</div><h4>CV yuklang</h4><p>AI moslik balini avtomatik chiqaradi.</p></div>
-            <div className="hiw-step"><div className="num">4</div><h4>Bosqichlardan o&apos;ting</h4><p>Test, savollar, AI qo&apos;ng&apos;iroq yoki video.</p></div>
-            <div className="hiw-step"><div className="num">5</div><h4>Natijani kuzating</h4><p>Ariza holatini istalgan vaqtda ko&apos;ring.</p></div>
+          <div className={`hiw-track ${hiwTab === 'rep' ? 'active' : ''}`}>
+            <div className="hiw-step"><div className="num">1</div><h4>Ro&apos;yxatdan o&apos;ting</h4><p>Bir necha soniyada bepul boshlang.</p></div>
+            <div className="hiw-step"><div className="num">2</div><h4>Mijozni tanlang</h4><p>10 xil AI mijoz xarakteridan birini.</p></div>
+            <div className="hiw-step"><div className="num">3</div><h4>Qo&apos;ng&apos;iroq qiling</h4><p>Telefon orqali mahsulotni soting.</p></div>
+            <div className="hiw-step"><div className="num">4</div><h4>Baho oling</h4><p>Standart skript bo&apos;yicha 100 ballik.</p></div>
+            <div className="hiw-step"><div className="num">5</div><h4>O&apos;sishni kuzating</h4><p>Mahoratingiz tarixini ko&apos;ring.</p></div>
           </div>
-          <div className={`hiw-track ${hiwTab === 'employer' ? 'active' : ''}`}>
-            <div className="hiw-step"><div className="num">1</div><h4>Kompaniya oching</h4><p>Profilni yaratib, tasdiqlatib oling.</p></div>
-            <div className="hiw-step"><div className="num">2</div><h4>Vakansiya joylang</h4><p>Lavozim, maosh va talablarni kiriting.</p></div>
-            <div className="hiw-step"><div className="num">3</div><h4>AI bosqichlarini sozlang</h4><p>CV tahlili, test, savol, sotuv, video.</p></div>
-            <div className="hiw-step"><div className="num">4</div><h4>AI baholaydi</h4><p>Har bir nomzod avtomatik ball oladi.</p></div>
-            <div className="hiw-step"><div className="num">5</div><h4>Eng mosini tanlang</h4><p>Yaxshi nomzodlarni suhbatga taklif qiling.</p></div>
+          <div className={`hiw-track ${hiwTab === 'manager' ? 'active' : ''}`}>
+            <div className="hiw-step"><div className="num">1</div><h4>Jamoa yarating</h4><p>Kompaniyangiz uchun panel oching.</p></div>
+            <div className="hiw-step"><div className="num">2</div><h4>Sotuvchilarni taklif qiling</h4><p>Havola/kod orqali qo&apos;shing.</p></div>
+            <div className="hiw-step"><div className="num">3</div><h4>Skriptni yuklang</h4><p>O&apos;z sotuv skriptingizni sozlang.</p></div>
+            <div className="hiw-step"><div className="num">4</div><h4>Mashqni tayinlang</h4><p>Mahsulot va mijoz xarakterini.</p></div>
+            <div className="hiw-step"><div className="num">5</div><h4>Natijani kuzating</h4><p>Leaderboard va o&apos;sishni ko&apos;ring.</p></div>
           </div>
         </div>
       </section>
@@ -477,34 +477,34 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
         <div className="wrap">
           <div className="section-head">
             <div className="kicker">AI imkoniyatlari</div>
-            <h2>Har bir vakansiya uchun sozlanadigan bosqichlar</h2>
-            <p>Kompaniya xohlagan bosqichlarnigina yoqadi — ortiqcha murakkablik yo&apos;q.</p>
+            <h2>Nima uchun Ishla?</h2>
+            <p>Real mijozni yo&apos;qotmasdan, xavfsiz muhitda cheksiz mashq.</p>
           </div>
           <div className="feat-grid">
             <div className="feat-card">
-              <div className="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15l2 2 4-4"/></svg></div>
-              <h4>CV moslik tahlili</h4>
-              <p>AI rezyumeni vakansiya talablari bilan solishtirib, moslik balini chiqaradi.</p>
+              <div className="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+              <h4>Jonli qo&apos;ng&apos;iroq</h4>
+              <p>AI mijoz bilan telefon orqali ovozli suhbat — xuddi real qo&apos;ng&apos;iroqdek.</p>
+            </div>
+            <div className="feat-card">
+              <div className="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><circle cx="18" cy="8" r="3"/></svg></div>
+              <h4>10 xil mijoz</h4>
+              <p>Ishonchsiz, injiq, band, narx talashuvchi — har xil xarakterda mijozlar.</p>
             </div>
             <div className="feat-card">
               <div className="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
-              <h4>Bilim testi</h4>
-              <p>Sohaga oid tayyor yoki o&apos;zi yozgan savollar bilan bilim darajasini tekshiradi.</p>
+              <h4>Standart skript</h4>
+              <p>8 bosqich (tanishuv, ehtiyoj, taklif, e&apos;tiroz, yopish) bo&apos;yicha aniq baho.</p>
             </div>
             <div className="feat-card">
-              <div className="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 18h.01M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2 2-2 4"/><circle cx="12" cy="12" r="10"/></svg></div>
-              <h4>Ochiq savollar</h4>
-              <p>Nomzod o&apos;z so&apos;zlari bilan javob yozadi, chuqurroq tushunish imkonini beradi.</p>
+              <div className="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg></div>
+              <h4>O&apos;sish tahlili</h4>
+              <p>Har mashqда kuchli tomonlar, xatolar va o&apos;sish dinamikasi ko&apos;rinadi.</p>
             </div>
             <div className="feat-card">
-              <div className="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
-              <h4>AI qo&apos;ng&apos;iroq</h4>
-              <p>AI mijoz rolida qo&apos;ng&apos;iroq qilib, sotuv va muloqot qobiliyatini sinaydi.</p>
-            </div>
-            <div className="feat-card">
-              <div className="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
-              <h4>Video-taqdimot</h4>
-              <p>Nomzod o&apos;zi haqida qisqa video yozib, havolasini ariza bilan yuboradi.</p>
+              <div className="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15l2 2 4-4"/></svg></div>
+              <h4>O&apos;z skriptingiz</h4>
+              <p>Kompaniya o&apos;z sotuv skriptini yuklaydi — AI aynan shu bo&apos;yicha baholaydi.</p>
             </div>
           </div>
         </div>
@@ -530,11 +530,11 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
       <section>
         <div className="wrap">
           <div className="cta-band">
-            <h2>Boshlashga tayyormisiz?</h2>
-            <p>Ish qidirayapsizmi yoki xodim izlayapsizmi — Ishla ikkalasi uchun ham qulay.</p>
+            <h2>Sotuvni AI bilan mashq qilishga tayyormisiz?</h2>
+            <p>Individual sotuvchimisiz yoki jamoa rahbari — Ishla ikkalasi uchun ham.</p>
             <div className="row">
-              <button className="btn btn-primary" onClick={() => openSignup('candidate')}>Nomzod sifatida ro&apos;yxatdan o&apos;tish</button>
-              <button className="btn btn-ghost" style={{ background: 'transparent', borderColor: 'rgba(239,237,228,0.3)', color: '#EFEDE4' }} onClick={() => openSignup('employer')}>Kompaniya sifatida ro&apos;yxatdan o&apos;tish</button>
+              <button className="btn btn-primary" onClick={() => openSignup('rep')}>Sotuvchi sifatida bepul boshlash</button>
+              <button className="btn btn-ghost" style={{ background: 'transparent', borderColor: 'rgba(239,237,228,0.3)', color: '#EFEDE4' }} onClick={() => openSignup('manager')}>Jamoa yaratish</button>
             </div>
           </div>
         </div>
@@ -546,7 +546,7 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
           <div className="foot-grid">
             <div className="foot-col">
               <div className="brand" style={{ marginBottom: 12 }}><div className="brand-mark">I</div><div className="brand-name">Ishla</div></div>
-              <p>AI asosida ishlaydigan ish qidirish va yollash platformasi. Toshkent, O&apos;zbekiston.</p>
+              <p>AI mijoz bilan sotuvchilarni tayyorlaydigan sotuv-mashqi platformasi. Toshkent, O&apos;zbekiston.</p>
             </div>
             <div className="foot-col">
               <h5>Platforma</h5>
@@ -556,8 +556,8 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
             </div>
             <div className="foot-col">
               <h5>Foydalanuvchilar uchun</h5>
-              <a href="/vacansiy">Ish qidirish</a>
-              <a href="/hr">Vakansiya joylash</a>
+              <a href="/mashq">Sotuvchi kabineti</a>
+              <a href="/jamoa">Sotuv rahbari</a>
               <a href="/boshqaruv">Admin kirish</a>
             </div>
             <div className="foot-col">
@@ -581,16 +581,16 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
           <h2>Xush kelibsiz!</h2>
           <p className="sub">Davom etish uchun o&apos;zingizga mos rolni tanlang</p>
           <div className="role-grid">
-            <div className="role-card candidate" onClick={() => openSignup('candidate')}>
-              <div className="ricon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></div>
-              <h3>Ish qidiryapman</h3>
-              <p>Vakansiyalarni ko&apos;rish va ariza topshirish uchun.</p>
+            <div className="role-card candidate" onClick={() => openSignup('rep')}>
+              <div className="ricon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+              <h3>Sotuvchiman</h3>
+              <p>AI mijoz bilan mashq qilib, mahoratimni oshirish uchun.</p>
               <span className="go">Davom etish →</span>
             </div>
-            <div className="role-card employer" onClick={() => openSignup('employer')}>
-              <div className="ricon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 21V7l9-4 9 4v14"/><path d="M9 21V12h6v9"/></svg></div>
-              <h3>Ish beruvchiman</h3>
-              <p>Vakansiya joylash va nomzodlarni boshqarish uchun.</p>
+            <div className="role-card employer" onClick={() => openSignup('manager')}>
+              <div className="ricon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+              <h3>Sotuv rahbariman</h3>
+              <p>Jamoamni tayyorlash va mahorat o&apos;sishini kuzatish uchun.</p>
               <span className="go">Davom etish →</span>
             </div>
           </div>
@@ -602,14 +602,14 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
       <div className={`overlay ${signupOpen ? 'open' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setSignupOpen(false); }}>
         <div className="role-modal" style={{ maxWidth: 440 }}>
           <button className="close-x" onClick={() => setSignupOpen(false)}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
-          <h2>{signupRole === 'candidate' ? "Nomzod sifatida ro'yxatdan o'tish" : "Kompaniya ro'yxatdan o'tishi"}</h2>
-          <p className="sub">{signupRole === 'candidate' ? "Vakansiyalarga ariza topshirish uchun hisob yarating." : "Vakansiya joylash va nomzodlarni boshqarish uchun hisob yarating."}</p>
+          <h2>{signupRole === 'rep' ? "Sotuvchi sifatida ro'yxatdan o'tish" : signupRole === 'manager' ? "Sotuv rahbari — jamoa yaratish" : signupRole === 'candidate' ? "Nomzod sifatida ro'yxatdan o'tish" : "Kompaniya ro'yxatdan o'tishi"}</h2>
+          <p className="sub">{signupRole === 'rep' ? "AI mijoz bilan mashq qilib, sotuv mahoratingizni oshiring." : signupRole === 'manager' ? "Jamoangizni tayyorlash va mahorat o'sishini kuzatish uchun." : "Yollash moduli uchun hisob yarating."}</p>
           <div style={{ display: 'flex', gap: 10 }}>
             <div className="field" style={{ flex: 1 }}><label>Ism</label><input type="text" placeholder="Ismingiz" value={suFirstName} onChange={e => setSuFirstName(e.target.value)} /></div>
             <div className="field" style={{ flex: 1 }}><label>Familiya</label><input type="text" placeholder="Familiyangiz" value={suLastName} onChange={e => setSuLastName(e.target.value)} /></div>
           </div>
-          {signupRole === 'employer' && (
-            <div className="field"><label>Kompaniya nomi</label><input type="text" placeholder="Kompaniyangiz nomi" value={suCompany} onChange={e => setSuCompany(e.target.value)} /></div>
+          {(signupRole === 'manager' || signupRole === 'employer') && (
+            <div className="field"><label>Kompaniya / jamoa nomi</label><input type="text" placeholder="Kompaniyangiz nomi" value={suCompany} onChange={e => setSuCompany(e.target.value)} /></div>
           )}
           <div className="field"><label>Email</label><input type="email" placeholder="email@example.com" value={suEmail} onChange={e => setSuEmail(e.target.value)} /></div>
           <div className="field"><label>Telefon raqam</label><input type="text" placeholder="+998..." value={suPhone} onChange={e => setSuPhone(e.target.value)} /></div>

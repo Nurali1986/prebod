@@ -15,17 +15,21 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (pathname.startsWith('/boshqaruv') && session.role !== 'superadmin') {
+  const role = session.role;
+  if (pathname.startsWith('/boshqaruv') && role !== 'superadmin') {
     return NextResponse.redirect(homeUrl);
   }
-  if (pathname.startsWith('/hr') && session.role !== 'employer' && session.role !== 'superadmin') {
+  if (pathname.startsWith('/jamoa') && role !== 'manager' && role !== 'superadmin') {
     return NextResponse.redirect(homeUrl);
   }
-  // /chat: any authenticated user is allowed.
+  if (pathname.startsWith('/hr') && role !== 'employer' && role !== 'manager' && role !== 'superadmin') {
+    return NextResponse.redirect(homeUrl);
+  }
+  // /mashq and /chat: any authenticated user is allowed.
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/hr/:path*', '/boshqaruv/:path*', '/chat/:path*'],
+  matcher: ['/mashq/:path*', '/jamoa/:path*', '/hr/:path*', '/boshqaruv/:path*', '/chat/:path*'],
 };

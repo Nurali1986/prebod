@@ -15,10 +15,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Barcha majburiy maydonlarni to\'ldiring' }, { status: 400 });
     }
 
-    // Only these two roles may self-register; superadmin is never assignable here.
-    if (role !== 'candidate' && role !== 'employer') {
+    // Self-registrable roles. 'rep' = salesperson, 'manager' = sales-team head;
+    // 'candidate'/'employer' remain for the recruiting add-on. Never superadmin.
+    const SELF_ROLES = ['rep', 'manager', 'candidate', 'employer'];
+    if (!SELF_ROLES.includes(role)) {
       return NextResponse.json({ error: 'Noto\'g\'ri rol tanlandi' }, { status: 400 });
     }
+    const needsCompany = role === 'employer' || role === 'manager';
 
     const normEmail = String(email).toLowerCase().trim();
     if (!EMAIL_RE.test(normEmail)) {
@@ -35,8 +38,8 @@ export async function POST(request: Request) {
     if (String(password).length < 8) {
       return NextResponse.json({ error: 'Parol kamida 8 ta belgidan iborat bo\'lishi kerak' }, { status: 400 });
     }
-    if (role === 'employer' && !company?.trim()) {
-      return NextResponse.json({ error: 'Kompaniya nomini kiriting' }, { status: 400 });
+    if (needsCompany && !company?.trim()) {
+      return NextResponse.json({ error: 'Kompaniya/jamoa nomini kiriting' }, { status: 400 });
     }
 
     const existingUser = await prisma.user.findUnique({ where: { email: normEmail } });
@@ -54,7 +57,7 @@ export async function POST(request: Request) {
         phone: phone ? String(phone).trim() : null,
         password: hashedPassword,
         role,
-        company: role === 'employer' ? String(company).trim() : null,
+        company: needsCompany ? String(company).trim() : null,
       },
     });
 
