@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Navbar from '../components/Navbar';
 
 export default function ManagerHome() {
   const [user, setUser] = useState<any>(null);
@@ -56,11 +57,6 @@ export default function ManagerHome() {
         :root{--ink:#14213D;--ink-soft:#2C3E63;--paper:#EDF1EE;--card:#FFFFFF;--accent:#E8A33D;--accent-ink:#4A3110;--accent-deep:#C1811F;--accent-bg:#FBF2E1;--success:#2F7A5C;--success-bg:#E3F1EA;--danger:#C1443C;--danger-bg:#FBEAE8;--violet:#6C5CB0;--violet-bg:#EDEAF7;--muted:#6B7280;--line:#DAE1DB;--line-strong:#C3CDC5;--font-display:'Fraunces',serif;--font-body:'Inter',sans-serif;--font-mono:'IBM Plex Mono',monospace;}
         *{box-sizing:border-box;}
         body{margin:0;font-family:var(--font-body);background:var(--paper);color:var(--ink);}
-        .top{background:var(--ink);color:#EFEDE4;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;}
-        .brand{display:flex;align-items:center;gap:10px;}
-        .brand-mark{width:30px;height:30px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:600;color:var(--accent-ink);}
-        .brand-name{font-family:var(--font-display);font-size:18px;font-weight:600;}
-        .lgt{background:none;border:none;color:#9B9A8F;cursor:pointer;font-size:13px;}
         .wrap{max-width:920px;margin:0 auto;padding:28px 20px 70px;}
         h1{font-family:var(--font-display);font-size:25px;font-weight:600;margin:0 0 4px;}
         .sub{color:var(--muted);margin:0 0 24px;font-size:14px;}
@@ -92,10 +88,7 @@ export default function ManagerHome() {
         .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#EFEDE4;padding:11px 18px;border-radius:8px;font-size:13.5px;z-index:60;}
         @media(max-width:640px){.cards{grid-template-columns:1fr;}.invite{flex-direction:column;align-items:flex-start;}table{display:block;overflow-x:auto;white-space:nowrap;}}
       `}} />
-      <div className="top">
-        <div className="brand"><div className="brand-mark">R</div><div className="brand-name">Repza · Jamoa</div></div>
-        <button className="lgt" onClick={logout}>Chiqish</button>
-      </div>
+      <Navbar />
       <div className="wrap">
         <h1>{team?.name || user?.company || 'Jamoa'}</h1>
         <p className="sub">Salom, {user?.firstName || 'rahbar'}! Sotuv jamoangizni AI bilan tayyorlang.</p>

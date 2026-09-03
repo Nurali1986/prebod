@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Navbar from '../components/Navbar';
 
 const STAGE_META = [
   { key: 'tanishuv', label: 'Tanishuv', max: 12 },
@@ -146,12 +147,6 @@ export default function RepHome() {
         :root{--ink:#14213D;--ink-soft:#2C3E63;--paper:#EDF1EE;--card:#FFFFFF;--accent:#E8A33D;--accent-deep:#C1811F;--accent-ink:#4A3110;--accent-bg:#FBF2E1;--success:#2F7A5C;--success-bg:#E3F1EA;--danger:#C1443C;--danger-bg:#FBEAE8;--violet:#6C5CB0;--violet-bg:#EDEAF7;--muted:#6B7280;--line:#DAE1DB;--line-strong:#C3CDC5;--font-display:'Fraunces',serif;--font-body:'Inter',sans-serif;--font-mono:'IBM Plex Mono',monospace;}
         *{box-sizing:border-box;}
         body{margin:0;font-family:var(--font-body);background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;}
-        .top{background:var(--ink);color:#EFEDE4;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;}
-        .brand{display:flex;align-items:center;gap:10px;}
-        .brand-mark{width:30px;height:30px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:600;color:var(--accent-ink);}
-        .brand-name{font-family:var(--font-display);font-size:18px;font-weight:600;}
-        .lgt{background:none;border:none;color:#9B9A8F;cursor:pointer;font-size:13px;}
-        .lgt:hover{color:#fff;}
         .wrap{max-width:860px;margin:0 auto;padding:28px 20px 70px;}
         .hero-call{position:relative;overflow:hidden;background:linear-gradient(135deg,#14213D,#2C3E63);color:#EFEDE4;border-radius:20px;padding:34px 30px;text-align:center;margin-bottom:24px;}
         .hero-call .glow{position:absolute;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,var(--accent),transparent 70%);opacity:.25;top:-80px;right:-40px;filter:blur(30px);}
@@ -181,10 +176,7 @@ export default function RepHome() {
         .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#EFEDE4;padding:11px 18px;border-radius:8px;font-size:13.5px;z-index:60;}
         @media(max-width:640px){.stat-row{grid-template-columns:repeat(2,1fr);}.hero-call{padding:26px 18px;}}
       `}} />
-      <div className="top">
-        <div className="brand"><div className="brand-mark">R</div><div className="brand-name">Repza</div></div>
-        <button className="lgt" onClick={logout}>Chiqish</button>
-      </div>
+      <Navbar />
 
       <div className="wrap">
         <div className="hero-call">

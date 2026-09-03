@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Navbar from '../components/Navbar';
 
 const STAGES = [
   { key: 'new', label: "Yangi ariza" },
@@ -488,13 +489,7 @@ export default function HRPanel() {
         `
       }} />
 
-      <div className="mobile-topbar">
-        <button className="hbtn" aria-label="Menyu" onClick={() => setSidebarOpen(true)}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
-        </button>
-        <div className="brand-mark">R</div>
-        <div className="brand-name">Repza · HR</div>
-      </div>
+      <Navbar />
       <div className={`sidebar-backdrop ${sidebarOpen ? 'open' : ''}`} onClick={() => setSidebarOpen(false)}></div>
 
       <div className="app">

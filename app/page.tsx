@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import TelegramButton from './components/TelegramButton';
+import Navbar from './components/Navbar';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -206,15 +207,7 @@ html{scroll-behavior:smooth;}
 body{margin:0;font-family:var(--font-body);background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;}
 a{color:inherit;text-decoration:none;}
 .wrap{max-width:1160px;margin:0 auto;padding:0 28px;}
-header{position:sticky;top:0;z-index:40;background:rgba(237,241,238,0.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
-.headbar{display:flex;align-items:center;justify-content:space-between;padding:16px 0;}
-.brand{display:flex;align-items:center;gap:10px;}
-.brand-mark{width:32px;height:32px;border-radius:9px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;color:var(--accent-ink);font-size:17px;}
-.brand-name{font-family:var(--font-display);font-size:21px;font-weight:600;}
-nav.mainnav{display:flex;gap:26px;}
-nav.mainnav a{font-size:13.5px;font-weight:500;color:var(--ink-soft);}
-nav.mainnav a:hover{color:var(--ink);}
-.head-actions{display:flex;gap:10px;align-items:center;}
+header{display:none;}
 .btn{font-family:var(--font-body);font-size:13.5px;font-weight:600;border-radius:8px;padding:10px 18px;border:1px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:8px;white-space:nowrap;transition:transform .1s ease, background .15s ease;}
 .btn:active{transform:scale(0.98);}
 .btn-primary{background:var(--accent);color:var(--accent-ink);}
@@ -316,19 +309,8 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
 .ai-spark{animation:floatY 4s ease-in-out infinite;transform-origin:center;}
 @media(prefers-reduced-motion:reduce){.hero-aurora span,.hero .eyebrow,.ai-spark{animation:none!important;}}
 
-/* ===== Mobile hamburger + drawer ===== */
-.hamburger{display:none;background:none;border:1px solid var(--line-strong);border-radius:8px;padding:8px;cursor:pointer;color:var(--ink);}
-.mobile-menu{position:fixed;inset:0;background:rgba(20,33,61,.5);backdrop-filter:blur(4px);z-index:90;display:none;}
-.mobile-menu.open{display:block;}
-.mobile-menu-panel{position:absolute;top:0;right:0;bottom:0;width:min(300px,82vw);background:var(--card);padding:20px;display:flex;flex-direction:column;gap:4px;box-shadow:-8px 0 30px rgba(0,0,0,.15);}
-.mobile-menu-panel a{padding:12px 10px;border-radius:8px;font-size:15px;font-weight:600;color:var(--ink-soft);}
-.mobile-menu-panel a:hover{background:var(--paper);color:var(--ink);}
-.mobile-menu-panel .mm-close{align-self:flex-end;background:none;border:none;cursor:pointer;color:var(--muted);padding:6px;margin-bottom:4px;}
-.mobile-menu-panel .mm-actions{margin-top:auto;display:flex;flex-direction:column;gap:10px;}
 
 @media(max-width:860px){
-  nav.mainnav,.head-actions{display:none;}
-  .hamburger{display:inline-flex;}
   .hero{padding:52px 0 30px;}
   .hero h1{font-size:31px;}
   .hero p.sub{font-size:15px;}
@@ -350,52 +332,7 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
 }
       `}} />
 
-      {/* HEADER */}
-      <header>
-        <div className="wrap headbar">
-          <div className="brand"><div className="brand-mark">R</div><div className="brand-name">Repza</div></div>
-          <nav className="mainnav">
-            <a href="#qanday-ishlaydi">Qanday ishlaydi</a>
-            <a href="#ai-imkoniyatlari">AI imkoniyatlari</a>
-            <a href="#platforma-haqida">Platforma haqida</a>
-          </nav>
-          <div className="head-actions">
-            {loggedInUser ? (
-              <button className="btn btn-primary" onClick={() => router.push(destForRole(loggedInUser.role))}>Kabinetga o&apos;tish</button>
-            ) : (
-              <>
-                <button className="btn btn-ghost" onClick={() => openLogin()}>Kirish</button>
-                <button className="btn btn-primary" onClick={() => setRoleModalOpen(true)}>Ro&apos;yxatdan o&apos;tish</button>
-              </>
-            )}
-          </div>
-          <button className="hamburger" aria-label="Menyu" onClick={() => setMobileMenuOpen(true)}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-          </button>
-        </div>
-      </header>
-
-      {/* MOBILE MENU */}
-      <div className={`mobile-menu ${mobileMenuOpen ? 'open' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setMobileMenuOpen(false); }}>
-        <div className="mobile-menu-panel">
-          <button className="mm-close" aria-label="Yopish" onClick={() => setMobileMenuOpen(false)}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          </button>
-          <a href="#qanday-ishlaydi" onClick={() => setMobileMenuOpen(false)}>Qanday ishlaydi</a>
-          <a href="#ai-imkoniyatlari" onClick={() => setMobileMenuOpen(false)}>AI imkoniyatlari</a>
-          <a href="#platforma-haqida" onClick={() => setMobileMenuOpen(false)}>Platforma haqida</a>
-          <div className="mm-actions">
-            {loggedInUser ? (
-              <button className="btn btn-primary" style={{ justifyContent: 'center' }} onClick={() => { setMobileMenuOpen(false); router.push(destForRole(loggedInUser.role)); }}>Kabinetga o&apos;tish</button>
-            ) : (
-              <>
-                <button className="btn btn-ghost" style={{ justifyContent: 'center' }} onClick={() => { setMobileMenuOpen(false); openLogin(); }}>Kirish</button>
-                <button className="btn btn-primary" style={{ justifyContent: 'center' }} onClick={() => { setMobileMenuOpen(false); setRoleModalOpen(true); }}>Ro&apos;yxatdan o&apos;tish</button>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
+      <Navbar active="home" onLoginClick={() => openLogin()} />
 
       {/* HERO */}
       <section className="hero">
@@ -404,7 +341,7 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
           <div className="eyebrow">
             <span className="live-dot"></span>
             <svg className="ai-spark" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/><circle cx="12" cy="12" r="4"/></svg>
-            AI sotuv murabbiyi — telefonда jonli mashq
+            AI sotuv murabbiyi — telefonda jonli mashq
           </div>
           <h1>Sotuvchilarni <em>AI mijoz</em> bilan mashq qildirib tayyorlang</h1>
           <p className="sub">Repza — har bir sotuvchi AI mijozga telefon orqali qo&apos;ng&apos;iroq qilib, standart sotuv skripti bo&apos;yicha mashq qiladigan va baho oladigan platforma. Mahoratni o&apos;lchang, o&apos;stiring, jamoani kuchaytiring.</p>

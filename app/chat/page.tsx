@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import Link from 'next/link';
+import Navbar from '../components/Navbar';
 
 interface HistoryTurn { role: 'user' | 'assistant'; content: string; }
 interface QueueItem { id: string; text: string; audioUrl: string | null; ready: boolean; failed: boolean; }
@@ -330,16 +330,15 @@ export default function ChatPage() {
         .call-avatar-fallback{display:flex;align-items:center;justify-content:center;font-weight:700;font-family:serif;}
       `}} />
 
-      <div className="max-w-md mx-auto min-h-screen flex flex-col px-5 py-6">
-        {/* Top bar */}
-        <div className="flex items-center justify-between mb-4">
-          <Link href="/vacansiy" className="text-sm text-slate-400 hover:text-white">← Kabinet</Link>
-          {quota && callState === 'select' && (
+      <Navbar active="chat" />
+      <div className="max-w-md mx-auto flex-1 flex flex-col px-5 py-4">
+        {quota && callState === 'select' && (
+          <div className="text-right mb-3">
             <span className="text-xs text-slate-400">
               {quota.plan === 'premium' ? '⭐ Premium' : <>Bugun qolgan: <b className={quota.remaining > 0 ? 'text-emerald-400' : 'text-rose-400'}>{quota.remaining}</b>/{quota.limit}</>}
             </span>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* SELECT */}
         {callState === 'select' && (
