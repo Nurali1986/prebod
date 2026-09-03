@@ -66,11 +66,6 @@ export default function ManagerHome() {
             <h3>Kompaniya skripti <span className="soon">Tez orada</span></h3>
             <p>O&apos;z sotuv skriptingizni yuklang — AI aynan sizning skriptingiz bo&apos;yicha baholaydi.</p>
           </div>
-          <div className="card">
-            <h3>Ishga qabul (yollash) <span className="soon">Qo&apos;shimcha modul</span></h3>
-            <p>Xohlasangiz, nomzodlarni ham shu simulyator bilan baholab, ishga oling.</p>
-            <button className="btn btn-ghost" onClick={() => { window.location.href = '/hr'; }}>Yollash panelini ochish</button>
-          </div>
         </div>
       </div>
     </>
