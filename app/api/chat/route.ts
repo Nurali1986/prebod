@@ -4,6 +4,7 @@ import OpenAI from 'openai';
 import { getSessionFromRequest } from '@/lib/api-auth';
 import { recordTokens } from '@/lib/limits';
 import { buildSalesEvalPrompt } from '@/lib/sales-eval';
+import { prisma } from '@/lib/prisma';
 
 const azureEndpoint = process.env.AZURE_OPENAI_ENDPOINT || '';
 const azureApiKey = process.env.AZURE_OPENAI_API_KEY || '';
@@ -112,16 +113,20 @@ const CHARACTER_NAMES: Record<string, string> = {
   raqobatchi: 'Sanjar', yangi: 'Sevara',
 };
 
-function buildMessages(character: string, history: any[], userText: string, isStop: boolean) {
-  // On STOP: evaluate the whole conversation against the standard sales script.
+function buildMessages(
+  character: string, history: any[], userText: string, isStop: boolean,
+  product?: string, scriptText?: string,
+) {
+  // On STOP: evaluate the conversation (against the company script if set).
   if (isStop) {
-    return [{ role: 'user', content: buildSalesEvalPrompt(transcriptFrom(history)) }];
+    return [{ role: 'user', content: buildSalesEvalPrompt(transcriptFrom(history), product, scriptText) }];
   }
   const profile = CHARACTERS[character];
   const name = CHARACTER_NAMES[character] || 'mijoz';
   const nameLine = `\n\nSizning ismingiz — ${name}. Agar sotuvchi ismingizni so'rasa, tabiiy tarzda "${name}" deb ayting (lekin o'zingizni AI yoki bot deb aytmang).`;
+  const productLine = product ? `\n\nSotuvchi sizga "${product}" mahsulot/xizmatini sotmoqchi — shu mavzuda tabiiy mijoz kabi javob bering.` : '';
   return [
-    { role: 'system', content: `${BASE_PROMPT}\n\n${profile ? profile.prompt : ''}${nameLine}` },
+    { role: 'system', content: `${BASE_PROMPT}\n\n${profile ? profile.prompt : ''}${nameLine}${productLine}` },
     ...(Array.isArray(history) ? history : []),
     { role: 'user', content: userText },
   ];
@@ -140,7 +145,20 @@ export async function POST(req: NextRequest) {
     }
 
     const isStop = message.toUpperCase() === 'STOP';
-    const messages = buildMessages(character, history, message, isStop);
+
+    // If the rep belongs to a team, use its product + custom script.
+    let product: string | undefined;
+    let scriptText: string | undefined;
+    try {
+      const info = await prisma.user.findUnique({
+        where: { id: session.id },
+        select: { team: { select: { product: true, scriptText: true } } },
+      });
+      product = info?.team?.product || undefined;
+      scriptText = info?.team?.scriptText || undefined;
+    } catch { /* ignore — fall back to defaults */ }
+
+    const messages = buildMessages(character, history, message, isStop, product, scriptText);
 
     const stream = await openai.chat.completions.create({
       model: deploymentName,

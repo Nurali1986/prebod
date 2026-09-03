@@ -43,6 +43,8 @@ model Team {
   name      String
   joinCode  String   @unique
   managerId Int      @unique
+  product   String?  // what reps should try to sell in practice
+  scriptText String? // the company's own sales script/methodology (custom eval)
   createdAt DateTime @default(now())
 
   manager   User     @relation("ManagedTeam", fields: [managerId], references: [id], onDelete: Cascade)

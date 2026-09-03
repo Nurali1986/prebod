@@ -15,13 +15,40 @@ export const SALES_STAGES = [
 ] as const;
 
 /**
- * Builds the trainer prompt that scores a transcript against the standard
- * sales script. `product` is what the seller was trying to sell.
+ * Builds the trainer prompt that scores a transcript. `product` is what the
+ * seller was trying to sell. If `scriptText` is given, the conversation is
+ * scored against THAT company script instead of the default standard rubric.
  */
-export function buildSalesEvalPrompt(transcript: string, product?: string): string {
+export function buildSalesEvalPrompt(transcript: string, product?: string, scriptText?: string): string {
   const productLine = product
     ? `Sotuvchi "${product}" mahsulot/xizmatini sotishga harakat qildi.`
     : `Sotuvchi mijozga mahsulot/xizmat sotishga harakat qildi.`;
+
+  if (scriptText && scriptText.trim()) {
+    return `Sen mutaxassis sotuv treynerisan. ${productLine}
+Quyidagi suhbatni KOMPANIYANING O'Z SOTUV SKRIPTI asosida baholang.
+
+=== KOMPANIYA SKRIPTI (etalon) ===
+${scriptText.trim()}
+=== SKRIPT TUGADI ===
+
+SUHBAT TARIXI:
+${transcript}
+
+Vazifang: sotuvchi yuqoridagi kompaniya skriptiga qanchalik rioya qilganini baholang.
+Skriptdagi asosiy bosqich va talablarni aniqlang, har biriga sotuvchi amal qildimi — tekshiring.
+Umumiy ballni 0 dan 100 gacha bering (skriptga to'liq rioya = 100).
+
+Javob formatini QAT'IY o'zbek tilida shunday ber:
+📊 BAHOLASH (kompaniya skripti bo'yicha):
+- [Skriptdagi har bir asosiy bosqich]: bajarildi / qisman / bajarilmadi + qisqa izoh
+...
+
+💡 Kuchli tomonlari: ...
+⚠️ Skriptdan chetlanishlar va xatolar: ...
+🎯 Tavsiyalar: ...
+JAMI BALL: X/100`;
+  }
 
   return `Sen mutaxassis sotuv treynerisan. ${productLine}
 Quyidagi suhbatni O'ZBEK korxonalari uchun standart sotuv skripti bo'yicha baholang.

@@ -60,10 +60,35 @@ export async function GET(request: Request) {
       };
     }).sort((a, b) => (b.avg ?? -1) - (a.avg ?? -1));
 
-    return NextResponse.json({ team: { name: team.name, joinCode: team.joinCode }, leaderboard });
+    return NextResponse.json({
+      team: { name: team.name, joinCode: team.joinCode, product: team.product, scriptText: team.scriptText },
+      leaderboard,
+    });
   } catch (error) {
     if (error instanceof AuthError) return authErrorResponse(error);
     console.error('Team GET error:', error);
+    return NextResponse.json({ error: 'Server xatosi' }, { status: 500 });
+  }
+}
+
+// Manager updates the team's product and custom sales script.
+export async function PATCH(request: Request) {
+  try {
+    const session = await requireRole(request, 'manager', 'superadmin');
+    const { name, product, scriptText } = await request.json();
+    const team = await prisma.team.findUnique({ where: { managerId: session.id } });
+    if (!team) return NextResponse.json({ error: 'Jamoa topilmadi' }, { status: 404 });
+
+    const data: any = {};
+    if (name !== undefined) data.name = String(name).trim() || team.name;
+    if (product !== undefined) data.product = product ? String(product).trim() : null;
+    if (scriptText !== undefined) data.scriptText = scriptText ? String(scriptText) : null;
+
+    const updated = await prisma.team.update({ where: { id: team.id }, data });
+    return NextResponse.json({ name: updated.name, product: updated.product, scriptText: updated.scriptText });
+  } catch (error) {
+    if (error instanceof AuthError) return authErrorResponse(error);
+    console.error('Team PATCH error:', error);
     return NextResponse.json({ error: 'Server xatosi' }, { status: 500 });
   }
 }

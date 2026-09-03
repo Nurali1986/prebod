@@ -9,6 +9,9 @@ export default function ManagerHome() {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState('');
   const [inviteLink, setInviteLink] = useState('');
+  const [product, setProduct] = useState('');
+  const [scriptText, setScriptText] = useState('');
+  const [savingScript, setSavingScript] = useState(false);
 
   useEffect(() => {
     const u = localStorage.getItem('ishla_user');
@@ -18,11 +21,23 @@ export default function ManagerHome() {
       if (d && !d.error) {
         setTeam(d.team);
         setLeaderboard(d.leaderboard || []);
+        setProduct(d.team.product || '');
+        setScriptText(d.team.scriptText || '');
         setInviteLink(`${window.location.origin}/?join=${d.team.joinCode}`);
       }
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
+
+  const saveScript = async () => {
+    setSavingScript(true);
+    try {
+      const res = await fetch('/api/team', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ product, scriptText }) });
+      if (res.ok) showToast('Skript saqlandi — endi baholash shu bo\'yicha ketadi');
+      else showToast('Xatolik');
+    } catch { showToast('Tarmoq xatosi'); }
+    finally { setSavingScript(false); }
+  };
 
   const logout = async () => {
     try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
@@ -104,16 +119,24 @@ export default function ManagerHome() {
           </div>
         )}
 
-        <div className="cards">
-          <div className="card">
-            <h3>Simulyatorni sinang</h3>
-            <p>Sotuvchilaringiz o&apos;tadigan AI mijoz qo&apos;ng&apos;irog&apos;ini o&apos;zingiz sinab ko&apos;ring.</p>
-            <button className="btn btn-primary" onClick={() => { window.location.href = '/chat'; }}>Qo&apos;ng&apos;iroqni boshlash</button>
+        <div className="card" style={{ marginBottom: 14 }}>
+          <h3>Sotuv skriptingiz</h3>
+          <p>Mahsulot va o&apos;z sotuv skriptingizni kiriting — sotuvchilar mashqда aynan shuni sotadi va AI <b>aynan sizning skriptingiz</b> bo&apos;yicha baholaydi. (Bo&apos;sh qoldirsangiz, standart 8 bosqichli skript ishlatiladi.)</p>
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, marginBottom: 6, color: 'var(--ink-soft)' }}>Sotiladigan mahsulot / xizmat</label>
+            <input value={product} onChange={e => setProduct(e.target.value)} placeholder="Masalan: online ingliz tili kursi" style={{ width: '100%', border: '1px solid var(--line-strong)', borderRadius: 8, padding: '9px 12px', fontSize: 14 }} />
           </div>
-          <div className="card">
-            <h3>Kompaniya skripti <span className="soon">Tez orada</span></h3>
-            <p>O&apos;z sotuv skriptingizni yuklang — AI aynan sizning skriptingiz bo&apos;yicha baholaydi.</p>
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, marginBottom: 6, color: 'var(--ink-soft)' }}>Sotuv skripti (bosqichlar, e&apos;tirozlarga javoblar, talablar)</label>
+            <textarea value={scriptText} onChange={e => setScriptText(e.target.value)} rows={8} placeholder={"Masalan:\n1. Salomlashish va o'zini tanishtirish\n2. Ehtiyojni aniqlash (3 ta savol)\n3. Taklif — mijoz og'rig'iga bog'lab\n4. E'tirozlar: 'qimmat' → ...\n5. Yopish — aniq keyingi qadam"} style={{ width: '100%', border: '1px solid var(--line-strong)', borderRadius: 8, padding: '11px 12px', fontSize: 13.5, lineHeight: 1.6, resize: 'vertical', fontFamily: 'var(--font-body)' }} />
           </div>
+          <button className="btn btn-primary" onClick={saveScript} disabled={savingScript}>{savingScript ? 'Saqlanmoqda...' : 'Skriptni saqlash'}</button>
+        </div>
+
+        <div className="card" style={{ marginBottom: 24 }}>
+          <h3>Simulyatorni sinang</h3>
+          <p>Sotuvchilaringiz o&apos;tadigan AI mijoz qo&apos;ng&apos;irog&apos;ini o&apos;zingiz sinab ko&apos;ring.</p>
+          <button className="btn btn-primary" onClick={() => { window.location.href = '/chat'; }}>Qo&apos;ng&apos;iroqni boshlash</button>
         </div>
 
         <h2 className="section-title">Jamoa reytingi</h2>
