@@ -4,23 +4,35 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:hr": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@prisma/client": "^5.22.0",
+    "bcryptjs": "^3.0.3",
+    "microsoft-cognitiveservices-speech-sdk": "^1.51.0",
     "next": "16.3.2",
+    "openai": "^7.5.0",
+    "pdf2json": "^4.0.3",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.2",
+    "prisma": "^5.22.0",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   }
 }

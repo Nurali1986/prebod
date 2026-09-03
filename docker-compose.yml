@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: ishlauz_db
+    restart: always
+    environment:
+      POSTGRES_USER: ishla_user
+      POSTGRES_PASSWORD: ishla_password
+      POSTGRES_DB: ishla_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: ishlauz_web
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://ishla_user:ishla_password@db:5432/ishla_db?schema=public
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - db
+    command: sh -c "sleep 3 && npx prisma db push && npx prisma db seed && npm run dev"
+
+volumes:
+  pgdata:

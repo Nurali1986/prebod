@@ -1,0 +1,171 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x", "windows"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email     String   @unique
+  phone     String?
+  password  String?  // null for social-login (Google/Telegram) accounts
+  googleId   String? @unique
+  telegramId String? @unique
+  role      String   // 'candidate' | 'employer' | 'superadmin'
+  company   String?
+  blocked   Boolean  @default(false)
+  plan      String   @default("free") // 'free' | 'premium'
+  dailyLimitOverride Int?             // per-user override of the free daily limit
+  profileData Json?
+  createdAt DateTime @default(now())
+
+  vacancies    Vacancy[]   @relation("EmployerVacancies")
+  applications Candidate[] @relation("CandidateApplications")
+  practices    PracticeSession[] @relation("UserPractices")
+  usage        SimulatorUsage[]  @relation("UserUsage")
+}
+
+// One row per user per day: how many simulator sessions they started and the
+// total LLM tokens they consumed. Used for quota enforcement and monitoring.
+model SimulatorUsage {
+  id       Int    @id @default(autoincrement())
+  userId   Int
+  user     User   @relation("UserUsage", fields: [userId], references: [id], onDelete: Cascade)
+  day      String // 'YYYY-MM-DD' in Asia/Tashkent
+  sessions Int    @default(0)
+  tokens   Int    @default(0)
+
+  @@unique([userId, day])
+  @@index([day])
+}
+
+// Simple platform key/value settings editable by superadmin (e.g. freeDailyLimit).
+model Setting {
+  key   String @id
+  value String
+}
+
+model PracticeSession {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation("UserPractices", fields: [userId], references: [id], onDelete: Cascade)
+  persona     String
+  personaName String?
+  product     String?
+  score       Int
+  feedback    String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Department {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  tests     TestQuestion[]
+  openQs    OpenQuestion[]
+  vacancies Vacancy[]
+}
+
+model TestQuestion {
+  id           Int        @id @default(autoincrement())
+  text         String
+  options      String[]
+  correct      Int
+  departmentId Int
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+}
+
+model OpenQuestion {
+  id           Int        @id @default(autoincrement())
+  text         String
+  departmentId Int
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+}
+
+model Vacancy {
+  id            Int      @id @default(autoincrement())
+  publicId      String?  @unique
+  title         String
+  type          String
+  loc           String
+  salary        String
+  desc          String?
+  status        String   @default("draft")
+  posted        String   @default("—")
+  
+  departmentId  Int
+  department    Department @relation(fields: [departmentId], references: [id])
+
+  employerId    Int?
+  employer      User?    @relation("EmployerVacancies", fields: [employerId], references: [id], onDelete: Cascade)
+
+  cvMinScore    Int      @default(0)
+  cvCheckEnabled Boolean @default(true)
+  testEnabled   Boolean  @default(false)
+  openQEnabled  Boolean  @default(false)
+  salesEnabled  Boolean  @default(false)
+  salesProduct  String?
+  salesPersonas String[]
+  videoEnabled  Boolean  @default(false)
+  videoPrompt   String?
+  
+  candidates    Candidate[]
+  vacancyTests  VacancyTest[]
+  vacancyOpenQs VacancyOpenQ[]
+}
+
+model VacancyTest {
+  id        Int      @id @default(autoincrement())
+  vacancyId Int
+  vacancy   Vacancy  @relation(fields: [vacancyId], references: [id], onDelete: Cascade)
+  text      String
+  options   String[]
+  correct   Int
+}
+
+model VacancyOpenQ {
+  id        Int      @id @default(autoincrement())
+  vacancyId Int
+  vacancy   Vacancy  @relation(fields: [vacancyId], references: [id], onDelete: Cascade)
+  text      String
+}
+
+model Candidate {
+  id           Int      @id @default(autoincrement())
+  name         String
+  role         String
+  match        Int?
+  stage        String   @default("new")
+  cvScore      Int?
+  testScore    Int?
+  salesScore   Int?
+  salesFeedback String?
+  videoLink    String?
+  createdAt    DateTime @default(now())
+
+  vacancyId    Int
+  vacancy      Vacancy  @relation(fields: [vacancyId], references: [id], onDelete: Cascade)
+
+  candidateUserId Int?
+  candidateUser   User?  @relation("CandidateApplications", fields: [candidateUserId], references: [id], onDelete: SetNull)
+
+  openAnswers  CandidateOpenAnswer[]
+
+  @@index([candidateUserId])
+  @@index([vacancyId])
+}
+
+model CandidateOpenAnswer {
+  id          Int       @id @default(autoincrement())
+  candidateId Int
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  question    String
+  answer      String
+}
