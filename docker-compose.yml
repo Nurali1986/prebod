@@ -40,6 +40,9 @@ services:
     image: nginxproxy/nginx-proxy:latest
     container_name: ishla_proxy
     restart: always
+    labels:
+      # Lets acme-companion locate this nginx-proxy container.
+      - "com.github.nginx-proxy.nginx"
     ports:
       - "80:80"
       - "443:443"
@@ -58,6 +61,7 @@ services:
       - nginx-proxy
     environment:
       - DEFAULT_EMAIL=${LETSENCRYPT_EMAIL}
+      - NGINX_PROXY_CONTAINER=ishla_proxy
     volumes:
       - certs:/etc/nginx/certs
       - vhost:/etc/nginx/vhost.d
