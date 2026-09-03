@@ -105,14 +105,23 @@ Oddiy, hatto sal soddaroq savollar bering. Murakkab atamalarni tushunmaganingizn
   },
 };
 
+// Each AI customer's first name, so it can introduce itself when the seller asks.
+const CHARACTER_NAMES: Record<string, string> = {
+  ishonmaydigan: 'Rustam', band: 'Sardor', buhgalter: 'Madina', bazorchi: 'Aziza',
+  bilagon: 'Jasur', ikkilanuvchi: 'Nigora', achchiq: 'Tohir', muloyim_sust: 'Zarina',
+  raqobatchi: 'Sanjar', yangi: 'Sevara',
+};
+
 function buildMessages(character: string, history: any[], userText: string, isStop: boolean) {
   // On STOP: evaluate the whole conversation against the standard sales script.
   if (isStop) {
     return [{ role: 'user', content: buildSalesEvalPrompt(transcriptFrom(history)) }];
   }
   const profile = CHARACTERS[character];
+  const name = CHARACTER_NAMES[character] || 'mijoz';
+  const nameLine = `\n\nSizning ismingiz — ${name}. Agar sotuvchi ismingizni so'rasa, tabiiy tarzda "${name}" deb ayting (lekin o'zingizni AI yoki bot deb aytmang).`;
   return [
-    { role: 'system', content: `${BASE_PROMPT}\n\n${profile ? profile.prompt : ''}` },
+    { role: 'system', content: `${BASE_PROMPT}\n\n${profile ? profile.prompt : ''}${nameLine}` },
     ...(Array.isArray(history) ? history : []),
     { role: 'user', content: userText },
   ];
