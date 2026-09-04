@@ -74,6 +74,34 @@ const CATEGORIES = [
         title: 'Script yozish qoidalari',
         body: `✅ Qisqa va aniq bo'lsin — uzun matnlarni hech kim o'qimaydi\n✅ Tabiiy ohangda yozing — robotdek emas, odamdek gaplashing\n✅ Har bir bosqichda savollar bo'lsin — mijozni suhbatga torting\n✅ E'tirozlarga tayyor javoblar — eng ko'p uchraydigan e'tirozlar ro'yxati\n✅ Moslashuvchan bo'lsin — har bir mijozga moslashtirib qo'llang`,
       },
+      {
+        title: '📞 Namuna skript: 1-bosqich — TANISHUV',
+        body: `"Assalomu alaykum! [Korxona nomi], [lavozim], mening ismim [ism]."\n\n📌 Qoida: korxona nomi + lavozim + ism — shu tartibda.\nOvoz tetik, tabassum "eshitiladigan" bo'lsin.\n\n💡 Mijoz sizni birinchi marta eshitayapti — birinchi taassurot faqat bir marta hosil bo'ladi.`,
+      },
+      {
+        title: '📞 Namuna skript: 2-bosqich — FILTR',
+        body: `"Ismingizni bilsam bo'ladimi? ... [Kursimizga] yozilib, raqamingizni qoldirgan ekansiz, to'g'rimi?"\n\n📌 Maqsad: mijoz ismini bilib olish va u so'rov qoldirganini tasdiqlash — suhbatga qonuniy asos yaratiladi.\n\n💡 Bu bosqich mijozga "sizni taniyapmiz, siz o'zingiz murojaat qilgansiz" degan ishonch beradi.`,
+      },
+      {
+        title: '📞 Namuna skript: 3-bosqich — PROGRAMMALASHTIRISH',
+        body: `"[Ism] aka/opa, keling bunday qilamiz: bizda [mahsulotning] uch xil yo'nalishi bor. Qaysi biri aynan sizga mos kelishini aniqlash uchun 3–4 ta savol beraman. Keyin mos yo'nalishni tushuntirib beraman, savollaringiz bo'lsa so'rayverasiz. Hammasi ma'qul kelsa — narx va boshqa masalalarni gaplashamiz. Shunday qilsak bo'ladimi?"\n\n📌 Eng muhim qism: suhbat rejasi e'lon qilinadi va rozilik olinadi.\n\n💡 Mijoz endi jarayonni siz boshqarayotganingizni his qiladi va bemalol ochiladi.`,
+      },
+      {
+        title: '📞 Namuna skript: 4-bosqich — EHTIYOJNI ANIQLASH',
+        body: `"Xizmatimiz siz uchunmi yoki farzandingiz uchunmi?"\n"[Mahsulot] sizga qaysi maqsad uchun kerak — chet elga ketish, universitetga kirish yoki ish uchunmi?"\n"Bu maqsadga qachongacha erishmoqchisiz?"\n\n📌 Asosiy vazifa — mijozning orzu-maqsadini o'z og'zidan ayttirish.\n\n💡 Keyin taqdimot aynan shu maqsadga bog'lanadi. Mijoz o'zi aytgan gapiga qarshi chiqolmaydi.`,
+      },
+      {
+        title: '📞 Namuna skript: 5-bosqich — TAQDIMOT',
+        body: `Taqdimot 4 qavatli qiymatdan quriladi:\n\n1️⃣ ASOSIY qiymat — mahsulotning bosh natijasi (mijoz maqsadiga bog'lab)\n2️⃣ KUTILAYOTGAN qiymat — mijoz odatda kutadigan narsalar (dastur, jadval, ustoz)\n3️⃣ QO'SHIMCHA qiymat — raqobatchilarda yo'q afzalliklar\n4️⃣ BONUS ma'lumot — sovg'a, chegirma yoki qo'shimcha imkoniyat\n\n📌 Har bir qavatni mijozning 4-qismda aytgan maqsadiga bog'lang:\n"Siz ... demoqchi edingiz — aynan shuning uchun bizda ... bor."`,
+      },
+      {
+        title: '📞 Namuna skript: 6-bosqich — E\'TIROZLAR BILAN ISHLASH',
+        body: `E'tirozga 4 qadamli javob:\n\n1. ESHITISH — Diqqat bilan, bo'lmasdan oxirigacha eshiting\n2. EMPATIYA — Mijozni maqullang: "Sizni tushunaman, bu muhim savol"\n3. TAKRORLASH — E'tirozni o'z so'zingiz bilan qaytaring\n4. YECHIM — Argument va misol bilan javob bering\n\n📌 Qoida: e'tiroz — rad javobi emas, qo'shimcha ma'lumot so'rovi.\n\n💡 E'tiroz bildirgan mijoz hali qiziqyapti. Indifferent mijoz — shunchaki "keyin qo'ng'iroq qilaman" deydi.`,
+      },
+      {
+        title: '📞 Namuna skript: 7-bosqich — HARAKATGA UNDASH (CTA)',
+        body: `"Unda kelishdik: [kun]ga yozib qo'yaman. Sizga qaysi vaqt qulay — [kun] soat [X] mi yoki [Y] mi? ... Yaxshi, [kun] soat [X] da kutamiz. Eslatma yuborishga ruxsat bering."\n\n📌 Uch element majburiy:\n✅ KUNNI belgilash\n✅ SOATNI belgilash\n✅ RUXSAT olish (eslatma yuborish uchun)\n\n⚠️ Aniq sanasiz tugagan suhbat — yo'qotilgan mijoz.\n\n💡 "Qachon qulay?" emas — "Dushanba yoki seshanba?" deb tanlav bering. Mijozga qaror qilish osonroq.`,
+      },
     ],
   },
   {
