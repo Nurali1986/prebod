@@ -47,6 +47,8 @@ function parseStagesFromText(text: string): Record<string, number> | null {
   return found >= 4 ? result : null;
 }
 
+const MAX_CALL_SECONDS = 300;
+
 const generateId = () => 'id-' + Math.random().toString(36).substring(2, 15);
 
 function extractSpeakableChunks(buffer: string): { chunks: string[]; rest: string } {
@@ -91,6 +93,7 @@ export default function ChatPage() {
   const isPlayingRef = useRef(false);
   const historyRef = useRef<HistoryTurn[]>([]);
   const timerRef = useRef<any>(null);
+  const autoEndingRef = useRef(false);
 
   useEffect(() => { historyRef.current = history; }, [history]);
 
@@ -267,8 +270,18 @@ export default function ChatPage() {
     setEvalText(''); setEvalScore(null);
     setCallState('active');
     setCallSeconds(0);
+    autoEndingRef.current = false;
     if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => setCallSeconds((s) => s + 1), 1000);
+    timerRef.current = setInterval(() => {
+      setCallSeconds((s) => {
+        const next = s + 1;
+        if (next >= MAX_CALL_SECONDS && !autoEndingRef.current) {
+          autoEndingRef.current = true;
+          setTimeout(() => endCall(), 0);
+        }
+        return next;
+      });
+    }, 1000);
     enqueueSpeech(char.greeting, char.voice);
   };
 
@@ -392,7 +405,9 @@ export default function ChatPage() {
                 <Avatar char={activeChar} size={148} />
               </div>
               <h2 className="text-2xl font-bold">{activeChar.name}</h2>
-              <p className="text-slate-400 mt-1">{fmt(callSeconds)}</p>
+              <p className="mt-1" style={{ color: MAX_CALL_SECONDS - callSeconds <= 60 ? '#f87171' : '#94a3b8', fontWeight: MAX_CALL_SECONDS - callSeconds <= 60 ? 600 : 400 }}>
+                {fmt(callSeconds)} / {fmt(MAX_CALL_SECONDS)}
+              </p>
               <p className="text-sm mt-4 h-6 text-center px-6 truncate max-w-full" style={{ color: isSpeaking ? '#a5b4fc' : isListening ? '#fca5a5' : '#94a3b8' }}>
                 {isSpeaking ? '🔊 gapiryapti...' : isLoading ? 'javob tayyorlayapti...' : isListening ? '🎤 tinglayapman — to\'xtatganingizda avtomatik yuboriladi' : 'gapirish uchun mikrofonni bosing'}
               </p>
