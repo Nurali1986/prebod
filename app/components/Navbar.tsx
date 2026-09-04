@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 
 interface Props {
-  active?: 'home' | 'chat' | 'vacansiy' | 'profile';
+  active?: 'home' | 'chat' | 'sotuv' | 'vacansiy' | 'profile';
   onLoginClick?: () => void;
   onProfileClick?: () => void;
 }
@@ -75,6 +75,7 @@ export default function Navbar({ active, onLoginClick, onProfileClick }: Props) 
         <div className="rn-center">
           <button className={`rn-link ${active === 'home' ? 'active' : ''}`} onClick={() => go('/')}>Bosh sahifa</button>
           <button className={`rn-link ${active === 'chat' ? 'active' : ''}`} onClick={() => go('/chat')}>AI simulyator</button>
+          <button className={`rn-link ${active === 'sotuv' ? 'active' : ''}`} onClick={() => go('/sotuv')}>Sotuv</button>
           <button className={`rn-link ${active === 'vacansiy' ? 'active' : ''}`} onClick={() => go('/vacansiy')}>Vakansiya</button>
         </div>
         <div className="rn-right">
@@ -93,6 +94,10 @@ export default function Navbar({ active, onLoginClick, onProfileClick }: Props) 
         <button className={`rn-btab ${active === 'chat' ? 'active' : ''}`} onClick={() => go('/chat')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           Simulyator
+        </button>
+        <button className={`rn-btab ${active === 'sotuv' ? 'active' : ''}`} onClick={() => go('/sotuv')}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          Sotuv
         </button>
         <button className={`rn-btab ${active === 'vacansiy' ? 'active' : ''}`} onClick={() => go('/vacansiy')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
