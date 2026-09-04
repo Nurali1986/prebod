@@ -45,6 +45,7 @@ export default function CandidatePanel() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userObj, setUserObj] = useState<any>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   React.useEffect(() => {
     const user = localStorage.getItem('ishla_user');
@@ -79,6 +80,9 @@ export default function CandidatePanel() {
         if (parsed.profileData.langList) setLangList(parsed.profileData.langList);
         if (parsed.profileData.courseList) setCourseList(parsed.profileData.courseList);
       }
+
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('view') === 'profile') setView('profile');
     }
   }, []);
 
@@ -600,7 +604,7 @@ export default function CandidatePanel() {
     }
   };
 
-  const isProfileMode = view === 'profile' || view === 'resume' || view === 'practice';
+  const isProfileMode = view === 'profile' || view === 'resume' || view === 'practice' || view === 'applications' || view === 'app-detail';
 
   const practiceAvg = practiceSessions.length
     ? Math.round(practiceSessions.reduce((s, p) => s + p.score, 0) / practiceSessions.length)
@@ -805,20 +809,14 @@ export default function CandidatePanel() {
         .profile-scope a{color:inherit;}
         .profile-scope button{font-family:inherit;}
 
-        .profile-scope .app{display:flex;min-height:100vh;}
+        .pm-bar{display:none;}
+        .pm-overlay{display:none;}
+        .profile-scope .app{display:flex;min-height:calc(100vh - 56px);}
         .profile-scope .sidebar{
           width:264px;flex:0 0 264px;background:var(--ink);color:var(--paper);
           padding:28px 20px;display:flex;flex-direction:column;gap:26px;
-          position:sticky;top:0;height:100vh;
+          position:sticky;top:56px;height:calc(100vh - 56px);
         }
-        .profile-scope .brand{display:flex;align-items:center;gap:10px;}
-        .profile-scope .brand-mark{
-          width:34px;height:34px;border-radius:50%;border:1.5px solid var(--brass-light);
-          display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;
-          font-weight:600;font-size:15px;color:var(--brass-light);flex:none;
-        }
-        .profile-scope .brand-name{font-family:'Fraunces',serif;font-size:16.5px;font-weight:600;letter-spacing:.01em;}
-        .profile-scope .brand-sub{font-size:10.5px;color:#9AA6BF;text-transform:uppercase;letter-spacing:.12em;margin-top:1px;}
 
         .profile-scope .mini-card{
           background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);
@@ -997,10 +995,18 @@ export default function CandidatePanel() {
 
         @media (max-width:860px){
           .profile-scope .app{flex-direction:column;}
-          .profile-scope .sidebar{width:100%;flex:none;height:auto;position:relative;flex-direction:row;align-items:center;padding:16px 18px;gap:16px;}
-          .profile-scope .mini-card,.profile-scope .sidebar-foot{display:none;}
-          .profile-scope nav.tabs{flex-direction:row;margin-left:auto;}
-          .profile-scope .main{padding:24px 18px 70px;}
+          .profile-scope .sidebar{display:none;}
+          .pm-bar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--paper-2);border-bottom:1px solid var(--line);}
+          .pm-hbtn{background:none;border:1px solid var(--line);border-radius:8px;padding:7px;cursor:pointer;color:var(--ink);display:flex;align-items:center;justify-content:center;}
+          .pm-title{font-family:'Fraunces',serif;font-weight:600;font-size:16px;color:var(--ink);}
+          .pm-overlay{display:block;position:fixed;inset:0;background:rgba(22,35,58,.5);backdrop-filter:blur(4px);z-index:90;}
+          .pm-drawer{position:fixed;top:0;left:0;bottom:0;width:min(300px,82vw);background:#fff;padding:20px;display:flex;flex-direction:column;gap:4px;box-shadow:8px 0 30px rgba(0,0,0,.15);z-index:91;}
+          .pm-close{align-self:flex-end;background:none;border:none;cursor:pointer;color:#6B7280;padding:6px;margin-bottom:8px;}
+          .pm-item{padding:13px 14px;border-radius:8px;font-size:15px;font-weight:500;color:#2C3E63;display:block;border:none;background:none;text-align:left;cursor:pointer;width:100%;font-family:'Inter',sans-serif;}
+          .pm-item:hover{background:#EDF1EE;color:#14213D;}
+          .pm-item.active{background:#F4EAC9;color:#8C6A24;font-weight:600;}
+          .pm-logout{margin-top:auto;color:#B5615F;}
+          .profile-scope .main{padding:24px 18px 80px;}
           .profile-scope .field-grid,.profile-scope .field-grid.cols-3{grid-template-columns:1fr;}
           .profile-scope .seal-doc-id{display:none;}
           .profile-scope .lang-row{grid-template-columns:1fr;}
@@ -1008,13 +1014,14 @@ export default function CandidatePanel() {
         `
       }} />}
       
+      <Navbar active={isProfileMode ? 'profile' : 'vacansiy'} onLoginClick={() => setAuthModalOpen(true)} onProfileClick={() => {
+        if (!isLoggedIn) { setAuthModalOpen(true); return; }
+        setView('profile');
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }} />
+
       {!isProfileMode ? (
         <div>
-          <Navbar active="vacansiy" onLoginClick={() => setAuthModalOpen(true)} onAvatarClick={() => {
-            if (!isLoggedIn) { setAuthModalOpen(true); return; }
-            setView('profile');
-            window.scrollTo({ top: 0, behavior: 'instant' });
-          }} />
           
           <div className="main">
             {view === 'jobs' && (
@@ -1291,101 +1298,34 @@ export default function CandidatePanel() {
               </section>
             )}
 
-            {view === 'applications' && (
-              <section className="view active">
-                <div className="pagehead"><h1>Mening arizalarim</h1><p>Yuborilgan arizalaringiz va ularning holati.</p></div>
-                <div>
-                  {myApplications.length === 0 ? (
-                    <div className="empty-state"><h3>Hozircha arizalar yo'q</h3><p>Vakansiyalar bo'limidan ish tanlab, ariza topshiring.</p></div>
-                  ) : (
-                    myApplications.map(a => (
-                      <div key={a.id} className="app-item" onClick={() => { setActiveAppId(a.id); setView('app-detail'); }}>
-                        <div className="top"><div><h3>{a.vacancyTitle}</h3><div className="meta">Yuborilgan sana: {a.submittedDate}</div></div></div>
-                        <div className="progress-track">
-                          {PIPELINE.map((p, i) => (
-                            <div key={i} className={`pstep \${i < a.stageIdx ? 'done' : (i === a.stageIdx ? 'current' : '')}`}>
-                              <div className="dot"></div><span>{p}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </section>
-            )}
-
-            {view === 'app-detail' && activeApp && activeAppJob && (
-              <section className="view active">
-                <div className="back-link" onClick={() => setView('applications')}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M15 18l-6-6 6-6" /></svg>
-                  Arizalarimga qaytish
-                </div>
-                
-                <div className="detail-card">
-                  <h2>{activeAppJob.title}</h2>
-                  <div className="co">Yuborilgan sana: {activeApp.submittedDate}</div>
-                  <div className="progress-track">
-                    {PIPELINE.map((p, i) => (
-                      <div key={i} className={`pstep \${i < activeApp.stageIdx ? 'done' : (i === activeApp.stageIdx ? 'current' : '')}`}>
-                        <div className="dot"></div><span>{p}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {activeAppJob.aiConfig.cvCheck.enabled && (
-                  <div className="ai-result">
-                    <div className="rh"><div className="t"><div className="icon">{AI_META.cvCheck.icon}</div>{AI_META.cvCheck.label}</div><span className={`score-pill ${scoreClass(activeApp.draft.cvScore)}`}>{activeApp.draft.cvScore}%</span></div>
-                    <p className="comment">CV moslik bali: {activeApp.draft.cvScore}%</p>
-                  </div>
-                )}
-                
-                {activeAppJob.aiConfig.test.enabled && (
-                  <div className="ai-result">
-                    <div className="rh"><div className="t"><div className="icon">{AI_META.test.icon}</div>{AI_META.test.label}</div><span className={`score-pill ${scoreClass(activeApp.draft.testScore)}`}>{activeApp.draft.testScore}%</span></div>
-                    <p className="comment">Test natijasi: {activeApp.draft.testScore}%</p>
-                  </div>
-                )}
-
-                {activeAppJob.aiConfig.openQ.enabled && (
-                  <div className="ai-result">
-                    <div className="rh"><div className="t"><div className="icon">{AI_META.openQ.icon}</div>Ochiq savollarga javoblaringiz</div></div>
-                    {activeAppJob.aiConfig.openQ.questions.map((q: string, qi: number) => (
-                      <p key={qi} className="comment" style={{ marginBottom: 8 }}><b>{q}</b><br/>{activeApp.draft.openAnswers[qi] || ''}</p>
-                    ))}
-                  </div>
-                )}
-
-                {activeAppJob.aiConfig.sales.enabled && (
-                  <div className="ai-result">
-                    <div className="rh"><div className="t"><div className="icon">{AI_META.sales.icon}</div>{AI_META.sales.label}</div><span className={`score-pill ${scoreClass(activeApp.draft.salesScore)}`}>{activeApp.draft.salesScore}%</span></div>
-                    <p className="comment">Sotuv simulyatsiyasi bali: {activeApp.draft.salesScore}%</p>
-                  </div>
-                )}
-
-                {activeAppJob.aiConfig.video.enabled && (
-                  <div className="ai-result">
-                    <div className="rh"><div className="t"><div className="icon">{AI_META.video.icon}</div>{AI_META.video.label}</div></div>
-                    <p className="comment"><a href={activeApp.draft.videoLink} target="_blank" rel="noopener">{activeApp.draft.videoLink}</a></p>
-                  </div>
-                )}
-              </section>
-            )}
           </div>
         </div>
       ) : (
         <div className="profile-scope">
+          {/* Mobile profile hamburger menu */}
+          <div className="pm-bar">
+            <button className="pm-hbtn" onClick={() => setProfileMenuOpen(true)}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+            </button>
+            <span className="pm-title">{view === 'profile' ? 'Profil' : view === 'resume' ? 'CV' : view === 'practice' ? 'Mashq' : view === 'applications' ? 'Arizalarim' : 'Profil'}</span>
+          </div>
+          {profileMenuOpen && (
+            <div className="pm-overlay" onClick={() => setProfileMenuOpen(false)}>
+              <div className="pm-drawer" onClick={e => e.stopPropagation()}>
+                <button className="pm-close" onClick={() => setProfileMenuOpen(false)}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+                <button className={`pm-item ${view === 'profile' ? 'active' : ''}`} onClick={() => { setView('profile'); setProfileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Profil sozlamalari</button>
+                <button className={`pm-item ${view === 'resume' ? 'active' : ''}`} onClick={() => { setView('resume'); setProfileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>CV (Rezyume)</button>
+                <button className={`pm-item ${view === 'practice' ? 'active' : ''}`} onClick={() => { setView('practice'); loadPractice(); setProfileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Mashq</button>
+                <button className={`pm-item ${view === 'applications' ? 'active' : ''}`} onClick={() => { loadApplications(); setView('applications'); setProfileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Mening arizalarim</button>
+                <button className="pm-item pm-logout" onClick={logout}>Chiqish</button>
+              </div>
+            </div>
+          )}
+
           <div className="app">
             <aside className="sidebar">
-              <div className="brand" style={{ cursor: 'pointer' }} onClick={() => setView('jobs')} title="Vakansiyalarga qaytish">
-                <div className="brand-mark">R</div>
-                <div>
-                  <div className="brand-name">Repza</div>
-                  <div className="brand-sub">Nomzod kabineti</div>
-                </div>
-              </div>
-
               <div className="mini-card">
                 <div className="mini-photo-wrap">
                   {profilePhoto ? (
@@ -1417,7 +1357,7 @@ export default function CandidatePanel() {
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
                   Mashq
                 </button>
-                <button className="tab-btn" onClick={() => { loadApplications(); setView('applications'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                <button className={`tab-btn ${(view === 'applications' || view === 'app-detail') ? 'active' : ''}`} onClick={() => { loadApplications(); setView('applications'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                   Mening arizalarim
                 </button>
@@ -1429,11 +1369,59 @@ export default function CandidatePanel() {
 
               <div className="sidebar-foot">
                 <div className="status-pill-mini"><span className="dot"></span> Faol qidiruvda</div>
-                <div style={{ marginTop: 8 }}>© Nomzod kabineti, 2026</div>
               </div>
             </aside>
 
             <main className="main">
+              {view === 'applications' && (
+                <section className="view active">
+                  <div className="page-head">
+                    <div className="eyebrow">Kabinet / Arizalar</div>
+                    <h1>Mening arizalarim</h1>
+                    <p>Yuborilgan arizalaringiz va ularning holati.</p>
+                  </div>
+                  <div>
+                    {myApplications.length === 0 ? (
+                      <div className="entries-empty">Hozircha arizalar yo&apos;q. Vakansiyalar bo&apos;limidan ish tanlab, ariza topshiring.</div>
+                    ) : (
+                      myApplications.map(a => (
+                        <div key={a.id} className="doc-card" style={{ cursor: 'pointer', marginBottom: 14 }} onClick={() => { setActiveAppId(a.id); setView('app-detail'); }}>
+                          <div className="doc-card-head"><h3>{a.vacancyTitle}</h3><span className="num">{a.submittedDate}</span></div>
+                          <div className="doc-card-body" style={{ padding: '14px 22px' }}>
+                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                              {PIPELINE.map((p, i) => (
+                                <span key={i} style={{ fontSize: 11.5, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: i < a.stageIdx ? 'var(--green-bg)' : i === a.stageIdx ? 'var(--brass-bg)' : 'var(--paper-2)', color: i < a.stageIdx ? 'var(--green)' : i === a.stageIdx ? 'var(--brass)' : '#8B93A8' }}>{p}</span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </section>
+              )}
+
+              {view === 'app-detail' && activeApp && activeAppJob && (
+                <section className="view active">
+                  <div style={{ marginBottom: 20, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 13.5, color: 'var(--brass)', fontWeight: 500 }} onClick={() => setView('applications')}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M15 18l-6-6 6-6" /></svg>
+                    Arizalarimga qaytish
+                  </div>
+                  <div className="doc-card">
+                    <div className="doc-card-head"><h3>{activeAppJob.title}</h3><span className="num">{activeApp.submittedDate}</span></div>
+                    <div className="doc-card-body">
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+                        {PIPELINE.map((p, i) => (
+                          <span key={i} style={{ fontSize: 11.5, fontWeight: 600, padding: '3px 10px', borderRadius: 20, background: i < activeApp.stageIdx ? 'var(--green-bg)' : i === activeApp.stageIdx ? 'var(--brass-bg)' : 'var(--paper-2)', color: i < activeApp.stageIdx ? 'var(--green)' : i === activeApp.stageIdx ? 'var(--brass)' : '#8B93A8' }}>{p}</span>
+                        ))}
+                      </div>
+                      {activeAppJob.aiConfig.cvCheck.enabled && <div style={{ marginBottom: 12 }}><b>CV moslik:</b> {activeApp.draft.cvScore}%</div>}
+                      {activeAppJob.aiConfig.test.enabled && <div style={{ marginBottom: 12 }}><b>Test natijasi:</b> {activeApp.draft.testScore}%</div>}
+                      {activeAppJob.aiConfig.sales.enabled && <div style={{ marginBottom: 12 }}><b>Sotuv simulyatsiyasi:</b> {activeApp.draft.salesScore}%</div>}
+                    </div>
+                  </div>
+                </section>
+              )}
               {view === 'profile' && (
                 <section className="view active">
                   <div className="page-head">
