@@ -57,6 +57,7 @@ export default function Navbar({ active, onLoginClick, onProfileClick }: Props) 
         @media(max-width:720px){
           .rn-center{display:none;}
           .rn-avatar{display:none;}
+          .rn-right{margin-left:auto;}
           .rn-bar{padding:0 16px;height:52px;}
           .rn-bottom{display:flex;position:fixed;bottom:0;left:0;right:0;background:#14213D;border-top:1px solid rgba(239,237,228,0.1);z-index:40;padding:6px 0 max(6px,env(safe-area-inset-bottom));justify-content:space-around;}
           .rn-btab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 8px;border:none;background:none;color:#8B93A8;font-size:10px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;min-width:56px;}
