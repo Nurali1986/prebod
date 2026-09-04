@@ -168,7 +168,7 @@ export async function POST(req: NextRequest) {
       messages: messages as any,
       stream: true,
       stream_options: { include_usage: true },
-      max_tokens: isStop ? 600 : 80,
+      max_tokens: isStop ? 4096 : 80,
       temperature: 0.8,
     });
 
