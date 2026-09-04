@@ -62,6 +62,8 @@ export default function SuperadminPanel() {
   const [modVacancies, setModVacancies] = useState(initialModVacancies);
   const [hrUsers, setHrUsers] = useState(initialHrUsers);
   const [candidateUsers, setCandidateUsers] = useState(initialCandidateUsers);
+  const [repUsers, setRepUsers] = useState<any[]>([]);
+  const [managerUsers, setManagerUsers] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
   const [payments] = useState(initialPayments);
@@ -97,7 +99,7 @@ export default function SuperadminPanel() {
   };
 
   const [modTab, setModTab] = useState('pending');
-  const [userTab, setUserTab] = useState('hr');
+  const [userTab, setUserTab] = useState('reps');
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
@@ -148,8 +150,27 @@ export default function SuperadminPanel() {
             applications: u._count?.applications ?? 0,
             status: u.blocked ? 'blocked' : 'active'
           }));
+          const reps = data.filter((u: any) => u.role === 'rep').map((u: any) => ({
+            id: u.id,
+            name: u.firstName + ' ' + u.lastName,
+            email: u.email,
+            phone: u.phone || '',
+            createdAt: u.createdAt,
+            status: u.blocked ? 'blocked' : 'active'
+          }));
+          const managers = data.filter((u: any) => u.role === 'manager').map((u: any) => ({
+            id: u.id,
+            name: u.firstName + ' ' + u.lastName,
+            company: u.company || 'Jamoa ko\'rsatilmagan',
+            email: u.email,
+            phone: u.phone || '',
+            createdAt: u.createdAt,
+            status: u.blocked ? 'blocked' : 'active'
+          }));
           setHrUsers(hr);
           setCandidateUsers(cand);
+          setRepUsers(reps);
+          setManagerUsers(managers);
           const groupedCos = hr.reduce((acc: any, curr: any) => {
             if (!acc[curr.company]) {
               acc[curr.company] = { id: Object.keys(acc).length + 1, name: curr.company, industry: 'Noma\'lum', plan: 'Bepul', status: 'active', vacancies: 0, hrUsers: 1, joined: 'Bugun' };
@@ -259,7 +280,8 @@ export default function SuperadminPanel() {
   };
 
   const toggleUserStatus = async (type: string, idx: number) => {
-    const list = type === 'hr' ? hrUsers : candidateUsers;
+    const listMap: Record<string, any[]> = { hr: hrUsers, candidate: candidateUsers, rep: repUsers, manager: managerUsers };
+    const list = listMap[type] || candidateUsers;
     const user = list[idx];
     if (!user?.id) return;
     const nextBlocked = user.status !== 'blocked';
@@ -276,7 +298,8 @@ export default function SuperadminPanel() {
       }
       const newList = [...list];
       newList[idx] = { ...user, status: nextBlocked ? 'blocked' : 'active' };
-      if (type === 'hr') setHrUsers(newList); else setCandidateUsers(newList);
+      const setterMap: Record<string, (l: any[]) => void> = { hr: setHrUsers, candidate: setCandidateUsers, rep: setRepUsers, manager: setManagerUsers };
+      (setterMap[type] || setCandidateUsers)(newList);
       showToast(nextBlocked ? `${user.name} bloklandi` : `${user.name} blokdan chiqarildi`);
     } catch { showToast('Tarmoq xatosi'); }
   };
@@ -415,6 +438,8 @@ export default function SuperadminPanel() {
   const activeVac = modVacancies.filter(v => v.status === 'active').length;
   const pendingVac = modVacancies.filter(v => v.status === 'pending').length;
   const totalCandidates = candidateUsers.length;
+  const totalReps = repUsers.length;
+  const totalManagers = managerUsers.length;
 
   // Real AI-activity counts derived from actual applications.
   const aiStats = {
@@ -663,9 +688,9 @@ export default function SuperadminPanel() {
             <div>
               <div className="pagehead"><div><h1>Platforma holati</h1><p>Barcha kompaniyalar va nomzodlar bo'yicha umumiy ko'rinish.</p></div></div>
               <div className="stat-row">
-                <div className="stat-card"><div className="label">Faol kompaniyalar</div><div className="num">{activeCo}</div><div className={`delta ${pendingCo ? 'warn' : 'flat'}`}>{pendingCo} ta tasdiqlash kutmoqda</div></div>
+                <div className="stat-card"><div className="label">Sotuvchilar</div><div className="num">{totalReps}</div><div className="delta flat">Ro&apos;yxatdan o&apos;tgan</div></div>
+                <div className="stat-card"><div className="label">Rahbarlar</div><div className="num">{totalManagers}</div><div className="delta flat">Jamoa boshliqlari</div></div>
                 <div className="stat-card"><div className="label">Faol vakansiyalar</div><div className="num">{activeVac}</div><div className={`delta ${pendingVac ? 'warn' : 'flat'}`}>{pendingVac} ta moderatsiyada</div></div>
-                <div className="stat-card"><div className="label">Jami nomzodlar</div><div className="num">{totalCandidates}</div><div className="delta flat">Ro&apos;yxatdan o&apos;tgan</div></div>
                 <div className="stat-card"><div className="label">Jami arizalar</div><div className="num">{applications.length}</div><div className="delta flat">Barcha vakansiyalar bo&apos;yicha</div></div>
               </div>
 
@@ -785,21 +810,58 @@ export default function SuperadminPanel() {
           {view === 'users' && (
             <div>
               <div className="pagehead">
-                <div><h1>Foydalanuvchilar</h1><p>HR foydalanuvchilar va nomzodlar.</p></div>
+                <div><h1>Foydalanuvchilar</h1><p>Sotuvchilar, rahbarlar, HR va nomzodlar.</p></div>
                 <div>
-                  {userTab === 'hr' ? (
+                  {userTab === 'hr' && (
                     <button className="btn btn-primary" onClick={() => { setHrDraft({ name: '', email: '', company: companies[0]?.name || '' }); setHrErr(false); setHrModalOpen(true); }}>+ HR qo'shish</button>
-                  ) : (
+                  )}
+                  {userTab === 'candidates' && (
                     <button className="btn btn-primary" onClick={() => { setCandDraft({ name: '', email: '', phone: '' }); setCandErr(false); setCandModalOpen(true); }}>+ Nomzod qo'shish</button>
                   )}
                 </div>
               </div>
               <div className="tabs">
-                <div className={`tab ${userTab === 'hr' ? 'active' : ''}`} onClick={() => setUserTab('hr')}>HR foydalanuvchilar</div>
-                <div className={`tab ${userTab === 'candidates' ? 'active' : ''}`} onClick={() => setUserTab('candidates')}>Nomzodlar</div>
+                <div className={`tab ${userTab === 'reps' ? 'active' : ''}`} onClick={() => setUserTab('reps')}>Sotuvchilar <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, opacity: .7 }}>({repUsers.length})</span></div>
+                <div className={`tab ${userTab === 'managers' ? 'active' : ''}`} onClick={() => setUserTab('managers')}>Rahbarlar <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, opacity: .7 }}>({managerUsers.length})</span></div>
+                <div className={`tab ${userTab === 'hr' ? 'active' : ''}`} onClick={() => setUserTab('hr')}>HR <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, opacity: .7 }}>({hrUsers.length})</span></div>
+                <div className={`tab ${userTab === 'candidates' ? 'active' : ''}`} onClick={() => setUserTab('candidates')}>Nomzodlar <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, opacity: .7 }}>({candidateUsers.length})</span></div>
               </div>
               <table className="data-table">
-                {userTab === 'hr' ? (
+                {userTab === 'reps' && (
+                  <>
+                    <thead><tr><th>Ism</th><th>Email</th><th>Telefon</th><th>Holat</th><th>Amallar</th></tr></thead>
+                    <tbody>
+                      {repUsers.length === 0 ? (
+                        <tr><td colSpan={5} style={{ textAlign: 'center', color: 'var(--muted)', padding: 26 }}>Sotuvchilar hali yo'q.</td></tr>
+                      ) : repUsers.map((u, i) => (
+                        <tr key={u.id}>
+                          <td className="row-title">{u.name}</td><td>{u.email}</td><td>{u.phone || '—'}</td><td>{statusBadge(u.status)}</td>
+                          <td className="row-actions">
+                            {u.status !== 'blocked' ? <button className="btn btn-danger btn-sm" onClick={() => toggleUserStatus('rep', i)}>Bloklash</button> : <button className="btn btn-success btn-sm" onClick={() => toggleUserStatus('rep', i)}>Blokdan chiqarish</button>}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </>
+                )}
+                {userTab === 'managers' && (
+                  <>
+                    <thead><tr><th>Ism</th><th>Kompaniya/Jamoa</th><th>Email</th><th>Holat</th><th>Amallar</th></tr></thead>
+                    <tbody>
+                      {managerUsers.length === 0 ? (
+                        <tr><td colSpan={5} style={{ textAlign: 'center', color: 'var(--muted)', padding: 26 }}>Rahbarlar hali yo'q.</td></tr>
+                      ) : managerUsers.map((u, i) => (
+                        <tr key={u.id}>
+                          <td className="row-title">{u.name}</td><td>{u.company}</td><td>{u.email}</td><td>{statusBadge(u.status)}</td>
+                          <td className="row-actions">
+                            {u.status !== 'blocked' ? <button className="btn btn-danger btn-sm" onClick={() => toggleUserStatus('manager', i)}>Bloklash</button> : <button className="btn btn-success btn-sm" onClick={() => toggleUserStatus('manager', i)}>Blokdan chiqarish</button>}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </>
+                )}
+                {userTab === 'hr' && (
                   <>
                     <thead><tr><th>Ism</th><th>Kompaniya</th><th>Email</th><th>Holat</th><th>Amallar</th></tr></thead>
                     <tbody>
@@ -813,7 +875,8 @@ export default function SuperadminPanel() {
                       ))}
                     </tbody>
                   </>
-                ) : (
+                )}
+                {userTab === 'candidates' && (
                   <>
                     <thead><tr><th>Ism</th><th>Email</th><th>Arizalar soni</th><th>Holat</th><th>Amallar</th></tr></thead>
                     <tbody>

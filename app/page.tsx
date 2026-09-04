@@ -71,8 +71,9 @@ export default function LandingPage() {
     if (role === 'superadmin') return '/boshqaruv';
     if (role === 'manager') return '/jamoa';
     if (role === 'employer') return '/hr';
-    // rep and candidate share the unified cabinet at /vacansiy.
-    return redir ? '/vacansiy' + decodeURIComponent(redir) : '/vacansiy';
+    if (redir) return '/vacansiy' + decodeURIComponent(redir);
+    if (role === 'rep') return '/vacansiy?view=profile';
+    return '/vacansiy';
   };
 
   const openSignup = (role: string) => {
