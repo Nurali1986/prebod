@@ -29,7 +29,165 @@ const initialVacancies: any[] = [];
 
 const PIPELINE = ["Yuborildi", "Ko'rib chiqilmoqda", "Suhbat", "Taklif", "Ishga qabul"];
 
+const P_STAGE_META = [
+  { key: 'tanishuv', label: 'Tanishuv', max: 12 },
+  { key: 'programma', label: 'Programma', max: 8 },
+  { key: 'yaqinlashuv', label: 'Yaqinlashuv', max: 9 },
+  { key: 'ehtiyoj', label: 'Ehtiyoj', max: 20 },
+  { key: 'taqdimot', label: 'Taqdimot', max: 20 },
+  { key: 'etiroz', label: "E'tirozlar", max: 9 },
+  { key: 'yopish', label: 'Yopish', max: 16 },
+  { key: 'followup', label: 'Follow-up', max: 6 },
+];
 
+const SESSION_COLORS = [
+  '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6',
+  '#ec4899', '#06b6d4', '#f97316', '#6366f1', '#14b8a6',
+];
+
+function ProfileResultsDashboard({ sessions }: { sessions: any[] }) {
+  const withStages = sessions.filter((s) => s.stageScores && typeof s.stageScores === 'object');
+  const last10 = withStages.slice(0, 10);
+
+  const totalXP = sessions.reduce((sum, s) => sum + (s.score || 0) * 10, 0);
+  const sessCount = sessions.length;
+  const avgScore = sessCount ? Math.round(sessions.reduce((s, p) => s + p.score, 0) / sessCount) : 0;
+  const bestScore = sessCount ? Math.max(...sessions.map((p) => p.score)) : 0;
+
+  if (sessCount === 0) {
+    return (
+      <div style={{ background: 'var(--white)', border: '1px solid var(--line)', borderRadius: 6, padding: '30px 22px', marginBottom: 22, textAlign: 'center' }}>
+        <div style={{ fontSize: 36, marginBottom: 10 }}>🎯</div>
+        <h3 style={{ fontFamily: "'Fraunces',serif", fontSize: 18, margin: '0 0 8px' }}>Hali mashq o&apos;tkazilmagan</h3>
+        <p style={{ fontSize: 13.5, color: 'var(--ink-soft)', margin: '0 0 16px' }}>AI mijoz bilan gaplashib, sotuv mahoratingizni o&apos;lchang.</p>
+        <button style={{ background: 'var(--brass)', color: '#fff', border: 'none', borderRadius: 4, padding: '10px 20px', fontWeight: 600, fontSize: 13.5, cursor: 'pointer' }} onClick={() => { window.location.href = '/chat'; }}>Birinchi mashqni boshlash →</button>
+      </div>
+    );
+  }
+
+  const N = P_STAGE_META.length;
+  const cx = 210, cy = 185, R = 130;
+  const angleStep = (2 * Math.PI) / N;
+  const startAngle = -Math.PI / 2;
+  const pointAt = (i: number, r: number) => {
+    const a = startAngle + i * angleStep;
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  };
+  const gridLevels = [0.25, 0.5, 0.75, 1];
+  const gridPaths = gridLevels.map((lv) => {
+    const pts = Array.from({ length: N }, (_, i) => pointAt(i, R * lv));
+    return pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ') + ' Z';
+  });
+
+  const sessionPolygons = last10.map((sess, si) => {
+    const pts = P_STAGE_META.map((s, i) => {
+      const v = (sess.stageScores as any)?.[s.key] ?? 0;
+      return pointAt(i, R * (v / s.max));
+    });
+    const path = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ') + ' Z';
+    const color = SESSION_COLORS[si % SESSION_COLORS.length];
+    return { path, pts, color, label: sess.personaName || sess.persona, score: sess.score, date: sess.createdAt };
+  });
+
+  // XP chart
+  const sorted = [...sessions].reverse();
+  let cumXP = 0;
+  const xpData = sorted.map((s) => {
+    cumXP += (s.score || 0) * 10;
+    return { date: new Date(s.createdAt), xp: cumXP };
+  });
+  const maxXP = Math.max(cumXP, 100);
+  const chartW = 560, chartH = 200, padL = 50, padR = 20, padT = 20, padB = 36;
+  const plotW = chartW - padL - padR, plotH = chartH - padT - padB;
+  const xpPts = xpData.map((d, i) => {
+    const x = padL + (xpData.length > 1 ? (i / (xpData.length - 1)) * plotW : plotW / 2);
+    const y = padT + plotH - (d.xp / maxXP) * plotH;
+    return [x, y];
+  });
+  const xpLine = xpPts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+  const firstDate = xpData.length > 0 ? xpData[0].date.toLocaleDateString('uz-UZ') : '';
+  const lastDate = xpData.length > 0 ? xpData[xpData.length - 1].date.toLocaleDateString('uz-UZ') : '';
+
+  return (
+    <>
+      {/* Stats row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 18 }}>
+        {[
+          { label: 'Jami mashqlar', value: sessCount, icon: '🎯' },
+          { label: "O'rtacha ball", value: `${avgScore}%`, icon: '📊' },
+          { label: 'Eng yaxshi', value: `${bestScore}%`, icon: '🏆' },
+          { label: 'Jami XP', value: `${totalXP.toLocaleString()}`, icon: '⚡' },
+        ].map((st) => (
+          <div key={st.label} style={{ background: 'var(--white)', border: '1px solid var(--line)', borderRadius: 6, padding: '16px 18px', boxShadow: 'var(--shadow)' }}>
+            <div style={{ fontSize: 22, marginBottom: 4 }}>{st.icon}</div>
+            <div style={{ fontFamily: "'Fraunces',serif", fontSize: 22, fontWeight: 600 }}>{st.value}</div>
+            <div style={{ fontSize: 11.5, color: 'var(--ink-soft)', marginTop: 2 }}>{st.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Radar chart — last 10 sessions */}
+      {last10.length > 0 && (
+        <div style={{ background: 'var(--white)', border: '1px solid var(--line)', borderRadius: 6, padding: '20px 22px', marginBottom: 18, boxShadow: 'var(--shadow)' }}>
+          <h3 style={{ fontFamily: "'Fraunces',serif", fontSize: 16, margin: '0 0 4px' }}>Mahorat radar diagrammasi</h3>
+          <p style={{ fontSize: 12, color: 'var(--ink-soft)', margin: '0 0 12px' }}>Oxirgi {last10.length} ta suhbat natijasi — har bir suhbat alohida rangda</p>
+          <svg viewBox="0 0 460 390" width="100%" style={{ maxWidth: 420, display: 'block', margin: '0 auto' }}>
+            {gridPaths.map((d, i) => <path key={i} d={d} fill={i === 0 ? 'rgba(140,106,36,.04)' : 'none'} stroke="var(--line)" strokeWidth={i === gridLevels.length - 1 ? 1.2 : 0.5} />)}
+            {P_STAGE_META.map((_, i) => {
+              const [x, y] = pointAt(i, R);
+              return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="var(--line)" strokeWidth={0.4} />;
+            })}
+            {sessionPolygons.map((sp, si) => (
+              <g key={si}>
+                <path d={sp.path} fill={sp.color + '18'} stroke={sp.color} strokeWidth={1.6} strokeLinejoin="round" />
+                {sp.pts.map((p, pi) => <circle key={pi} cx={p[0]} cy={p[1]} r={2.8} fill={sp.color} />)}
+              </g>
+            ))}
+            {P_STAGE_META.map((s, i) => {
+              const [x, y] = pointAt(i, R + 20);
+              const anchor = x < cx - 10 ? 'end' : x > cx + 10 ? 'start' : 'middle';
+              return <text key={i} x={x} y={y} textAnchor={anchor} dominantBaseline="central" fill="var(--ink-soft)" fontSize={10.5} fontWeight={500} fontFamily="Inter,sans-serif">{s.label}</text>;
+            })}
+          </svg>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 14px', marginTop: 10, justifyContent: 'center' }}>
+            {sessionPolygons.map((sp, si) => (
+              <span key={si} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'var(--ink-soft)' }}>
+                <span style={{ width: 10, height: 10, borderRadius: '50%', background: sp.color, flexShrink: 0 }} />
+                {sp.label} ({sp.score}%)
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* XP Progress chart */}
+      {xpData.length >= 2 && (
+        <div style={{ background: 'var(--white)', border: '1px solid var(--line)', borderRadius: 6, padding: '20px 22px', marginBottom: 22, boxShadow: 'var(--shadow)' }}>
+          <h3 style={{ fontFamily: "'Fraunces',serif", fontSize: 16, margin: '0 0 4px' }}>XP o&apos;sish grafigi</h3>
+          <p style={{ fontSize: 12, color: 'var(--ink-soft)', margin: '0 0 12px' }}>Har bir mashqdan {'{score × 10}'} XP qo&apos;shiladi</p>
+          <svg viewBox={`0 0 ${chartW} ${chartH}`} width="100%" style={{ maxWidth: 600, display: 'block', margin: '0 auto' }}>
+            {/* Y axis labels */}
+            <text x={padL - 8} y={padT} textAnchor="end" dominantBaseline="central" fill="var(--ink-soft)" fontSize={10} fontFamily="'IBM Plex Mono',monospace">{maxXP.toLocaleString()} XP</text>
+            <text x={padL - 8} y={padT + plotH} textAnchor="end" dominantBaseline="central" fill="var(--ink-soft)" fontSize={10} fontFamily="'IBM Plex Mono',monospace">0</text>
+            {/* Grid lines */}
+            <line x1={padL} y1={padT} x2={padL + plotW} y2={padT} stroke="var(--line)" strokeWidth={0.5} />
+            <line x1={padL} y1={padT + plotH / 2} x2={padL + plotW} y2={padT + plotH / 2} stroke="var(--line)" strokeWidth={0.5} strokeDasharray="4 4" />
+            <line x1={padL} y1={padT + plotH} x2={padL + plotW} y2={padT + plotH} stroke="var(--line)" strokeWidth={0.5} />
+            {/* Area fill */}
+            <path d={`${xpLine} L${xpPts[xpPts.length - 1][0].toFixed(1)},${(padT + plotH).toFixed(1)} L${xpPts[0][0].toFixed(1)},${(padT + plotH).toFixed(1)} Z`} fill="rgba(20,184,166,.1)" />
+            {/* Line */}
+            <path d={xpLine} fill="none" stroke="#14b8a6" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+            {/* Dots */}
+            {xpPts.map((p, i) => <circle key={i} cx={p[0]} cy={p[1]} r={4} fill="#14b8a6" stroke="var(--white)" strokeWidth={2} />)}
+            {/* X axis dates */}
+            <text x={padL} y={padT + plotH + 22} textAnchor="start" fill="var(--ink-soft)" fontSize={10} fontFamily="'IBM Plex Mono',monospace">{firstDate}</text>
+            <text x={padL + plotW} y={padT + plotH + 22} textAnchor="end" fill="var(--ink-soft)" fontSize={10} fontFamily="'IBM Plex Mono',monospace">{lastDate}</text>
+          </svg>
+        </div>
+      )}
+    </>
+  );
+}
 
 export default function CandidatePanel() {
   const [view, setView] = useState('jobs');
@@ -1427,8 +1585,11 @@ export default function CandidatePanel() {
                   <div className="page-head">
                     <div className="eyebrow">Kabinet / Profil</div>
                     <h1>Profil sozlamalari</h1>
-                    <p>Shaxsiy ma'lumotlaringiz, aloqa kanallaringiz va ish qidirish holatingizni shu yerda boshqaring.</p>
+                    <p>AI sotuv simulyatsiya natijalari va shaxsiy ma&apos;lumotlaringiz.</p>
                   </div>
+
+                  {/* ── AI Simulation Results ── */}
+                  <ProfileResultsDashboard sessions={practiceSessions} />
 
                   <div className="doc-card">
                     <div className="doc-card-head"><h3>Profil rasmi</h3></div>
