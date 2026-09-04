@@ -19,10 +19,7 @@ const CATEGORIES = [
         title: 'Sotuv nima?',
         body: `Sotuvning 3 ta ta'rifi:\n\n🔴 Oddiy tushuncha: Sotuv — bu mahsulot sotish.\nYa'ni narxga ko'ra mahsulotni sotib oluvchiga yetkazish. Bu eng sodda daraja.\n\n🟢 Amalda esa: Sotuv — insonning qarorini o'zgartirish san'ati.\nTo'g'ri yondashuvda daqiqi mijozni o'ylantiradi, uning muammosini anglab yechim qidiradi va xarid qarorini qabul qilishga yordam beradi.\n\n🟡 Aniq ta'rif: Sotuv — odamni o'zi uchun foydali qarorni qabul qilishiga yordam berish.\nBunda sotuvchi maslahatchi vazifasini o'taydi.`,
       },
-      {
-        title: 'Hayotning o\'zi — sotuv',
-        body: `Hayotda deyarli hamma narsa sotuv:\n\n📄 BILA — O'zingizni tanishtirasiz\n📋 TALABI — Ehtiyojlaringizni bildirasiz\n💼 ISH SUHBATI — O'zingizni "sotasiz"\n👔 RAHBAR — G'oyalaringizni sotasiz\n💰 INVESTOR — Loyihangizni sotasiz\n\nBarchasi — sotuv!`,
-      },
+   
     ],
   },
   {
@@ -113,7 +110,38 @@ const CATEGORIES = [
     sections: [
       {
         title: 'Sotuv voronkasi nima?',
-        body: `Sotuv voronkasi — bu potentsial mijozning birinchi aloqadan xaridgacha bo'lgan yo'li. U tepadan keng, pastga tor — chunki har bir bosqichda ba'zi mijozlar tushib qoladi.\n\n📌 Voronka bosqichlari:\n1. Xabardorlik — mijoz sizni biladi\n2. Qiziqish — u ko'proq bilishni xohlaydi\n3. Ehtiyoj — u muammosini tan oladi\n4. Taklif — siz yechim taqdim etasiz\n5. Qaror — u xarid qilish yoki qilmaslikni hal qiladi\n6. Xarid — shartnoma/to'lov\n7. Sodiqlik — qayta xarid va tavsiya`,
+        html: `<p style="margin:0 0 20px;line-height:1.7;color:#555">Sotuv voronkasi — bu potentsial mijozning birinchi aloqadan xaridgacha bo'lgan yo'li. U tepadan keng, pastga tor — chunki har bir bosqichda ba'zi mijozlar tushib qoladi.</p>
+<div style="display:flex;flex-direction:column;align-items:center;gap:0;margin:16px 0 8px">
+  <div style="width:100%;max-width:420px;background:linear-gradient(135deg,#6366f1,#818cf8);color:#fff;padding:14px 24px;border-radius:12px 12px 0 0;text-align:center;font-weight:600;font-size:15px;position:relative">
+    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:20px">🔔</span>
+    1. Xabardorlik <span style="font-weight:400;font-size:12px;opacity:.8">— mijoz sizni biladi</span>
+  </div>
+  <div style="width:92%;max-width:388px;background:linear-gradient(135deg,#3b82f6,#60a5fa);color:#fff;padding:13px 24px;text-align:center;font-weight:600;font-size:15px;position:relative">
+    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:20px">👀</span>
+    2. Qiziqish <span style="font-weight:400;font-size:12px;opacity:.8">— ko'proq bilishni xohlaydi</span>
+  </div>
+  <div style="width:82%;max-width:348px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;padding:13px 24px;text-align:center;font-weight:600;font-size:15px;position:relative">
+    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:20px">🎯</span>
+    3. Ehtiyoj <span style="font-weight:400;font-size:12px;opacity:.8">— muammosini tan oladi</span>
+  </div>
+  <div style="width:70%;max-width:300px;background:linear-gradient(135deg,#14b8a6,#2dd4bf);color:#fff;padding:13px 24px;text-align:center;font-weight:600;font-size:15px;position:relative">
+    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:20px">📋</span>
+    4. Taklif <span style="font-weight:400;font-size:12px;opacity:.8">— yechim taqdim etiladi</span>
+  </div>
+  <div style="width:58%;max-width:250px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#fff;padding:13px 24px;text-align:center;font-weight:600;font-size:15px;position:relative">
+    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:20px">🤔</span>
+    5. Qaror <span style="font-weight:400;font-size:12px;opacity:.8">— xarid qilish/qilmaslik</span>
+  </div>
+  <div style="width:44%;max-width:195px;background:linear-gradient(135deg,#22c55e,#4ade80);color:#fff;padding:13px 24px;text-align:center;font-weight:600;font-size:15px;position:relative">
+    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:20px">💰</span>
+    6. Xarid <span style="font-weight:400;font-size:12px;opacity:.8">— shartnoma</span>
+  </div>
+  <div style="width:32%;max-width:150px;background:linear-gradient(135deg,#e11d48,#f43f5e);color:#fff;padding:14px 24px;border-radius:0 0 12px 12px;text-align:center;font-weight:600;font-size:15px;position:relative">
+    <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:20px">❤️</span>
+    7. Sodiqlik
+  </div>
+</div>
+<p style="margin:12px 0 0;text-align:center;font-size:12px;color:#999">↑ Har bosqichda ayrim mijozlar tushib qoladi</p>`,
       },
       {
         title: 'Voronkani optimallashtirish',
@@ -168,7 +196,20 @@ const CATEGORIES = [
       },
       {
         title: 'Asosiy farqlar',
-        body: `| | B2C | B2B | B2G |\n|---|---|---|---|\n| Qaror tezligi | Tez | O'rta-sekin | Juda sekin |\n| Mijoz soni | Ko'p | O'rta | Kam |\n| Shartnoma | Oddiy | Murakkab | Juda murakkab |\n| Hissiyot | Yuqori | Past | Minimal |\n| Munosabat | Qisqa | Uzoq | Juda uzoq |`,
+        html: `<div style="overflow-x:auto"><table style="width:100%;border-collapse:separate;border-spacing:0;border-radius:10px;overflow:hidden;font-size:14px;border:1px solid #E5E1D5">
+<thead><tr style="background:#14213D;color:#EFEDE4">
+<th style="padding:14px 16px;text-align:left;font-weight:600;min-width:120px">Mezon</th>
+<th style="padding:14px 16px;text-align:center;font-weight:600;min-width:100px"><span style="background:#3b82f6;color:#fff;padding:3px 10px;border-radius:12px;font-size:12px">B2C</span></th>
+<th style="padding:14px 16px;text-align:center;font-weight:600;min-width:100px"><span style="background:#8b5cf6;color:#fff;padding:3px 10px;border-radius:12px;font-size:12px">B2B</span></th>
+<th style="padding:14px 16px;text-align:center;font-weight:600;min-width:100px"><span style="background:#059669;color:#fff;padding:3px 10px;border-radius:12px;font-size:12px">B2G</span></th>
+</tr></thead>
+<tbody>
+<tr style="background:#fff"><td style="padding:12px 16px;font-weight:600;border-bottom:1px solid #E5E1D5">Qaror tezligi</td><td style="padding:12px 16px;text-align:center;border-bottom:1px solid #E5E1D5"><span style="color:#22c55e">&#9679;</span> Tez</td><td style="padding:12px 16px;text-align:center;border-bottom:1px solid #E5E1D5"><span style="color:#f59e0b">&#9679;</span> O&apos;rta-sekin</td><td style="padding:12px 16px;text-align:center;border-bottom:1px solid #E5E1D5"><span style="color:#ef4444">&#9679;</span> Juda sekin</td></tr>
+<tr style="background:#FAFAF7"><td style="padding:12px 16px;font-weight:600;border-bottom:1px solid #E5E1D5">Mijoz soni</td><td style="padding:12px 16px;text-align:center;border-bottom:1px solid #E5E1D5"><span style="color:#22c55e">&#9679;</span> Ko&apos;p</td><td style="padding:12px 16px;text-align:center;border-bottom:1px solid #E5E1D5"><span style="color:#f59e0b">&#9679;</span> O&apos;rta</td><td style="padding:12px 16px;text-align:center;border-bottom:1px solid #E5E1D5"><span style="color:#ef4444">&#9679;</span> Kam</td></tr>
+<tr style="background:#fff"><td style="padding:12px 16px;font-weight:600;border-bottom:1px solid #E5E1D5">Shartnoma</td><td style="padding:12px 16px;text-align:center;border-bottom:1px solid #E5E1D5"><span style="color:#22c55e">&#9679;</span> Oddiy</td><td style="padding:12px 16px;text-align:center;border-bottom:1px solid #E5E1D5"><span style="color:#f59e0b">&#9679;</span> Murakkab</td><td style="padding:12px 16px;text-align:center;border-bottom:1px solid #E5E1D5"><span style="color:#ef4444">&#9679;</span> Juda murakkab</td></tr>
+<tr style="background:#FAFAF7"><td style="padding:12px 16px;font-weight:600;border-bottom:1px solid #E5E1D5">Hissiyot roli</td><td style="padding:12px 16px;text-align:center;border-bottom:1px solid #E5E1D5"><span style="color:#22c55e">&#9679;</span> Yuqori</td><td style="padding:12px 16px;text-align:center;border-bottom:1px solid #E5E1D5"><span style="color:#f59e0b">&#9679;</span> Past</td><td style="padding:12px 16px;text-align:center;border-bottom:1px solid #E5E1D5"><span style="color:#ef4444">&#9679;</span> Minimal</td></tr>
+<tr style="background:#fff"><td style="padding:12px 16px;font-weight:600">Munosabat</td><td style="padding:12px 16px;text-align:center"><span style="color:#22c55e">&#9679;</span> Qisqa</td><td style="padding:12px 16px;text-align:center"><span style="color:#f59e0b">&#9679;</span> Uzoq</td><td style="padding:12px 16px;text-align:center"><span style="color:#ef4444">&#9679;</span> Juda uzoq</td></tr>
+</tbody></table></div>`,
       },
     ],
   },
@@ -270,7 +311,9 @@ export default function SotuvPage() {
           {activeCat.sections.map((sec, i) => (
             <div key={i} className="sv-section">
               <h2>{sec.title}</h2>
-              <div className="sv-section-body">{sec.body}</div>
+              {'html' in sec && sec.html
+                ? <div className="sv-section-body" dangerouslySetInnerHTML={{ __html: sec.html }} />
+                : <div className="sv-section-body">{sec.body}</div>}
             </div>
           ))}
         </div>

@@ -76,7 +76,7 @@ export default function Navbar({ active, onLoginClick, onProfileClick }: Props) 
           <button className={`rn-link ${active === 'home' ? 'active' : ''}`} onClick={() => go('/')}>Bosh sahifa</button>
           <button className={`rn-link ${active === 'chat' ? 'active' : ''}`} onClick={() => go('/chat')}>AI simulyator</button>
           <button className={`rn-link ${active === 'sotuv' ? 'active' : ''}`} onClick={() => go('/sotuv')}>Sotuv</button>
-          <button className={`rn-link ${active === 'vacansiy' ? 'active' : ''}`} onClick={() => go('/vacansiy')}>Vakansiya</button>
+          {/* <button className={`rn-link ${active === 'vacansiy' ? 'active' : ''}`} onClick={() => go('/vacansiy')}>Vakansiya</button> */}
         </div>
         <div className="rn-right">
           <button className="rn-lang" title="Til">UZ</button>
@@ -99,10 +99,10 @@ export default function Navbar({ active, onLoginClick, onProfileClick }: Props) 
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
           Sotuv
         </button>
-        <button className={`rn-btab ${active === 'vacansiy' ? 'active' : ''}`} onClick={() => go('/vacansiy')}>
+        {/* <button className={`rn-btab ${active === 'vacansiy' ? 'active' : ''}`} onClick={() => go('/vacansiy')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
           Vakansiya
-        </button>
+        </button> */}
         <button className={`rn-btab ${active === 'profile' ? 'active' : ''}`} onClick={handleProfile}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           Profil
