@@ -49,11 +49,18 @@ function parseStagesFromText(text: string): Record<string, number> | null {
 
 const generateId = () => 'id-' + Math.random().toString(36).substring(2, 15);
 
-function extractCompleteSentences(buffer: string): { sentences: string[]; rest: string } {
-  const matches = buffer.match(/[^.!?]*[.!?]+[\s"')\]]*/g);
-  if (!matches) return { sentences: [], rest: buffer };
+function extractSpeakableChunks(buffer: string): { chunks: string[]; rest: string } {
+  const matches = buffer.match(/[^.!?,;:—–\n]*[.!?,;:—–\n]+[\s"')\]]*/g);
+  if (!matches) return { chunks: [], rest: buffer };
   const consumed = matches.join('');
-  return { sentences: matches.map((s) => s.trim()).filter(Boolean), rest: buffer.slice(consumed.length) };
+  const merged: string[] = [];
+  let acc = '';
+  for (const m of matches) {
+    acc += m;
+    if (acc.trim().length >= 12) { merged.push(acc.trim()); acc = ''; }
+  }
+  if (acc.trim()) merged.push(acc.trim());
+  return { chunks: merged.filter(Boolean), rest: buffer.slice(consumed.length) };
 }
 
 export default function ChatPage() {
@@ -78,6 +85,7 @@ export default function ChatPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const azureRecognizerRef = useRef<any>(null);
   const speechBufferRef = useRef('');
+  const silenceTimerRef = useRef<any>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioQueueRef = useRef<QueueItem[]>([]);
   const isPlayingRef = useRef(false);
@@ -116,13 +124,11 @@ export default function ChatPage() {
     audioQueueRef.current.push(item);
     const voice = voiceName || CHARACTERS.find((c) => c.id === selectedCharacter)?.voice || 'uz-UZ-MadinaNeural';
     const url = `/api/tts?text=${encodeURIComponent(text)}&voice=${encodeURIComponent(voice)}`;
-    // Fetch the audio, retrying once on failure so a transient hiccup doesn't
-    // leave the call silent ("no response").
     const attempt = (tries: number) => {
       fetch(url)
         .then((res) => { if (!res.ok) throw new Error('tts'); return res.blob(); })
         .then((blob) => { item.audioUrl = URL.createObjectURL(blob); item.ready = true; processQueue(); })
-        .catch(() => { if (tries > 0) setTimeout(() => attempt(tries - 1), 400); else { item.failed = true; processQueue(); } });
+        .catch(() => { if (tries > 0) setTimeout(() => attempt(tries - 1), 300); else { item.failed = true; processQueue(); } });
     };
     attempt(1);
   };
@@ -134,13 +140,25 @@ export default function ChatPage() {
     if (audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0; }
   };
 
-  // ---------- STT (tap to talk) ----------
+  // ---------- STT (tap to talk + auto-send on silence) ----------
   const stopRecognizer = () => {
+    if (silenceTimerRef.current) { clearTimeout(silenceTimerRef.current); silenceTimerRef.current = null; }
     if (azureRecognizerRef.current) {
       try { azureRecognizerRef.current.stopContinuousRecognitionAsync(); azureRecognizerRef.current.close(); } catch {}
       azureRecognizerRef.current = null;
     }
     setIsListening(false);
+  };
+
+  const autoSend = () => {
+    const text = speechBufferRef.current.trim();
+    stopRecognizer();
+    if (text) { setStatusText(''); sendVoice(text); }
+  };
+
+  const resetSilenceTimer = () => {
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+    silenceTimerRef.current = setTimeout(autoSend, 1500);
   };
 
   const startListening = async () => {
@@ -154,10 +172,11 @@ export default function ChatPage() {
       const speechConfig = sdk.SpeechConfig.fromAuthorizationToken(token, region);
       speechConfig.speechRecognitionLanguage = 'uz-UZ';
       const recognizer = new sdk.SpeechRecognizer(speechConfig, sdk.AudioConfig.fromDefaultMicrophoneInput());
-      recognizer.recognized = (_s, e) => {
+      recognizer.recognized = (_s: unknown, e: any) => {
         if (e.result.reason === sdk.ResultReason.RecognizedSpeech && e.result.text) {
           speechBufferRef.current = (speechBufferRef.current ? speechBufferRef.current + ' ' : '') + e.result.text;
           setStatusText(speechBufferRef.current);
+          resetSilenceTimer();
         }
       };
       recognizer.canceled = () => stopRecognizer();
@@ -167,11 +186,12 @@ export default function ChatPage() {
       setStatusText('Tinglayapman...');
     } catch {
       setIsListening(false);
-      alert('Mikrofonga ulanishда xatolik. Azure sozlamalarini tekshiring.');
+      alert('Mikrofonga ulanishda xatolik. Azure sozlamalarini tekshiring.');
     }
   };
 
   const stopAndSend = () => {
+    if (silenceTimerRef.current) { clearTimeout(silenceTimerRef.current); silenceTimerRef.current = null; }
     const text = speechBufferRef.current.trim();
     stopRecognizer();
     if (text) { setStatusText(''); sendVoice(text); }
@@ -188,7 +208,7 @@ export default function ChatPage() {
     const newUser: HistoryTurn = { role: 'user', content: text };
     const baseHistory = [...historyRef.current];
     let fullText = '';
-    let sentenceBuffer = '';
+    let chunkBuffer = '';
     try {
       const res = await fetch('/api/chat', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -211,18 +231,17 @@ export default function ChatPage() {
           if (json.done) continue;
           if (json.text) {
             fullText += json.text;
-            sentenceBuffer += json.text;
-            const { sentences, rest } = extractCompleteSentences(sentenceBuffer);
-            sentences.forEach((s) => enqueueSpeech(s));
-            sentenceBuffer = rest;
+            chunkBuffer += json.text;
+            const { chunks, rest } = extractSpeakableChunks(chunkBuffer);
+            chunks.forEach((s) => enqueueSpeech(s));
+            chunkBuffer = rest;
           }
         }
       }
-      if (sentenceBuffer.trim()) enqueueSpeech(sentenceBuffer);
+      if (chunkBuffer.trim()) enqueueSpeech(chunkBuffer);
       if (fullText.trim()) {
         setHistory([...baseHistory, newUser, { role: 'assistant', content: fullText }]);
       } else {
-        // Model returned nothing — don't leave the call silent.
         enqueueSpeech('Uzr, eshitmadim. Qaytadan aytib yuboring.');
         setHistory([...baseHistory, newUser]);
       }
@@ -312,7 +331,7 @@ export default function ChatPage() {
     fetch('/api/simulator/start').then((r) => (r.ok ? r.json() : null)).then((d) => { if (d && !d.error) setQuota(d); }).catch(() => {});
   };
 
-  useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current); stopRecognizer(); clearAudioQueue(); }, []);
+  useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current); if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current); stopRecognizer(); clearAudioQueue(); }, []);
 
   const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
   const activeChar = CHARACTERS.find((c) => c.id === selectedCharacter);
@@ -375,7 +394,7 @@ export default function ChatPage() {
               <h2 className="text-2xl font-bold">{activeChar.name}</h2>
               <p className="text-slate-400 mt-1">{fmt(callSeconds)}</p>
               <p className="text-sm mt-4 h-6 text-center px-6 truncate max-w-full" style={{ color: isSpeaking ? '#a5b4fc' : isListening ? '#fca5a5' : '#94a3b8' }}>
-                {isSpeaking ? '🔊 gapiryapti...' : isLoading ? 'javob tayyorlayapti...' : isListening ? '🎤 tinglayapman — tugatib yuborish uchun bosing' : 'gapirish uchun mikrofonni bosing'}
+                {isSpeaking ? '🔊 gapiryapti...' : isLoading ? 'javob tayyorlayapti...' : isListening ? '🎤 tinglayapman — to\'xtatganingizda avtomatik yuboriladi' : 'gapirish uchun mikrofonni bosing'}
               </p>
             </div>
 
