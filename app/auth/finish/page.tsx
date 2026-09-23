@@ -14,7 +14,7 @@ export default function AuthFinish() {
         const user = data.user;
         if (!user) { window.location.href = '/?login=1'; return; }
         localStorage.setItem('ishla_user', JSON.stringify(user));
-        const dest = user.role === 'superadmin' ? '/boshqaruv' : user.role === 'employer' ? '/hr' : '/vacansiy';
+        const dest = user.role === 'superadmin' ? '/boshqaruv' : user.role === 'manager' ? '/jamoa' : user.role === 'employer' ? '/hr' : '/vacansiy?view=profile';
         window.location.href = dest;
       } catch {
         window.location.href = '/?login=1';

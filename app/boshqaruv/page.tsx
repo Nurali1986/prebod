@@ -25,8 +25,6 @@ const initialModVacancies = [
 
 const initialHrUsers: any[] = [];
 
-const initialCandidateUsers: any[] = [];
-
 const initialDepartments = [
   {id:1, name:"IT va mahsulot", tests:[
     {id: 1, text:"React'da komponent holatini boshqarish uchun qaysi hook ishlatiladi?", options:["useEffect","useState","useMemo","useRef"], correct:1},
@@ -61,8 +59,7 @@ export default function SuperadminPanel() {
   const [companies, setCompanies] = useState(initialCompanies);
   const [modVacancies, setModVacancies] = useState(initialModVacancies);
   const [hrUsers, setHrUsers] = useState(initialHrUsers);
-  const [candidateUsers, setCandidateUsers] = useState(initialCandidateUsers);
-  const [repUsers, setRepUsers] = useState<any[]>([]);
+  const [salesUsers, setSalesUsers] = useState<any[]>([]);
   const [managerUsers, setManagerUsers] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
@@ -99,7 +96,7 @@ export default function SuperadminPanel() {
   };
 
   const [modTab, setModTab] = useState('pending');
-  const [userTab, setUserTab] = useState('reps');
+  const [userTab, setUserTab] = useState('sales');
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
@@ -143,14 +140,7 @@ export default function SuperadminPanel() {
             email: u.email,
             status: u.blocked ? 'blocked' : 'active'
           }));
-          const cand = data.filter((u: any) => u.role === 'candidate').map((u: any) => ({
-            id: u.id,
-            name: u.firstName + ' ' + u.lastName,
-            email: u.email,
-            applications: u._count?.applications ?? 0,
-            status: u.blocked ? 'blocked' : 'active'
-          }));
-          const reps = data.filter((u: any) => u.role === 'rep').map((u: any) => ({
+          const sales = data.filter((u: any) => u.role === 'sales' || u.role === 'rep' || u.role === 'candidate').map((u: any) => ({
             id: u.id,
             name: u.firstName + ' ' + u.lastName,
             email: u.email,
@@ -168,8 +158,7 @@ export default function SuperadminPanel() {
             status: u.blocked ? 'blocked' : 'active'
           }));
           setHrUsers(hr);
-          setCandidateUsers(cand);
-          setRepUsers(reps);
+          setSalesUsers(sales);
           setManagerUsers(managers);
           const groupedCos = hr.reduce((acc: any, curr: any) => {
             if (!acc[curr.company]) {
@@ -223,9 +212,6 @@ export default function SuperadminPanel() {
   const [hrDraft, setHrDraft] = useState({ name: '', email: '', company: '' });
   const [hrErr, setHrErr] = useState(false);
 
-  const [candModalOpen, setCandModalOpen] = useState(false);
-  const [candDraft, setCandDraft] = useState({ name: '', email: '', phone: '' });
-  const [candErr, setCandErr] = useState(false);
 
   const [deptModalOpen, setDeptModalOpen] = useState(false);
   const [deptDraft, setDeptDraft] = useState('');
@@ -280,8 +266,8 @@ export default function SuperadminPanel() {
   };
 
   const toggleUserStatus = async (type: string, idx: number) => {
-    const listMap: Record<string, any[]> = { hr: hrUsers, candidate: candidateUsers, rep: repUsers, manager: managerUsers };
-    const list = listMap[type] || candidateUsers;
+    const listMap: Record<string, any[]> = { hr: hrUsers, sales: salesUsers, manager: managerUsers };
+    const list = listMap[type] || salesUsers;
     const user = list[idx];
     if (!user?.id) return;
     const nextBlocked = user.status !== 'blocked';
@@ -298,8 +284,8 @@ export default function SuperadminPanel() {
       }
       const newList = [...list];
       newList[idx] = { ...user, status: nextBlocked ? 'blocked' : 'active' };
-      const setterMap: Record<string, (l: any[]) => void> = { hr: setHrUsers, candidate: setCandidateUsers, rep: setRepUsers, manager: setManagerUsers };
-      (setterMap[type] || setCandidateUsers)(newList);
+      const setterMap: Record<string, (l: any[]) => void> = { hr: setHrUsers, sales: setSalesUsers, manager: setManagerUsers };
+      (setterMap[type] || setSalesUsers)(newList);
       showToast(nextBlocked ? `${user.name} bloklandi` : `${user.name} blokdan chiqarildi`);
     } catch { showToast('Tarmoq xatosi'); }
   };
@@ -317,17 +303,6 @@ export default function SuperadminPanel() {
     showToast(`${hrDraft.name} HR sifatida qo'shildi`);
   };
 
-  const submitAddCandidate = () => {
-    if (!candDraft.name || !candDraft.email) {
-      setCandErr(true);
-      return;
-    }
-    setCandidateUsers([{ name: candDraft.name, email: candDraft.email, applications: 0, status: 'active' }, ...candidateUsers]);
-    setCandModalOpen(false);
-    setUserTab('candidates');
-    setView('users');
-    showToast(`${candDraft.name} nomzod sifatida qo'shildi`);
-  };
 
   const submitAddDept = async () => {
     if (!deptDraft.trim()) {
@@ -437,8 +412,7 @@ export default function SuperadminPanel() {
   const pendingCo = companies.filter(c => c.status === 'pending').length;
   const activeVac = modVacancies.filter(v => v.status === 'active').length;
   const pendingVac = modVacancies.filter(v => v.status === 'pending').length;
-  const totalCandidates = candidateUsers.length;
-  const totalReps = repUsers.length;
+  const totalSales = salesUsers.length;
   const totalManagers = managerUsers.length;
 
   // Real AI-activity counts derived from actual applications.
@@ -688,7 +662,7 @@ export default function SuperadminPanel() {
             <div>
               <div className="pagehead"><div><h1>Platforma holati</h1><p>Barcha kompaniyalar va nomzodlar bo'yicha umumiy ko'rinish.</p></div></div>
               <div className="stat-row">
-                <div className="stat-card"><div className="label">Sotuvchilar</div><div className="num">{totalReps}</div><div className="delta flat">Ro&apos;yxatdan o&apos;tgan</div></div>
+                <div className="stat-card"><div className="label">Sotuvchilar</div><div className="num">{totalSales}</div><div className="delta flat">Ro&apos;yxatdan o&apos;tgan</div></div>
                 <div className="stat-card"><div className="label">Rahbarlar</div><div className="num">{totalManagers}</div><div className="delta flat">Jamoa boshliqlari</div></div>
                 <div className="stat-card"><div className="label">Faol vakansiyalar</div><div className="num">{activeVac}</div><div className={`delta ${pendingVac ? 'warn' : 'flat'}`}>{pendingVac} ta moderatsiyada</div></div>
                 <div className="stat-card"><div className="label">Jami arizalar</div><div className="num">{applications.length}</div><div className="delta flat">Barcha vakansiyalar bo&apos;yicha</div></div>
@@ -815,29 +789,25 @@ export default function SuperadminPanel() {
                   {userTab === 'hr' && (
                     <button className="btn btn-primary" onClick={() => { setHrDraft({ name: '', email: '', company: companies[0]?.name || '' }); setHrErr(false); setHrModalOpen(true); }}>+ HR qo'shish</button>
                   )}
-                  {userTab === 'candidates' && (
-                    <button className="btn btn-primary" onClick={() => { setCandDraft({ name: '', email: '', phone: '' }); setCandErr(false); setCandModalOpen(true); }}>+ Nomzod qo'shish</button>
-                  )}
                 </div>
               </div>
               <div className="tabs">
-                <div className={`tab ${userTab === 'reps' ? 'active' : ''}`} onClick={() => setUserTab('reps')}>Sotuvchilar <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, opacity: .7 }}>({repUsers.length})</span></div>
+                <div className={`tab ${userTab === 'sales' ? 'active' : ''}`} onClick={() => setUserTab('sales')}>Sotuvchilar <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, opacity: .7 }}>({salesUsers.length})</span></div>
                 <div className={`tab ${userTab === 'managers' ? 'active' : ''}`} onClick={() => setUserTab('managers')}>Rahbarlar <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, opacity: .7 }}>({managerUsers.length})</span></div>
                 <div className={`tab ${userTab === 'hr' ? 'active' : ''}`} onClick={() => setUserTab('hr')}>HR <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, opacity: .7 }}>({hrUsers.length})</span></div>
-                <div className={`tab ${userTab === 'candidates' ? 'active' : ''}`} onClick={() => setUserTab('candidates')}>Nomzodlar <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, opacity: .7 }}>({candidateUsers.length})</span></div>
               </div>
               <table className="data-table">
-                {userTab === 'reps' && (
+                {userTab === 'sales' && (
                   <>
                     <thead><tr><th>Ism</th><th>Email</th><th>Telefon</th><th>Holat</th><th>Amallar</th></tr></thead>
                     <tbody>
-                      {repUsers.length === 0 ? (
+                      {salesUsers.length === 0 ? (
                         <tr><td colSpan={5} style={{ textAlign: 'center', color: 'var(--muted)', padding: 26 }}>Sotuvchilar hali yo'q.</td></tr>
-                      ) : repUsers.map((u, i) => (
+                      ) : salesUsers.map((u, i) => (
                         <tr key={u.id}>
                           <td className="row-title">{u.name}</td><td>{u.email}</td><td>{u.phone || '—'}</td><td>{statusBadge(u.status)}</td>
                           <td className="row-actions">
-                            {u.status !== 'blocked' ? <button className="btn btn-danger btn-sm" onClick={() => toggleUserStatus('rep', i)}>Bloklash</button> : <button className="btn btn-success btn-sm" onClick={() => toggleUserStatus('rep', i)}>Blokdan chiqarish</button>}
+                            {u.status !== 'blocked' ? <button className="btn btn-danger btn-sm" onClick={() => toggleUserStatus('sales', i)}>Bloklash</button> : <button className="btn btn-success btn-sm" onClick={() => toggleUserStatus('sales', i)}>Blokdan chiqarish</button>}
                           </td>
                         </tr>
                       ))}
@@ -870,21 +840,6 @@ export default function SuperadminPanel() {
                           <td className="row-title">{u.name}</td><td>{u.company}</td><td>{u.email}</td><td>{statusBadge(u.status)}</td>
                           <td className="row-actions">
                             {u.status !== 'blocked' ? <button className="btn btn-danger btn-sm" onClick={() => toggleUserStatus('hr', i)}>Bloklash</button> : <button className="btn btn-success btn-sm" onClick={() => toggleUserStatus('hr', i)}>Blokdan chiqarish</button>}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </>
-                )}
-                {userTab === 'candidates' && (
-                  <>
-                    <thead><tr><th>Ism</th><th>Email</th><th>Arizalar soni</th><th>Holat</th><th>Amallar</th></tr></thead>
-                    <tbody>
-                      {candidateUsers.map((u, i) => (
-                        <tr key={i}>
-                          <td className="row-title">{u.name}</td><td>{u.email}</td><td className="count-mono">{u.applications}</td><td>{statusBadge(u.status)}</td>
-                          <td className="row-actions">
-                            {u.status !== 'blocked' ? <button className="btn btn-danger btn-sm" onClick={() => toggleUserStatus('candidate', i)}>Bloklash</button> : <button className="btn btn-success btn-sm" onClick={() => toggleUserStatus('candidate', i)}>Blokdan chiqarish</button>}
                           </td>
                         </tr>
                       ))}
@@ -1187,22 +1142,6 @@ export default function SuperadminPanel() {
         </div>
       )}
 
-      {candModalOpen && (
-        <div className="overlay open">
-          <div className="modal">
-            <h2>Yangi nomzod qo'shish</h2>
-            <p className="sub">Platformaga qo'lda nomzod hisobini qo'shing.</p>
-            <div className="field"><label>To'liq ism</label><input type="text" value={candDraft.name} onChange={e => setCandDraft({ ...candDraft, name: e.target.value })} placeholder="Ism Familiya" /></div>
-            <div className="field"><label>Email</label><input type="email" value={candDraft.email} onChange={e => setCandDraft({ ...candDraft, email: e.target.value })} placeholder="email@example.com" /></div>
-            <div className="field"><label>Telefon</label><input type="text" value={candDraft.phone} onChange={e => setCandDraft({ ...candDraft, phone: e.target.value })} placeholder="+998 90 123 45 67" /></div>
-            <div className={`err-note ${candErr ? 'show' : ''}`}>Iltimos, ism va emailni kiriting.</div>
-            <div className="modal-actions">
-              <button className="btn btn-ghost" onClick={() => setCandModalOpen(false)}>Bekor qilish</button>
-              <button className="btn btn-primary" onClick={submitAddCandidate}>Qo'shish</button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {deptModalOpen && (
         <div className="overlay open">

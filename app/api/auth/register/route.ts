@@ -15,9 +15,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Barcha majburiy maydonlarni to\'ldiring' }, { status: 400 });
     }
 
-    // Self-registrable roles. 'rep' = salesperson, 'manager' = sales-team head;
-    // 'candidate'/'employer' remain for the recruiting add-on. Never superadmin.
-    const SELF_ROLES = ['rep', 'manager', 'candidate', 'employer'];
+    // Self-registrable roles. 'sales' = salesperson/candidate, 'manager' = sales-team head,
+    // 'employer' = HR. Never superadmin.
+    const SELF_ROLES = ['sales', 'manager', 'employer'];
     if (!SELF_ROLES.includes(role)) {
       return NextResponse.json({ error: 'Noto\'g\'ri rol tanlandi' }, { status: 400 });
     }

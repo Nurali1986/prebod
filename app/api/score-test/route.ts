@@ -6,7 +6,7 @@ import { requireRole, AuthError, authErrorResponse } from '@/lib/api-auth';
 // are never exposed to the client. Body: { vacancyId, answers: { [index]: optionIndex } }.
 export async function POST(request: Request) {
   try {
-    await requireRole(request, 'candidate');
+    await requireRole(request, 'sales');
     const { vacancyId, answers } = await request.json();
 
     const tests = await prisma.vacancyTest.findMany({

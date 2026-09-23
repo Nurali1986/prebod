@@ -16,9 +16,10 @@ export function telegramConfigured(): boolean {
   return !!(process.env.TELEGRAM_BOT_TOKEN && process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME);
 }
 
-const VALID_ROLES = new Set(['rep', 'manager', 'candidate', 'employer']);
+const VALID_ROLES = new Set(['sales', 'manager', 'employer']);
 export function normalizeRole(role: string | null | undefined): string {
-  return role && VALID_ROLES.has(role) ? role : 'rep';
+  if (role === 'rep' || role === 'candidate') return 'sales';
+  return role && VALID_ROLES.has(role) ? role : 'sales';
 }
 
 /**

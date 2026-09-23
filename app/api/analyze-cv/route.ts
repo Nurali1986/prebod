@@ -15,7 +15,7 @@ const openai = new OpenAI({
 
 export async function POST(request: Request) {
   try {
-    await requireRole(request, 'candidate');
+    await requireRole(request, 'sales');
     const contentType = request.headers.get('content-type') || '';
     
     let vacancy: any = {};

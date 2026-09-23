@@ -17,7 +17,7 @@ model User {
   password  String?  // null for social-login (Google/Telegram) accounts
   googleId   String? @unique
   telegramId String? @unique
-  role      String   // 'candidate' | 'employer' | 'superadmin'
+  role      String   // 'sales' | 'employer' | 'manager' | 'superadmin'
   company   String?
   blocked   Boolean  @default(false)
   plan      String   @default("free") // 'free' | 'premium'

@@ -16,7 +16,7 @@ const openai = new OpenAI({
 
 export async function POST(request: Request) {
   try {
-    const session = await requireRole(request, 'candidate');
+    const session = await requireRole(request, 'sales');
     const { history, product, personaId, finalEval } = await request.json();
 
     if (finalEval) {

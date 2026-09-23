@@ -10,7 +10,7 @@ export default function LandingPage() {
   const [roleModalOpen, setRoleModalOpen] = useState(false);
   const [signupOpen, setSignupOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
-  const [signupRole, setSignupRole] = useState<string>('rep');
+  const [signupRole, setSignupRole] = useState<string>('sales');
   
   // Register state
   const [suFirstName, setSuFirstName] = useState('');
@@ -27,7 +27,7 @@ export default function LandingPage() {
   const [liPass, setLiPass] = useState('');
   const [liErr, setLiErr] = useState('');
 
-  const [hiwTab, setHiwTab] = useState<'rep' | 'manager'>('rep');
+  const [hiwTab, setHiwTab] = useState<'sales' | 'manager'>('sales');
     const [loggedInUser, setLoggedInUser] = useState<any>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [joinCode, setJoinCode] = useState('');
@@ -44,7 +44,7 @@ export default function LandingPage() {
     const jc = params.get('join');
     if (jc && !user) {
       setJoinCode(jc.trim().toUpperCase());
-      openSignup('rep');
+      openSignup('sales');
     }
     const err = params.get('err');
     if (err) {
@@ -72,8 +72,7 @@ export default function LandingPage() {
     if (role === 'manager') return '/jamoa';
     if (role === 'employer') return '/hr';
     if (redir) return '/vacansiy' + decodeURIComponent(redir);
-    if (role === 'rep') return '/vacansiy?view=profile';
-    return '/vacansiy';
+    return '/vacansiy?view=profile';
   };
 
   const openSignup = (role: string) => {
@@ -127,7 +126,7 @@ export default function LandingPage() {
       localStorage.setItem('ishla_user', JSON.stringify(data));
       setSignupOpen(false);
       // If they arrived via an invite link, join that team.
-      if (joinCode && data.role === 'rep') {
+      if (joinCode && data.role === 'sales') {
         try { await fetch('/api/team/join', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: joinCode }) }); } catch {}
       }
       const redir = new URLSearchParams(window.location.search).get('redirect');
@@ -348,7 +347,7 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
           <p className="sub">Repza — har bir sotuvchi AI mijozga telefon orqali qo&apos;ng&apos;iroq qilib, standart sotuv skripti bo&apos;yicha mashq qiladigan va baho oladigan platforma. Mahoratni o&apos;lchang, o&apos;stiring, jamoani kuchaytiring.</p>
 
           <div className="role-grid">
-            <div className="role-card candidate" onClick={() => openSignup('rep')}>
+            <div className="role-card candidate" onClick={() => openSignup('sales')}>
               <div className="ricon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
               <h3>Sotuvchiman</h3>
               <p>AI mijoz bilan qo&apos;ng&apos;iroq qilib mashq qiling, sotuv mahoratingizni 100 ballik tizimda o&apos;lchang va o&apos;stiring.</p>
@@ -400,10 +399,10 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
             <p>Kimligingizga qarab tegishli bosqichlarni ko&apos;ring.</p>
           </div>
           <div className="hiw-tabs">
-            <div className={`hiw-tab ${hiwTab === 'rep' ? 'active' : ''}`} onClick={() => setHiwTab('rep')}>Sotuvchilar uchun</div>
+            <div className={`hiw-tab ${hiwTab === 'sales' ? 'active' : ''}`} onClick={() => setHiwTab('sales')}>Sotuvchilar uchun</div>
             <div className={`hiw-tab ${hiwTab === 'manager' ? 'active' : ''}`} onClick={() => setHiwTab('manager')}>Rahbarlar uchun</div>
           </div>
-          <div className={`hiw-track ${hiwTab === 'rep' ? 'active' : ''}`}>
+          <div className={`hiw-track ${hiwTab === 'sales' ? 'active' : ''}`}>
             <div className="hiw-step"><div className="num">1</div><h4>Ro&apos;yxatdan o&apos;ting</h4><p>Bir necha soniyada bepul boshlang.</p></div>
             <div className="hiw-step"><div className="num">2</div><h4>Mijozni tanlang</h4><p>10 xil AI mijoz xarakteridan birini.</p></div>
             <div className="hiw-step"><div className="num">3</div><h4>Qo&apos;ng&apos;iroq qiling</h4><p>Telefon orqali mahsulotni soting.</p></div>
@@ -481,7 +480,7 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
             <h2>Sotuvni AI bilan mashq qilishga tayyormisiz?</h2>
             <p>Individual sotuvchimisiz yoki jamoa rahbari — Repza ikkalasi uchun ham.</p>
             <div className="row">
-              <button className="btn btn-primary" onClick={() => openSignup('rep')}>Sotuvchi sifatida bepul boshlash</button>
+              <button className="btn btn-primary" onClick={() => openSignup('sales')}>Sotuvchi sifatida bepul boshlash</button>
               <button className="btn btn-ghost" style={{ background: 'transparent', borderColor: 'rgba(239,237,228,0.3)', color: '#EFEDE4' }} onClick={() => openSignup('manager')}>Jamoa yaratish</button>
             </div>
           </div>
@@ -529,7 +528,7 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
           <h2>Xush kelibsiz!</h2>
           <p className="sub">Davom etish uchun o&apos;zingizga mos rolni tanlang</p>
           <div className="role-grid">
-            <div className="role-card candidate" onClick={() => openSignup('rep')}>
+            <div className="role-card candidate" onClick={() => openSignup('sales')}>
               <div className="ricon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
               <h3>Sotuvchiman</h3>
               <p>AI mijoz bilan mashq qilib, mahoratimni oshirish uchun.</p>
@@ -550,8 +549,8 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
       <div className={`overlay ${signupOpen ? 'open' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setSignupOpen(false); }}>
         <div className="role-modal" style={{ maxWidth: 440 }}>
           <button className="close-x" onClick={() => setSignupOpen(false)}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
-          <h2>{signupRole === 'rep' ? "Sotuvchi sifatida ro'yxatdan o'tish" : signupRole === 'manager' ? "Sotuv rahbari — jamoa yaratish" : signupRole === 'candidate' ? "Nomzod sifatida ro'yxatdan o'tish" : "Kompaniya ro'yxatdan o'tishi"}</h2>
-          <p className="sub">{signupRole === 'rep' ? "AI mijoz bilan mashq qilib, sotuv mahoratingizni oshiring." : signupRole === 'manager' ? "Jamoangizni tayyorlash va mahorat o'sishini kuzatish uchun." : "Yollash moduli uchun hisob yarating."}</p>
+          <h2>{signupRole === 'sales' ? "Sotuvchi sifatida ro'yxatdan o'tish" : signupRole === 'manager' ? "Sotuv rahbari — jamoa yaratish" : "HR sifatida ro'yxatdan o'tish"}</h2>
+          <p className="sub">{signupRole === 'sales' ? "AI mijoz bilan mashq qilib, sotuv mahoratingizni oshiring." : signupRole === 'manager' ? "Jamoangizni tayyorlash va mahorat o'sishini kuzatish uchun." : "Yollash moduli uchun hisob yarating."}</p>
           <div style={{ display: 'flex', gap: 10 }}>
             <div className="field" style={{ flex: 1 }}><label>Ism</label><input type="text" placeholder="Ismingiz" value={suFirstName} onChange={e => setSuFirstName(e.target.value)} /></div>
             <div className="field" style={{ flex: 1 }}><label>Familiya</label><input type="text" placeholder="Familiyangiz" value={suLastName} onChange={e => setSuLastName(e.target.value)} /></div>
@@ -580,7 +579,7 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
           <div className="field"><label>Parol</label><input type="password" placeholder="Parolingizni kiriting" value={liPass} onChange={e => setLiPass(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') submitLogin(); }} /></div>
           <div className={`err-note ${liErr ? 'show' : ''}`}>{liErr}</div>
           <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={submitLogin}>Kirish</button>
-          <SocialButtons role="candidate" />
+          <SocialButtons role="sales" />
           <div style={{ textAlign: 'center', marginTop: 16, fontSize: 12.5, color: 'var(--muted)' }}>Hisobingiz yo&apos;qmi? <a href="#" onClick={(e) => { e.preventDefault(); setRoleModalOpen(true); }} style={{ color: 'var(--accent-deep)', fontWeight: 600 }}>Ro&apos;yxatdan o&apos;tish</a></div>
         </div>
       </div>
