@@ -60,7 +60,7 @@ export default function LandingPage() {
     } else if (params.has('login')) {
       openLogin();
     } else if (params.has('register')) {
-      setRoleModalOpen(true);
+      openSignup('sales');
     }
 
     fetch('/api/auth/providers').then(r => r.json()).then(setProviders).catch(() => {});
@@ -589,7 +589,7 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
           <div className={`err-note ${liErr ? 'show' : ''}`}>{liErr}</div>
           <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={submitLogin}>Kirish</button>
           <SocialButtons role="sales" />
-          <div style={{ textAlign: 'center', marginTop: 16, fontSize: 12.5, color: 'var(--muted)' }}>Hisobingiz yo&apos;qmi? <a href="#" onClick={(e) => { e.preventDefault(); setRoleModalOpen(true); }} style={{ color: 'var(--accent-deep)', fontWeight: 600 }}>Ro&apos;yxatdan o&apos;tish</a></div>
+          <div style={{ textAlign: 'center', marginTop: 16, fontSize: 12.5, color: 'var(--muted)' }}>Hisobingiz yo&apos;qmi? <a href="#" onClick={(e) => { e.preventDefault(); setLoginOpen(false); openSignup('sales'); }} style={{ color: 'var(--accent-deep)', fontWeight: 600 }}>Ro&apos;yxatdan o&apos;tish</a></div>
         </div>
       </div>
     </>
