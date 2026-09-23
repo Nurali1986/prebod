@@ -589,14 +589,8 @@ export default function CandidatePanel() {
       return;
     }
     const v = vacancies.find(x => x.id === draft.vacancyId);
-    const minScore = v?.aiConfig.cvCheck.minScore || 0;
 
-    // Re-check an already-computed score against the minimum on "back/next".
-    if (v?.aiConfig.cvCheck.enabled && draft.cvScore !== null && draft.cvScore !== undefined) {
-      if (draft.cvScore < minScore) {
-        setDraft({ ...draft, cvErrMsg: `CV mosligingiz ${draft.cvScore}% — minimal ${minScore}% talab qilinadi.` });
-        return;
-      }
+    if (draft.cvScore !== null && draft.cvScore !== undefined) {
       nextStep();
       return;
     }
@@ -610,7 +604,6 @@ export default function CandidatePanel() {
           reqBody = new FormData();
           reqBody.append('vacancy', JSON.stringify(v));
           reqBody.append('file', draft.fileObj);
-          // Omit Content-Type so the browser sets the multipart boundary.
         } else {
           reqBody = JSON.stringify({ vacancy: v, profile: userObj?.profileData || {} });
           headers['Content-Type'] = 'application/json';
@@ -621,10 +614,6 @@ export default function CandidatePanel() {
 
         if (!res.ok || data.score === null || data.score === undefined) {
           setDraft((prev: any) => ({ ...prev, isCvLoading: false, cvErrMsg: 'CV tahlilini yakunlab bo\'lmadi. Iltimos, keyinroq urinib ko\'ring.' }));
-          return;
-        }
-        if (data.score < minScore) {
-          setDraft((prev: any) => ({ ...prev, cvScore: data.score, isCvLoading: false, cvErrMsg: `Afsuski, CV mosligingiz ${data.score}% — bu vakansiya uchun minimal ${minScore}% talab qilinadi.` }));
           return;
         }
         setDraft((prev: any) => ({ ...prev, cvScore: data.score, isCvLoading: false, cvErrMsg: '' }));
@@ -1562,7 +1551,7 @@ export default function CandidatePanel() {
                   {stepDefs[stepIdx].key === 'info' && (
                     <div>
                       <h2>CV yuborish</h2>
-                      <p className="sub">Tizim CV&apos;ingizni vakansiya talablariga mosligini AI orqali tekshiradi.</p>
+                      <p className="sub">CV ma&apos;lumot sifatida qabul qilinadi. Asosiy baholash AI simulyatsiya orqali amalga oshiriladi.</p>
 
                       <div style={{ display: 'flex', gap: 0, marginTop: 20, marginBottom: 20, background: 'var(--paper)', borderRadius: 10, padding: 4 }}>
                         <button onClick={() => setDraft({ ...draft, cvSource: 'profile', cvFileName: 'Profil CV', cvError: false })} style={{ flex: 1, padding: '11px 0', border: 'none', borderRadius: 8, fontFamily: 'var(--font-body)', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', transition: 'all .15s', background: draft.cvSource === 'profile' ? 'var(--card)' : 'none', color: draft.cvSource === 'profile' ? 'var(--ink)' : 'var(--muted)', boxShadow: draft.cvSource === 'profile' ? '0 1px 3px rgba(0,0,0,.1)' : 'none' }}>
@@ -1772,23 +1761,36 @@ export default function CandidatePanel() {
                     </div>
                   )}
 
-                  {stepDefs[stepIdx].key === 'review' && (
+                  {stepDefs[stepIdx].key === 'review' && (() => {
+                    const salesBlocked = activeJob?.aiConfig.sales.enabled && typeof draft.salesScore === 'number' && draft.salesScore < 40;
+                    return (
                     <div>
                       <h2>Arizangizni tekshiring</h2>
-                      <p className="sub">Yuborishdan oldin ma'lumotlarni tasdiqlang.</p>
+                      <p className="sub">Yuborishdan oldin ma&apos;lumotlarni tasdiqlang.</p>
                       <div className="review-row"><span className="k">CV manbasi</span><span className="v">{draft.cvSource === 'file' ? draft.cvFileName : 'Profil ma\'lumotlari'}</span></div>
-                      {activeJob?.aiConfig.cvCheck.enabled && <div className="review-row"><span className="k">CV moslik bali</span><span className="v">{draft.cvScore}%</span></div>}
+                      {activeJob?.aiConfig.cvCheck.enabled && <div className="review-row"><span className="k">CV moslik bali</span><span className="v" style={{ color: draft.cvScore >= 60 ? 'var(--success)' : draft.cvScore >= 30 ? '#f59e0b' : 'var(--muted)' }}>{draft.cvScore != null ? `${draft.cvScore}%` : '—'}</span></div>}
                       {activeJob?.aiConfig.test.enabled && <div className="review-row"><span className="k">Test natijasi</span><span className="v">{draft.testScore}%</span></div>}
                       {activeJob?.aiConfig.openQ.enabled && <div className="review-row"><span className="k">Ochiq savollar</span><span className="v">{Object.keys(draft.openAnswers).length} ta javob yozildi</span></div>}
-                      {activeJob?.aiConfig.sales.enabled && <div className="review-row"><span className="k">Sotuv simulyatsiyasi</span><span className="v">{draft.salesScore}%</span></div>}
+                      {activeJob?.aiConfig.sales.enabled && <div className="review-row"><span className="k">Sotuv simulyatsiyasi</span><span className="v" style={{ color: draft.salesScore >= 60 ? 'var(--success)' : draft.salesScore >= 40 ? '#f59e0b' : 'var(--danger)', fontWeight: 700 }}>{draft.salesScore}%</span></div>}
                       {activeJob?.aiConfig.video.enabled && <div className="review-row"><span className="k">Video havola</span><span className="v">{draft.videoLink}</span></div>}
-                      
+
+                      {salesBlocked && (
+                        <div style={{ background: 'var(--danger-bg, #FEF2F2)', border: '1px solid var(--danger, #ef4444)', borderRadius: 10, padding: '14px 18px', marginTop: 16 }}>
+                          <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--danger)', marginBottom: 4 }}>Ariza yuborib bo&apos;lmaydi</div>
+                          <div style={{ fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.5 }}>
+                            Sotuv simulyatsiyasida {draft.salesScore}% natija ko&apos;rsatdingiz. Ariza topshirish uchun kamida 40% natija talab qilinadi.
+                            Simulyator sahifasida mashq qilib, qaytadan urinib ko&apos;ring.
+                          </div>
+                        </div>
+                      )}
+
                       <div className="step-actions">
                         <button className="btn btn-ghost" onClick={prevStep}>Ortga</button>
-                        <div className="right"><button className="btn btn-primary" onClick={finalSubmit}>Arizani yuborish</button></div>
+                        <div className="right"><button className="btn btn-primary" onClick={finalSubmit} disabled={!!salesBlocked}>{salesBlocked ? 'Yuborib bo\'lmaydi' : 'Arizani yuborish'}</button></div>
                       </div>
                     </div>
-                  )}
+                    );
+                  })()}
 
                 </div>
               </section>
