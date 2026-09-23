@@ -923,7 +923,7 @@ export default function HRPanel() {
       </div>
 
       {baseModalOpen && (
-        <div className="overlay open" style={{ display: 'flex' }} onClick={(e) => { if (e.target === e.currentTarget) setBaseModalOpen(false) }}>
+        <div className="overlay open" style={{ display: 'flex', zIndex: 55 }} onClick={(e) => { if (e.target === e.currentTarget) setBaseModalOpen(false) }}>
           <div className="modal" style={{ maxWidth: 640 }}>
             <h2>{baseModalType === 'tests' ? 'Testlar bazasidan tanlash' : 'Ochiq savollar bazasidan tanlash'}</h2>
             <p className="sub">{fDept} bo&apos;limi uchun tayyor savollar. Bir nechta tanlang.</p>
