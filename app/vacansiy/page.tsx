@@ -24,6 +24,22 @@ const CHARACTERS = [
   { id: 'yangi', name: 'Sevara (Yangi Mijoz)', description: 'Sohani umuman bilmaydi', greeting: 'Assalomu alaykum. Eshitaman, gapiravering.' },
 ];
 
+const SKILL_SUGGESTIONS = [
+  'Microsoft Excel', 'Microsoft Word', 'Microsoft PowerPoint', 'Google Sheets', '1C: Buxgalteriya',
+  'CRM tizimlari', 'Salesforce', 'Bitrix24', 'amoCRM', 'HubSpot',
+  'Sotuv texnikasi', 'Muzli qo\'ng\'iroqlar', 'Mijozlar bilan munosabat', 'Muzokaralar olib borish', 'B2B sotuv',
+  'B2C sotuv', 'Telemarketing', 'Prezentatsiya qilish', 'Jamoaviy boshqaruv', 'Loyiha boshqaruvi',
+  'Marketing strategiyasi', 'SMM', 'Kontent yaratish', 'SEO', 'Google Ads',
+  'Facebook Ads', 'Telegram marketing', 'Email marketing', 'Buxgalteriya', 'Moliyaviy tahlil',
+  'Logistika', 'Ombor boshqaruvi', 'Kadrlar boshqaruvi', 'HR', 'Python',
+  'JavaScript', 'React', 'Node.js', 'SQL', 'Data tahlil',
+  'Adobe Photoshop', 'Figma', 'Canva', 'AutoCAD', 'Biznes rejalashtirish',
+  'Savdo maydoni boshqaruvi', 'Distributsiya', 'Merchandayzing', 'Tender tayyorlash', 'Shartnomalar bilan ishlash',
+  'O\'zbek tili', 'Rus tili', 'Ingliz tili', 'Turk tili', 'Koreys tili',
+];
+
+const SCHEDULE_OPTIONS = ['Ofisda', 'Masofaviy', 'Gibrid', 'Smenali', 'Erkin grafik', 'Siljiydigan grafik'];
+
 const initialVacancies: any[] = [];
 
 
@@ -204,6 +220,7 @@ export default function CandidatePanel() {
   const [userObj, setUserObj] = useState<any>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [profileEditing, setProfileEditing] = useState(false);
 
   React.useEffect(() => {
     const user = localStorage.getItem('ishla_user');
@@ -237,8 +254,11 @@ export default function CandidatePanel() {
         if (parsed.profileData.eduList) setEduList(parsed.profileData.eduList);
         if (parsed.profileData.langList) setLangList(parsed.profileData.langList);
         if (parsed.profileData.courseList) setCourseList(parsed.profileData.courseList);
+        if (parsed.profileData.scheduleList) setScheduleList(parsed.profileData.scheduleList);
       }
 
+      if (parsed.profileData && parsed.profileData.pIsm) setProfileEditing(false);
+      else setProfileEditing(true);
       const params = new URLSearchParams(window.location.search);
       if (params.get('view') === 'profile') setView('profile');
     }
@@ -380,7 +400,9 @@ export default function CandidatePanel() {
   
   const [skills, setSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState('');
+  const [skillSugOpen, setSkillSugOpen] = useState(false);
   const [rAbout, setRAbout] = useState('');
+  const [scheduleList, setScheduleList] = useState<string[]>([]);
   
   const [contactOk, setContactOk] = useState(false);
   const [salaryOk, setSalaryOk] = useState(false);
@@ -459,7 +481,7 @@ export default function CandidatePanel() {
   const saveProfile = async () => {
     if (!userObj) { showToast('Avval tizimga kiring'); return; }
     const profileData = {
-      rTitle, rAbout, skills, expList, eduList, langList, courseList, pIsm, pFam, rFio, profilePhoto, rPatronymic, rBirthDate, rGender, rCity, rAddress, rPhone, rCitizenship
+      rTitle, rAbout, skills, expList, eduList, langList, courseList, pIsm, pFam, rFio, profilePhoto, rPatronymic, rBirthDate, rGender, rCity, rAddress, rPhone, rCitizenship, scheduleList
     };
     try {
       const res = await fetch('/api/users/profile', {
@@ -472,6 +494,7 @@ export default function CandidatePanel() {
         const updatedUser = { ...userObj, profileData };
         setUserObj(updatedUser);
         localStorage.setItem('ishla_user', JSON.stringify(updatedUser));
+        setProfileEditing(false);
       } else if (res.status === 401) {
         showToast('Sessiya tugagan — qaytadan kiring');
         localStorage.removeItem('ishla_user');
@@ -1143,6 +1166,28 @@ export default function CandidatePanel() {
         }
         .profile-scope .save-note{font-size:11.5px;color:#8B93A8;}
 
+        .profile-scope .pv-row{display:flex;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px;}
+        .profile-scope .pv-row:last-child{border-bottom:none;}
+        .profile-scope .pv-label{width:160px;flex-shrink:0;color:#8B93A8;font-size:12.5px;font-weight:500;}
+        .profile-scope .pv-val{color:var(--ink);font-weight:500;}
+        .profile-scope .pv-val.empty{color:#BFC6D2;font-weight:400;font-style:italic;}
+        .profile-scope .pv-photo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--line);}
+        .profile-scope .pv-tags{display:flex;flex-wrap:wrap;gap:6px;}
+        .profile-scope .pv-tag{background:var(--brass-bg);color:var(--brass-dark);padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;}
+        .profile-scope .pv-section{margin-bottom:8px;}
+        .profile-scope .pv-section h4{font-size:13px;font-weight:600;color:var(--ink);margin:0 0 6px;}
+        .profile-scope .edit-bar{display:flex;gap:10px;margin-top:20px;}
+
+        .profile-scope .skills-dropdown{position:relative;}
+        .profile-scope .skills-suggestions{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--line);border-radius:8px;max-height:200px;overflow-y:auto;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,.1);}
+        .profile-scope .skills-suggestions button{display:block;width:100%;text-align:left;padding:8px 12px;border:none;background:none;font-size:13px;cursor:pointer;color:var(--ink);}
+        .profile-scope .skills-suggestions button:hover{background:var(--brass-bg);}
+
+        .profile-scope .schedule-checks{display:flex;flex-wrap:wrap;gap:8px;}
+        .profile-scope .schedule-chip{padding:8px 14px;border-radius:8px;border:1.5px solid var(--line);font-size:13px;cursor:pointer;background:#fff;color:var(--ink);font-weight:500;transition:all .15s;}
+        .profile-scope .schedule-chip:hover{border-color:var(--brass);}
+        .profile-scope .schedule-chip.selected{background:var(--brass-bg);border-color:var(--brass);color:var(--brass-dark);font-weight:600;}
+
         .profile-scope .checklist{display:flex;flex-direction:column;gap:2px;}
         .profile-scope .check-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;}
         .profile-scope .check-box{width:16px;height:16px;border-radius:3px;border:1.5px solid var(--line);flex:none;margin-top:1px;cursor:pointer;position:relative;}
@@ -1588,81 +1633,116 @@ export default function CandidatePanel() {
                     <p>AI sotuv simulyatsiya natijalari va shaxsiy ma&apos;lumotlaringiz.</p>
                   </div>
 
-                  {/* ── AI Simulation Results ── */}
                   <ProfileResultsDashboard sessions={practiceSessions} />
 
-                  <div className="doc-card">
-                    <div className="doc-card-head"><h3>Profil rasmi</h3></div>
-                    <div className="doc-card-body">
-                      <div className="photo-uploader">
-                        <div className="photo-frame-round">
-                          {profilePhoto ? (
-                            <img src={profilePhoto} alt="Profil" />
-                          ) : (
-                            <svg className="photo-icon" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7" /></svg>
-                          )}
+                  {!profileEditing ? (
+                    <>
+                      <div className="doc-card">
+                        <div className="doc-card-head"><h3>Shaxsiy ma&apos;lumotlar</h3></div>
+                        <div className="doc-card-body">
+                          <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', marginBottom: 16 }}>
+                            {profilePhoto ? <img className="pv-photo" src={profilePhoto} alt="" /> : (
+                              <div style={{ width: 80, height: 80, borderRadius: '50%', background: '#E8E6DE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#8B93A8" strokeWidth="1.6"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7" /></svg>
+                              </div>
+                            )}
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontSize: 20, fontWeight: 600, fontFamily: "'Fraunces',serif", marginBottom: 4 }}>{pIsm || pFam ? `${pIsm} ${pFam}`.trim() : <span className="pv-val empty">Ism kiritilmagan</span>}</div>
+                              {rPatronymic && <div style={{ fontSize: 13, color: '#8B93A8' }}>{rPatronymic}</div>}
+                              <div style={{ fontSize: 13, color: '#8B93A8', marginTop: 4 }}>{userObj?.email}</div>
+                            </div>
+                          </div>
+                          <div className="pv-row"><span className="pv-label">Tug&apos;ilgan sana</span><span className={`pv-val ${!rBirthDate ? 'empty' : ''}`}>{rBirthDate || 'Ko\'rsatilmagan'}</span></div>
+                          <div className="pv-row"><span className="pv-label">Jinsi</span><span className={`pv-val ${!rGender ? 'empty' : ''}`}>{rGender || 'Ko\'rsatilmagan'}</span></div>
+                          <div className="pv-row"><span className="pv-label">Shahar</span><span className={`pv-val ${!rCity ? 'empty' : ''}`}>{rCity || 'Ko\'rsatilmagan'}</span></div>
+                          <div className="pv-row"><span className="pv-label">Telefon</span><span className={`pv-val ${!rPhone ? 'empty' : ''}`}>{rPhone || 'Ko\'rsatilmagan'}</span></div>
+                          <div className="pv-row"><span className="pv-label">Fuqaroligi</span><span className={`pv-val ${!rCitizenship ? 'empty' : ''}`}>{rCitizenship || 'Ko\'rsatilmagan'}</span></div>
                         </div>
-                        <div className="photo-actions">
-                          <label className="btn btn-outline btn-sm">
-                            <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleProfilePhoto} />
-                            Rasm yuklash
-                          </label>
-                          <button className="btn btn-ghost btn-sm" onClick={() => setProfilePhoto(null)} style={{ alignSelf: 'flex-start' }}>O'chirish</button>
-                          <div className="hint">JPG yoki PNG, 3 MB gacha. Aniq ko'rinadigan portret tavsiya etiladi.</div>
+                      </div>
+
+                      {skills.length > 0 && (
+                        <div className="doc-card">
+                          <div className="doc-card-head"><h3>Ko&apos;nikmalar</h3></div>
+                          <div className="doc-card-body">
+                            <div className="pv-tags">{skills.map((s, i) => <span key={i} className="pv-tag">{s}</span>)}</div>
+                          </div>
+                        </div>
+                      )}
+
+                      {rAbout && (
+                        <div className="doc-card">
+                          <div className="doc-card-head"><h3>O&apos;zim haqimda</h3></div>
+                          <div className="doc-card-body"><p style={{ fontSize: 13.5, lineHeight: 1.6, color: 'var(--ink-2)', margin: 0 }}>{rAbout}</p></div>
+                        </div>
+                      )}
+
+                      <div className="edit-bar">
+                        <button className="btn btn-brass" onClick={() => setProfileEditing(true)}>Tahrirlash</button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="doc-card">
+                        <div className="doc-card-head"><h3>Profil rasmi</h3></div>
+                        <div className="doc-card-body">
+                          <div className="photo-uploader">
+                            <div className="photo-frame-round">
+                              {profilePhoto ? (
+                                <img src={profilePhoto} alt="Profil" />
+                              ) : (
+                                <svg className="photo-icon" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7" /></svg>
+                              )}
+                            </div>
+                            <div className="photo-actions">
+                              <label className="btn btn-outline btn-sm">
+                                <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleProfilePhoto} />
+                                Rasm yuklash
+                              </label>
+                              <button className="btn btn-ghost btn-sm" onClick={() => setProfilePhoto(null)} style={{ alignSelf: 'flex-start' }}>O&apos;chirish</button>
+                              <div className="hint">JPG yoki PNG, 3 MB gacha.</div>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
 
-                  <div className="doc-card">
-                    <div className="doc-card-head"><h3>Shaxsiy ma'lumotlar</h3></div>
-                    <div className="doc-card-body">
-                      <div className="field-grid">
-                        <div className="field"><label>Ism</label><input type="text" placeholder="Masalan: Dilnoza" value={pIsm} onChange={e => setPIsm(e.target.value)} /></div>
-                        <div className="field"><label>Familiya</label><input type="text" placeholder="Masalan: Yusupova" value={pFam} onChange={e => setPFam(e.target.value)} /></div>
-                        <div className="field"><label>Otasining ismi</label><input type="text" placeholder="Ixtiyoriy" value={rPatronymic} onChange={e => setRPatronymic(e.target.value)} /></div>
-                        <div className="field"><label>Tug'ilgan sana</label><input type="date" value={rBirthDate} onChange={e => setRBirthDate(e.target.value)} /></div>
-                        <div className="field">
-                          <label>Jinsi</label>
-                          <select><option value="">Tanlang</option><option>Ayol</option><option>Erkak</option></select>
+                      <div className="doc-card">
+                        <div className="doc-card-head"><h3>Shaxsiy ma&apos;lumotlar</h3></div>
+                        <div className="doc-card-body">
+                          <div className="field-grid">
+                            <div className="field"><label>Ism</label><input type="text" placeholder="Masalan: Dilnoza" value={pIsm} onChange={e => setPIsm(e.target.value)} /></div>
+                            <div className="field"><label>Familiya</label><input type="text" placeholder="Masalan: Yusupova" value={pFam} onChange={e => setPFam(e.target.value)} /></div>
+                            <div className="field"><label>Otasining ismi</label><input type="text" placeholder="Ixtiyoriy" value={rPatronymic} onChange={e => setRPatronymic(e.target.value)} /></div>
+                            <div className="field"><label>Tug&apos;ilgan sana</label><input type="date" value={rBirthDate} onChange={e => setRBirthDate(e.target.value)} /></div>
+                            <div className="field">
+                              <label>Jinsi</label>
+                              <select value={rGender} onChange={e => setRGender(e.target.value)}><option value="">Tanlang</option><option>Ayol</option><option>Erkak</option></select>
+                            </div>
+                            <div className="field"><label>Yashash manzili (shahar)</label><input type="text" placeholder="Toshkent" value={rCity} onChange={e => setRCity(e.target.value)} /></div>
+                            <div className="field"><label>Telefon raqami</label><input type="tel" placeholder="+998 90 123 45 67" value={rPhone} onChange={e => setRPhone(e.target.value)} /></div>
+                            <div className="field"><label>Elektron pochta</label><input type="email" value={userObj?.email || ""} readOnly /></div>
+                          </div>
                         </div>
-                        <div className="field"><label>Yashash manzili (shahar)</label><input type="text" placeholder="Toshkent" value={rCity} onChange={e => setRCity(e.target.value)} /></div>
-                        <div className="field"><label>Telefon raqami</label><input type="tel" placeholder="+998 90 123 45 67" value={rPhone} onChange={e => setRPhone(e.target.value)} /></div>
-                        <div className="field"><label>Elektron pochta</label><input type="email" placeholder="ism@pochta.uz" value={userObj?.email || ""} readOnly /></div>
                       </div>
-                    </div>
-                  </div>
 
-                  <div className="doc-card">
-                    <div className="doc-card-head"><h3>Ish qidirish holati</h3></div>
-                    <div className="doc-card-body">
-                      <div className="status-options">
-                        <label className="status-opt sel-green checked"><input type="radio" name="jobstatus" defaultChecked />Faol ish qidiryapman</label>
-                        <label className="status-opt sel-brass"><input type="radio" name="jobstatus" />Takliflarni ko'rib chiqyapman</label>
-                        <label className="status-opt sel-neutral"><input type="radio" name="jobstatus" />Suhbatga taklif kutyapman</label>
-                        <label className="status-opt sel-red"><input type="radio" name="jobstatus" />Ish taklif qilingan</label>
-                        <label className="status-opt sel-neutral"><input type="radio" name="jobstatus" />Hozircha qidirmayapman</label>
+                      <div className="doc-card">
+                        <div className="doc-card-head"><h3>Kirish va xavfsizlik</h3></div>
+                        <div className="doc-card-body">
+                          <div className="field-grid">
+                            <div className="field"><label>Joriy parol</label><input type="password" placeholder="••••••••" /></div>
+                            <div className="field"></div>
+                            <div className="field"><label>Yangi parol</label><input type="password" placeholder="Kamida 8 belgi" /></div>
+                            <div className="field"><label>Yangi parolni takrorlang</label><input type="password" placeholder="Qayta kiriting" /></div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
 
-                  <div className="doc-card">
-                    <div className="doc-card-head"><h3>Kirish va xavfsizlik</h3></div>
-                    <div className="doc-card-body">
-                      <div className="field-grid">
-                        <div className="field"><label>Joriy parol</label><input type="password" placeholder="••••••••" /></div>
-                        <div className="field"></div>
-                        <div className="field"><label>Yangi parol</label><input type="password" placeholder="Kamida 8 belgi" /></div>
-                        <div className="field"><label>Yangi parolni takrorlang</label><input type="password" placeholder="Qayta kiriting" /></div>
+                      <div className="save-bar">
+                        <button className="btn btn-brass" onClick={saveProfile}>Saqlash</button>
+                        <button className="btn btn-outline" onClick={() => setProfileEditing(false)}>Bekor qilish</button>
+                        <span className="save-note">O&apos;zgarishlar avtomatik saqlanmaydi — &quot;Saqlash&quot; tugmasini bosing.</span>
                       </div>
-                    </div>
-                  </div>
-
-                  <div className="save-bar">
-                    <button className="btn btn-brass" onClick={saveProfile}>Saqlash</button>
-                    <button className="btn btn-outline" onClick={() => setView('jobs')}>Bekor qilish</button>
-                    <span className="save-note">O'zgarishlar avtomatik saqlanmaydi — "Saqlash" tugmasini bosing.</span>
-                  </div>
+                    </>
+                  )}
                 </section>
               )}
 
@@ -1719,9 +1799,9 @@ export default function CandidatePanel() {
                         </div>
                       </div>
                       <div className="field-grid">
-                        <div className="field"><label>To'liq ism-familiya</label><input type="text" placeholder="Yusupova Dilnoza" value={rFio} onChange={e => setRFio(e.target.value)} /></div>
-                        <div className="field"><label>Tug'ilgan sana</label><input type="date" value={rBirthDate} onChange={e => setRBirthDate(e.target.value)} /></div>
-                        <div className="field"><label>Yashash manzili</label><input type="text" placeholder="Toshkent, Uzbekistan" value={rAddress} onChange={e => setRAddress(e.target.value)} /></div>
+                        <div className="field"><label>To&apos;liq ism-familiya</label><input type="text" placeholder="Yusupova Dilnoza" value={rFio || `${pFam} ${pIsm}`.trim()} onChange={e => setRFio(e.target.value)} /></div>
+                        <div className="field"><label>Tug&apos;ilgan sana</label><input type="date" value={rBirthDate} onChange={e => setRBirthDate(e.target.value)} /></div>
+                        <div className="field"><label>Yashash manzili</label><input type="text" placeholder="Toshkent, Uzbekistan" value={rAddress || rCity} onChange={e => setRAddress(e.target.value)} /></div>
                         <div className="field"><label>Telefon</label><input type="tel" placeholder="+998 90 123 45 67" value={rPhone} onChange={e => { setRPhone(e.target.value); setContactOk(e.target.value.length > 5); }} /></div>
                         <div className="field"><label>Email</label><input type="email" placeholder="ism@pochta.uz" value={userObj?.email || ""} readOnly /></div>
                         <div className="field"><label>Fuqaroligi</label><input type="text" placeholder="O'zbekiston" value={rCitizenship} onChange={e => setRCitizenship(e.target.value)} /></div>
@@ -1739,9 +1819,13 @@ export default function CandidatePanel() {
                           <label>Bandlik turi</label>
                           <select><option value="">Tanlang</option><option>To'liq bandlik</option><option>Qisman bandlik</option><option>Loyiha asosida</option><option>Amaliyot</option><option>Frilanс</option></select>
                         </div>
-                        <div className="field">
-                          <label>Ish grafigi</label>
-                          <select><option value="">Tanlang</option><option>Ofisda</option><option>Masofaviy</option><option>Gibrid</option><option>Siljiydigan grafik</option></select>
+                        <div className="field" style={{ gridColumn: '1 / -1' }}>
+                          <label>Ish grafigi (bir nechtasini tanlash mumkin)</label>
+                          <div className="schedule-checks">
+                            {SCHEDULE_OPTIONS.map(opt => (
+                              <button key={opt} type="button" className={`schedule-chip ${scheduleList.includes(opt) ? 'selected' : ''}`} onClick={() => setScheduleList(prev => prev.includes(opt) ? prev.filter(x => x !== opt) : [...prev, opt])}>{opt}</button>
+                            ))}
+                          </div>
                         </div>
                         <div className="field"><label>Ko'chib o'tishga tayyorligi</label><select><option>Ko'chib o'tmayman</option><option>Tayyorman</option><option>Vaqtinchalik ko'chishga tayyorman</option></select></div>
                         <div className="field"><label>Ish safarlariga tayyorligi</label><select><option>Tayyor emasman</option><option>Tayyorman</option><option>Vaqti-vaqti bilan tayyorman</option></select></div>
@@ -1797,14 +1881,24 @@ export default function CandidatePanel() {
                   </div>
 
                   <div className="doc-card">
-                    <div className="doc-card-head"><h3>Kasbiy ko'nikmalar</h3><span className="num">06</span></div>
+                    <div className="doc-card-head"><h3>Kasbiy ko&apos;nikmalar</h3><span className="num">06</span></div>
                     <div className="doc-card-body">
                       <div className="tag-input-wrap">
                         {skills.map((sk, i) => (
                           <span key={i} className="tag-chip">{sk} <button aria-label="O'chirish" onClick={() => setSkills(skills.filter(x => x !== sk))}>×</button></span>
                         ))}
-                        <input type="text" placeholder="Ko'nikma yozib, Enter bosing (masalan: Excel)" value={skillInput} onChange={e => setSkillInput(e.target.value)} onKeyDown={handleSkillKey} />
                       </div>
+                      <div className="skills-dropdown" style={{ marginTop: 8 }}>
+                        <input type="text" placeholder="Ko'nikma yozing yoki ro'yxatdan tanlang..." value={skillInput} onChange={e => { setSkillInput(e.target.value); setSkillSugOpen(true); }} onKeyDown={handleSkillKey} onFocus={() => setSkillSugOpen(true)} onBlur={() => setTimeout(() => setSkillSugOpen(false), 200)} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--line)', borderRadius: 8, fontSize: 13 }} />
+                        {skillSugOpen && (
+                          <div className="skills-suggestions">
+                            {SKILL_SUGGESTIONS.filter(s => !skills.includes(s) && (!skillInput || s.toLowerCase().includes(skillInput.toLowerCase()))).slice(0, 15).map(s => (
+                              <button key={s} onMouseDown={e => { e.preventDefault(); setSkills([...skills, s]); setSkillInput(''); }}>{s}</button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div className="hint" style={{ marginTop: 6 }}>Ro&apos;yxatdan tanlang yoki o&apos;zingiz yozib Enter bosing.</div>
                     </div>
                   </div>
 

@@ -35,6 +35,7 @@ export default function Navbar({ active, onLoginClick, onProfileClick }: Props) 
   const initials = user
     ? `${user.firstName?.charAt(0) || ''}${user.lastName?.charAt(0) || ''}`.toUpperCase()
     : '';
+  const avatarPhoto = user?.profileData?.profilePhoto || null;
 
   return (
     <>
@@ -50,7 +51,8 @@ export default function Navbar({ active, onLoginClick, onProfileClick }: Props) 
         .rn-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
         .rn-lang{padding:6px 10px;border-radius:7px;font-size:12px;font-weight:600;color:#C9C6BB;cursor:pointer;border:1px solid rgba(201,198,187,0.2);background:none;font-family:'Inter',sans-serif;}
         .rn-lang:hover{background:rgba(239,237,228,0.08);color:#EFEDE4;}
-        .rn-avatar{width:34px;height:34px;border-radius:50%;background:#3A4D78;color:#EFEDE4;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;cursor:pointer;border:2px solid transparent;flex-shrink:0;transition:border-color .15s;}
+        .rn-avatar{width:34px;height:34px;border-radius:50%;background:#3A4D78;color:#EFEDE4;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;cursor:pointer;border:2px solid transparent;flex-shrink:0;transition:border-color .15s;overflow:hidden;}
+        .rn-avatar img{width:100%;height:100%;object-fit:cover;}
         .rn-avatar:hover{border-color:rgba(232,163,61,0.5);}
         .rn-avatar.active{border-color:#E8A33D;}
         .rn-bottom{display:none;}
@@ -81,7 +83,7 @@ export default function Navbar({ active, onLoginClick, onProfileClick }: Props) 
         <div className="rn-right">
           <button className="rn-lang" title="Til">UZ</button>
           <button className={`rn-avatar ${active === 'profile' ? 'active' : ''}`} onClick={handleProfile} title="Profil">
-            {user ? initials : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>}
+            {user ? (avatarPhoto ? <img src={avatarPhoto} alt="" /> : initials) : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>}
           </button>
         </div>
       </div>

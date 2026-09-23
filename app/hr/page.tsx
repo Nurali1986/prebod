@@ -21,6 +21,59 @@ const AI_META = {
 
 function initials(name: string) { return name.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase(); }
 
+const SALES_TESTS = [
+  {id:101,text:"Sotuvning asosiy maqsadi nima?",options:["Mahsulotni imkon qadar qimmat sotish","Mijoz ehtiyojini aniqlab, unga mos yechim taklif qilish","Ko'proq reklama qilish","Ko'proq qo'ng'iroq qilish"],correct:1},
+  {id:102,text:"Lead nima?",options:["Doimiy mijoz","Mahsulot ishlab chiqaruvchi","Potensial mijoz","Sotuvchi"],correct:2},
+  {id:103,text:"Mijoz bilan suhbatni boshlashda eng muhim narsa nima?",options:["Darhol narxni aytish","Mahsulotning barcha xususiyatlarini sanash","Aloqa o'rnatish va mijoz ehtiyojini tushunish","Chegirma taklif qilish"],correct:2},
+  {id:104,text:"SPIN metodikasidagi \"S\" nimani anglatadi?",options:["Sale","Situation","Solution","Service"],correct:1},
+  {id:105,text:"\"Sizga hozirgi yechimingizda eng katta qiyinchilik nima?\" — bu qanday savol?",options:["Ochiq savol","Yopiq savol","Retorik savol","Tasdiqlovchi savol"],correct:0},
+  {id:106,text:"Mijoz \"Qimmat ekan\" desa, sotuvchi birinchi navbatda nima qilishi kerak?",options:["Darhol chegirma berish","Mijozning e'tirozi sababini aniqlash","Suhbatni tugatish","Mahsulotni arzonroq deb isbotlash"],correct:1},
+  {id:107,text:"Cross-sell nima?",options:["Mijozga qo'shimcha mos mahsulot sotish","Mahsulotni qaytarish","Raqobatchini o'rganish","Narxni pasaytirish"],correct:0},
+  {id:108,text:"Up-sell nima?",options:["Arzonroq mahsulot taklif qilish","Mijozga yuqoriroq qiymatli variantni taklif qilish","Mahsulotni almashtirish","Bepul mahsulot berish"],correct:1},
+  {id:109,text:"CRM tizimining asosiy vazifasi nima?",options:["Faqat reklama yaratish","Mijozlar va sotuv jarayonini boshqarish","Omborni tozalash","Mahsulot ishlab chiqarish"],correct:1},
+  {id:110,text:"Conversion Rate nimani ko'rsatadi?",options:["O'rtacha chekni","Mijozlarning ma'lum bosqichdan keyingi konversiyasini","Sotuvchining ish vaqtini","Mahsulot tannarxini"],correct:1},
+  {id:111,text:"Mijoz mahsulot haqida juda ko'p savol bersa, bu nimani anglatishi mumkin?",options:["Umuman qiziqmayapti","Qaror qabul qilishga yaqinlashayotgan bo'lishi mumkin","Suhbatni tugatmoqchi","Sotuvchini aldamoqchi"],correct:1},
+  {id:112,text:"\"Sizga mahsulotimizning qaysi jihati eng muhim?\" — bu savolning maqsadi nima?",options:["Mijoz ehtiyojini aniqlash","Narxni oshirish","Suhbatni tez tugatish","Raqobatchini reklama qilish"],correct:0},
+  {id:113,text:"Sotuvchi mijoz gapirayotganda nima qilishi kerak?",options:["Gapini bo'lish","Keyingi gapini o'ylash","Faol tinglash","Telefon bilan shug'ullanish"],correct:2},
+  {id:114,text:"Active Listening nima?",options:["Mijozni jim kuzatish","Mijozni faol tinglab, tushunganini aniqlash","Faqat yozib olish","Ko'p gapirish"],correct:1},
+  {id:115,text:"\"Men o'ylab ko'raman\" degan mijozga eng to'g'ri javob qaysi?",options:["\"Mayli, xayr.\"","\"Unda 1 oy kutamiz.\"","\"Albatta. Qaror qabul qilishingizga nima sabab bo'layotganini aniqlasak bo'ladimi?\"","\"Bugun olmasangiz, boshqa imkoniyat yo'q.\""],correct:2},
+  {id:116,text:"Sotuv voronkasi nima?",options:["Mijozning sotuv jarayonidagi bosqichlari","Ombor tizimi","Reklama turi","Mahsulot katalogi"],correct:0},
+  {id:117,text:"Qualified Lead nima?",options:["Har qanday internet foydalanuvchisi","Sotib olish ehtimoli va mosligi ma'lum mezonlarga javob beradigan lead","Faqat eski mijoz","Raqobatchi kompaniya"],correct:1},
+  {id:118,text:"Sotuvchi uchun KPI nima?",options:["Ish kiyimi","Asosiy faoliyat samaradorligini o'lchaydigan ko'rsatkich","Mijozlar ro'yxati","Reklama banneri"],correct:1},
+  {id:119,text:"O'rtacha chek qanday aniqlanadi?",options:["Xarajat / mijozlar","Jami sotuv summasi / buyurtmalar soni","Buyurtmalar / reklama","Foyda / xodimlar"],correct:1},
+  {id:120,text:"Mijoz \"Raqobatchingizda arzonroq\" desa, nima qilish kerak?",options:["Raqobatchini yomonlash","Darhol narxni tushirish","Farq va qiymatni aniqlab ko'rsatish","Suhbatni tugatish"],correct:2},
+  {id:121,text:"Value Proposition nima?",options:["Kompaniyaning ofis manzili","Mijoz nima uchun aynan shu taklifni tanlashi kerakligini tushuntiruvchi qiymat taklifi","Sotuvchining maoshi","Mahsulot kodi"],correct:1},
+  {id:122,text:"Sotuvda \"benefit\" nima?",options:["Mahsulotning texnik xususiyati","Mahsulot mijozga beradigan foyda","Mahsulotning nomi","Mahsulotning artikuli"],correct:1},
+  {id:123,text:"\"Bizning dasturimiz 24/7 ishlaydi\" — bu nima?",options:["Benefit","Feature","E'tiroz","CTA"],correct:1},
+  {id:124,text:"\"Bu dastur yordamida xodimlaringiz ish vaqtida tizimdan istalgan payt foydalanadi\" — bu nima?",options:["Feature","Benefit","Lead","KPI"],correct:1},
+  {id:125,text:"CTA nimani anglatadi?",options:["Call To Action","Customer Total Amount","Customer Test Analysis","Call Time Average"],correct:0},
+  {id:126,text:"Sotuvdagi \"closing\" nima?",options:["Mijozni topish","E'tirozni aniqlash","Bitimni yakunlash","Reklama berish"],correct:2},
+  {id:127,text:"Mijoz \"Hozir kerak emas\" desa, sotuvchi nima qilishi kerak?",options:["Bosim o'tkazish","Sababini aniqlash","Darhol telefonni qo'yish","Chegirmalarni sanash"],correct:1},
+  {id:128,text:"Qaysi biri ochiq savol?",options:["\"Sizga kerakmi?\"","\"Bugun olasizmi?\"","\"Hozir qanday yechimdan foydalanayapsiz?\"","\"Siz Toshkentdansizmi?\""],correct:2},
+  {id:129,text:"Qaysi biri yopiq savol?",options:["\"Siz uchun nima muhim?\"","\"Qanday muammoga duch kelyapsiz?\"","\"Qachondan foydalanishni boshlamoqchisiz?\"","\"Sizga 10 dona kerakmi?\""],correct:3},
+  {id:130,text:"Mijozning ehtiyojini aniqlamasdan mahsulotni taqdim qilish qanday xavf tug'diradi?",options:["Sotuv jarayoni tezlashadi","Noto'g'ri taklif berilishi mumkin","Mijoz ko'proq xarid qiladi","Hech qanday xavf yo'q"],correct:1},
+  {id:131,text:"Sotuvchining \"menimcha, sizga shu mahsulot kerak\" deyishi o'rniga nima qilish ma'qul?",options:["Mijoz ehtiyojini savollar orqali aniqlash","Mahsulotni darhol yuborish","Chegirma berish","Suhbatni tugatish"],correct:0},
+  {id:132,text:"Mijoz mahsulotning kamchiligini aytsa, sotuvchi nima qilishi kerak?",options:["Mijoz bilan bahslashish","Uni inkor qilish","E'tirozni tinglab, asosini tushunish va mos javob berish","Telefonni qo'yish"],correct:2},
+  {id:133,text:"\"Social proof\"ga qaysi biri misol bo'ladi?",options:["Mahsulot narxi","Mijozlar fikrlari va real natijalar","Sotuvchining kiyimi","Ofis manzili"],correct:1},
+  {id:134,text:"Follow-up nima?",options:["Birinchi qo'ng'iroq","Mijoz bilan keyingi aloqa","Reklama joylashtirish","Mahsulotni ishlab chiqarish"],correct:1},
+  {id:135,text:"Follow-up qachon kerak bo'lishi mumkin?",options:["Faqat sotuvdan keyin","Mijoz qarorni keyinroq qabul qilishini aytganda ham","Hech qachon","Faqat yangi xodimlarga"],correct:1},
+  {id:136,text:"Sotuvchi bir kunda 100 ta qo'ng'iroq qildi, lekin faqat 1 ta sotuv qildi. Qaysi ko'rsatkichni tahlil qilish foydali?",options:["Faqat qo'ng'iroqlar sonini","Konversiya va qo'ng'iroqlar sifatini","Faqat ish vaqtini","Faqat mijozlar yoshini"],correct:1},
+  {id:137,text:"Sotuvchining mijozga yolg'on ma'lumot berishi qanday oqibatga olib kelishi mumkin?",options:["Ishonchning yo'qolishi","Har doim ko'proq sotuv","Mijozning doimiy bo'lishi","Hech qanday oqibat yo'q"],correct:0},
+  {id:138,text:"Mijoz mahsulotdan qanday foydalanishini tushuntirib berish qaysi bosqichga ko'proq tegishli?",options:["Taqdimot","Lead generation","Reklama","Ishga qabul qilish"],correct:0},
+  {id:139,text:"Sotuvchi mahsulotni juda ko'p gapirib, mijozni deyarli tinglamasa, asosiy muammo nima?",options:["Juda faol sotmoqda","Mijozga yo'naltirilgan yondashuv yetishmayapti","Narx past","CRM ishlamayapti"],correct:1},
+  {id:140,text:"B2B sotuvda qaror qabul qiluvchi shaxsni aniqlash nima uchun muhim?",options:["Ofis manzilini bilish uchun","Qaror jarayonidagi kerakli tomonlar bilan ishlash uchun","Reklama qilish uchun","Mahsulotni ishlab chiqarish uchun"],correct:1},
+  {id:141,text:"Mijoz: \"Narxingiz yuqori.\" Sotuvchi: \"Qaysi jihatdan narx siz kutganingizdan yuqori bo'ldi?\" Bu qanday yondashuv?",options:["E'tirozni aniqlashtirish","Bosim o'tkazish","E'tirozni rad etish","Chegirma berish"],correct:0},
+  {id:142,text:"Sotuvdagi \"pain point\" nima?",options:["Mijozning muammosi yoki og'riqli nuqtasi","Mahsulotning narxi","Sotuvchining maoshi","Reklama kanali"],correct:0},
+  {id:143,text:"Mijozning ehtiyojiga mos bo'lmagan mahsulotni sotishdan ko'ra nima muhimroq?",options:["Har qanday holatda sotuvni yopish","Mijozga mos yechim topish","Narxni oshirish","Ko'proq gapirish"],correct:1},
+  {id:144,text:"Sotuvchi mijozdan \"Qachon xarid qilishni rejalashtiryapsiz?\" deb so'rasa, nimani aniqlayapti?",options:["Budget","Timeline","Pain point","Feature"],correct:1},
+  {id:145,text:"\"Budget\" sotuvda nimani anglatadi?",options:["Mijozning mavjud yoki rejalashtirilgan xarid byudjeti","Mijozning manzili","Sotuvchining maoshi","Mahsulot soni"],correct:0},
+  {id:146,text:"Mijoz mahsulotni olishga tayyor, lekin yetkazib berish muddati unga mos emas. Sotuvchi nima qilishi kerak?",options:["Mijozni majburlash","Muqobil variantlarni izlash","Mijozni bloklash","Suhbatni tugatish"],correct:1},
+  {id:147,text:"Sotuvchi uchun \"retention\" nimani anglatadi?",options:["Yangi mijoz topish","Mavjud mijozni saqlab qolish","Reklama xarajatini oshirish","Narxni pasaytirish"],correct:1},
+  {id:148,text:"Mijoz mahsulotni sotib oldi. Sotuvchining ishi shu bilan tugaydimi?",options:["Ha, har doim","Yo'q, keyingi aloqa va mijoz tajribasi ham muhim","Faqat B2Bda tugamaydi","Faqat katta mahsulotlarda tugamaydi"],correct:1},
+  {id:149,text:"Sotuvchining eng muhim ko'nikmalaridan biri qaysi?",options:["Juda tez gapirish","Faol tinglash va to'g'ri savol berish","Har doim chegirma berish","Mijoz bilan bahslashish"],correct:1},
+  {id:150,text:"Mijoz mahsulotga qiziqmoqda, ehtiyojini aytdi, narxni ham biladi, lekin qaror qilishga ikkilanmoqda. Eng to'g'ri harakat qaysi?",options:["Bosim o'tkazish","Suhbatni tugatish","Ikkilanish sababini aniqlab, tegishli savollar bilan qaror qabul qilishga yordam berish","Darhol 50% chegirma berish"],correct:2},
+];
+
 const initialDepartments = [
   {id:1, name:"IT va mahsulot", tests:[
     {id: 1, text:"React'da komponent holatini boshqarish uchun qaysi hook ishlatiladi?", options:["useEffect","useState","useMemo","useRef"], correct:1},
@@ -29,7 +82,7 @@ const initialDepartments = [
   {id:2, name:"Marketing", tests:[
     {id: 3, text:"SMM strategiyasining asosiy maqsadi nima?", options:["Faqat like yig'ish","Auditoriya bilan aloqa va brend tanilishini oshirish","Faqat reklama byudjetini sarflash","Raqobatchilarni nazorat qilish"], correct:1},
   ], openQs: [{id: 3, text: "Marketing byudjetini qanday taqsimlaysiz?"}]},
-  {id:3, name:"Sotuv", tests:[], openQs: []},
+  {id:3, name:"Sotuv", tests:SALES_TESTS, openQs: []},
   {id:4, name:"Moliya", tests:[
     {id: 4, text:"Debet va kredit tushunchalari qaysi sohaga tegishli?", options:["Marketing","Buxgalteriya","Dizayn","Logistika"], correct:1},
   ], openQs: []},
@@ -133,12 +186,15 @@ export default function HRPanel() {
   const [salesPersonas, setSalesPersonas] = useState<string[]>([]);
   const [reqVideo, setReqVideo] = useState(false);
   const [videoPrompt, setVideoPrompt] = useState('');
-  
+  const [testCount, setTestCount] = useState(15);
+
   const [baseModalOpen, setBaseModalOpen] = useState(false);
   const [baseModalType, setBaseModalType] = useState<'tests' | 'openQs' | null>(null);
+  const [baseSelected, setBaseSelected] = useState<Set<number>>(new Set());
 
   const openBaseModal = (type: 'tests' | 'openQs') => {
     setBaseModalType(type);
+    setBaseSelected(new Set());
     setBaseModalOpen(true);
   };
 
@@ -213,6 +269,7 @@ export default function HRPanel() {
       salesPersonas: salesPersonas,
       videoEnabled: reqVideo,
       videoPrompt: videoPrompt,
+      testCount: testCount,
       tests: testQs.map(({ id, ...rest }) => rest),
       openQs: openQs.map(q => ({ text: q }))
     };
@@ -834,45 +891,102 @@ export default function HRPanel() {
 
       {baseModalOpen && (
         <div className="overlay open" style={{ display: 'flex' }} onClick={(e) => { if (e.target === e.currentTarget) setBaseModalOpen(false) }}>
-          <div className="modal" style={{ maxWidth: 600 }}>
-            <h2>Bo'lim bazasidan {baseModalType === 'tests' ? 'testlar' : 'ochiq savollar'}ni tanlash</h2>
-            <p className="sub">{fDept} bo'limi uchun superadmin tomonidan qo'shilgan savollar.</p>
-            
-            <div className="base-q-list" style={{ marginTop: 20, maxHeight: 400, overflowY: 'auto' }}>
+          <div className="modal" style={{ maxWidth: 640 }}>
+            <h2>{baseModalType === 'tests' ? 'Testlar bazasidan tanlash' : 'Ochiq savollar bazasidan tanlash'}</h2>
+            <p className="sub">{fDept} bo&apos;limi uchun tayyor savollar. Bir nechta tanlang.</p>
+
+            <div className="base-q-list" style={{ marginTop: 20, maxHeight: 420, overflowY: 'auto' }}>
               {(() => {
                 const deptData = departments.find((d: any) => d.name === fDept);
-                if (!deptData) return <p>Ushbu bo'lim uchun savollar topilmadi.</p>;
-                
+                const salesBank = fDept === 'Sotuv' ? SALES_TESTS : [];
+
                 if (baseModalType === 'tests') {
-                  if (!deptData.tests || deptData.tests.length === 0) return <p>Testlar bazasi bo'sh.</p>;
-                  return deptData.tests.map((q: any) => (
-                    <div key={q.id} className="q-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid var(--line)' }}>
-                      <div style={{ flex: 1 }}><strong>{q.text}</strong><br/><span style={{ fontSize: 13, color: 'var(--muted)' }}>To'g'ri: {q.options[q.correct]}</span></div>
-                      <button className="btn btn-sm btn-ghost" onClick={() => { 
-                        setTestQs([...testQs, { text: q.text, options: q.options, correct: q.correct }]); 
-                        showToast("Savol qo'shildi");
-                        setBaseModalOpen(false); 
-                      }}>Qo'shish</button>
-                    </div>
-                  ));
+                  const dbTests = deptData?.tests || [];
+                  const allTests = [...dbTests];
+                  salesBank.forEach((st: any) => {
+                    if (!allTests.some((t: any) => t.text === st.text)) allTests.push(st);
+                  });
+                  if (allTests.length === 0) return <p>Testlar bazasi bo&apos;sh.</p>;
+
+                  const existingTexts = new Set(testQs.map((q: any) => q.text));
+                  const available = allTests.filter((q: any) => !existingTexts.has(q.text));
+                  if (available.length === 0) return <p>Barcha testlar allaqachon qo&apos;shilgan.</p>;
+
+                  return (
+                    <>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, padding: '0 2px' }}>
+                        <span style={{ fontSize: 13, color: 'var(--muted)' }}>{baseSelected.size} / {available.length} tanlangan</span>
+                        <button className="btn btn-sm btn-ghost" onClick={() => {
+                          if (baseSelected.size === available.length) setBaseSelected(new Set());
+                          else setBaseSelected(new Set(available.map((_: any, i: number) => i)));
+                        }}>{baseSelected.size === available.length ? 'Bekor qilish' : 'Hammasini tanlash'}</button>
+                      </div>
+                      {available.map((q: any, idx: number) => (
+                        <label key={q.id || idx} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '10px 8px', borderBottom: '1px solid var(--line)', cursor: 'pointer' }}>
+                          <input type="checkbox" checked={baseSelected.has(idx)} onChange={() => {
+                            const ns = new Set(baseSelected);
+                            if (ns.has(idx)) ns.delete(idx); else ns.add(idx);
+                            setBaseSelected(ns);
+                          }} style={{ marginTop: 3, accentColor: 'var(--violet)', flexShrink: 0 }} />
+                          <div style={{ flex: 1 }}><strong style={{ fontSize: 13.5 }}>{q.text}</strong><br/><span style={{ fontSize: 12.5, color: 'var(--muted)' }}>To&apos;g&apos;ri: {q.options[q.correct]}</span></div>
+                        </label>
+                      ))}
+                    </>
+                  );
                 } else {
-                  if (!deptData.openQs || deptData.openQs.length === 0) return <p>Ochiq savollar bazasi bo'sh.</p>;
-                  return deptData.openQs.map((q: any) => (
-                    <div key={q.id} className="q-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid var(--line)' }}>
-                      <div style={{ flex: 1 }}><strong>{q.text}</strong></div>
-                      <button className="btn btn-sm btn-ghost" onClick={() => { 
-                        setOpenQs([...openQs, q.text]);
-                        showToast("Savol qo'shildi");
-                        setBaseModalOpen(false); 
-                      }}>Qo'shish</button>
-                    </div>
-                  ));
+                  const dbOqs = deptData?.openQs || [];
+                  if (dbOqs.length === 0) return <p>Ochiq savollar bazasi bo&apos;sh.</p>;
+                  const existingTexts = new Set(openQs);
+                  const available = dbOqs.filter((q: any) => !existingTexts.has(q.text));
+                  if (available.length === 0) return <p>Barcha savollar allaqachon qo&apos;shilgan.</p>;
+                  return (
+                    <>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, padding: '0 2px' }}>
+                        <span style={{ fontSize: 13, color: 'var(--muted)' }}>{baseSelected.size} / {available.length} tanlangan</span>
+                        <button className="btn btn-sm btn-ghost" onClick={() => {
+                          if (baseSelected.size === available.length) setBaseSelected(new Set());
+                          else setBaseSelected(new Set(available.map((_: any, i: number) => i)));
+                        }}>{baseSelected.size === available.length ? 'Bekor qilish' : 'Hammasini tanlash'}</button>
+                      </div>
+                      {available.map((q: any, idx: number) => (
+                        <label key={q.id || idx} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '10px 8px', borderBottom: '1px solid var(--line)', cursor: 'pointer' }}>
+                          <input type="checkbox" checked={baseSelected.has(idx)} onChange={() => {
+                            const ns = new Set(baseSelected);
+                            if (ns.has(idx)) ns.delete(idx); else ns.add(idx);
+                            setBaseSelected(ns);
+                          }} style={{ marginTop: 3, accentColor: 'var(--violet)', flexShrink: 0 }} />
+                          <div style={{ flex: 1 }}><strong style={{ fontSize: 13.5 }}>{q.text}</strong></div>
+                        </label>
+                      ))}
+                    </>
+                  );
                 }
               })()}
             </div>
-            
+
             <div className="modal-actions" style={{ marginTop: 20 }}>
               <button className="btn btn-ghost" onClick={() => setBaseModalOpen(false)}>Yopish</button>
+              {baseSelected.size > 0 && <button className="btn btn-primary" onClick={() => {
+                const deptData = departments.find((d: any) => d.name === fDept);
+                const salesBank = fDept === 'Sotuv' ? SALES_TESTS : [];
+                if (baseModalType === 'tests') {
+                  const dbTests = deptData?.tests || [];
+                  const allTests = [...dbTests];
+                  salesBank.forEach((st: any) => { if (!allTests.some((t: any) => t.text === st.text)) allTests.push(st); });
+                  const existingTexts = new Set(testQs.map((q: any) => q.text));
+                  const available = allTests.filter((q: any) => !existingTexts.has(q.text));
+                  const picked = Array.from(baseSelected).map(i => available[i]).filter(Boolean);
+                  setTestQs([...testQs, ...picked.map((q: any) => ({ text: q.text, options: q.options, correct: q.correct }))]);
+                } else {
+                  const dbOqs = deptData?.openQs || [];
+                  const existingTexts = new Set(openQs);
+                  const available = dbOqs.filter((q: any) => !existingTexts.has(q.text));
+                  const picked = Array.from(baseSelected).map(i => available[i]).filter(Boolean);
+                  setOpenQs([...openQs, ...picked.map((q: any) => q.text)]);
+                }
+                showToast(`${baseSelected.size} ta savol qo'shildi`);
+                setBaseModalOpen(false);
+              }}>{baseSelected.size} ta qo&apos;shish</button>}
             </div>
           </div>
         </div>
@@ -952,10 +1066,22 @@ export default function HRPanel() {
                         </div>
                       </div>
                     ))}
-                    <div style={{ display: 'flex', gap: 10 }}>
-                      <button className="add-q-btn" onClick={() => setTestQs([...testQs, { text: '', options: ['', '', '', ''], correct: 0 }])}>+ Savol qo'shish</button>
+                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                      <button className="add-q-btn" onClick={() => setTestQs([...testQs, { text: '', options: ['', '', '', ''], correct: 0 }])}>+ O&apos;zi savol qo&apos;shish</button>
                       <button className="add-q-btn" style={{ background: '#E3F1EA', color: '#2F7A5C' }} onClick={() => openBaseModal('tests')}>+ Baza orqali tanlash</button>
                     </div>
+                    {testQs.length > 0 && (
+                      <div style={{ marginTop: 16, padding: '14px 16px', background: 'var(--accent-bg)', borderRadius: 10, border: '1px solid var(--accent)' }}>
+                        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--accent-deep)', marginBottom: 8 }}>Nomzodga nechta test berilsin? (jami {testQs.length} ta mavjud)</label>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <input type="range" min={1} max={Math.min(testQs.length, 25)} value={Math.min(testCount, testQs.length)} onChange={e => setTestCount(Number(e.target.value))} style={{ flex: 1, accentColor: 'var(--accent)' }} />
+                          <input type="number" min={1} max={Math.min(testQs.length, 25)} value={Math.min(testCount, testQs.length)} onChange={e => setTestCount(Math.max(1, Math.min(25, Number(e.target.value))))} style={{ width: 60, textAlign: 'center', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--line-strong)', fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 600 }} />
+                        </div>
+                        <p style={{ fontSize: 12, color: 'var(--muted)', margin: '6px 0 0' }}>
+                          {testQs.length > testCount ? `${testQs.length} ta savoldan ${Math.min(testCount, testQs.length)} tasi tasodifiy tanlanadi` : `Barcha ${testQs.length} ta savol ko'rsatiladi`}
+                        </p>
+                      </div>
+                    )}
                   </div>}
                 </div>
 

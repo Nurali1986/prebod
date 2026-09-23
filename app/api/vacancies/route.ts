@@ -110,6 +110,7 @@ export async function POST(request: Request) {
         salesPersonas: body.salesPersonas ?? [],
         videoEnabled: body.videoEnabled ?? false,
         videoPrompt: body.videoPrompt,
+        testCount: body.testCount ?? 15,
         vacancyTests: { create: body.tests || [] },
         vacancyOpenQs: { create: body.openQs || [] },
       },
@@ -144,7 +145,7 @@ export async function PATCH(request: Request) {
     const allowed = [
       'title', 'type', 'loc', 'salary', 'desc', 'status', 'posted',
       'cvMinScore', 'cvCheckEnabled', 'testEnabled', 'openQEnabled',
-      'salesEnabled', 'salesProduct', 'salesPersonas', 'videoEnabled', 'videoPrompt',
+      'salesEnabled', 'salesProduct', 'salesPersonas', 'videoEnabled', 'videoPrompt', 'testCount',
     ];
     const updateData: any = {};
     for (const k of allowed) if (k in data) updateData[k] = data[k];

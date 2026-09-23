@@ -136,7 +136,8 @@ model Vacancy {
   salesPersonas String[]
   videoEnabled  Boolean  @default(false)
   videoPrompt   String?
-  
+  testCount     Int      @default(15)
+
   candidates    Candidate[]
   vacancyTests  VacancyTest[]
   vacancyOpenQs VacancyOpenQ[]
