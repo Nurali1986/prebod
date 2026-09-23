@@ -280,6 +280,10 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
 .role-modal .close-x:hover{color:var(--ink);}
 .role-modal h2{font-family:var(--font-display);font-size:23px;font-weight:600;margin:0 0 6px;text-align:center;}
 .role-modal .sub{font-size:13.5px;color:var(--muted);text-align:center;margin:0 0 26px;}
+.signup-role-tabs{display:flex;gap:6px;margin:16px 0 14px;background:var(--paper);border-radius:10px;padding:4px;}
+.signup-role-tab{flex:1;padding:9px 0;border:none;background:none;font-family:var(--font-body);font-size:13px;font-weight:600;color:var(--muted);border-radius:8px;cursor:pointer;transition:all .15s ease;}
+.signup-role-tab:hover{color:var(--ink);}
+.signup-role-tab.active{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1);}
 .role-modal .role-grid{margin-bottom:16px;}
 .role-modal .later{display:block;text-align:center;font-size:12.5px;color:var(--muted);cursor:pointer;}
 .role-modal .later:hover{color:var(--ink);text-decoration:underline;}
@@ -549,7 +553,12 @@ footer{border-top:1px solid var(--line);padding:48px 0 26px;}
       <div className={`overlay ${signupOpen ? 'open' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) setSignupOpen(false); }}>
         <div className="role-modal" style={{ maxWidth: 440 }}>
           <button className="close-x" onClick={() => setSignupOpen(false)}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
-          <h2>{signupRole === 'sales' ? "Sotuvchi sifatida ro'yxatdan o'tish" : signupRole === 'manager' ? "Sotuv rahbari — jamoa yaratish" : "HR sifatida ro'yxatdan o'tish"}</h2>
+          <h2>Ro&apos;yxatdan o&apos;tish</h2>
+          <div className="signup-role-tabs">
+            <button className={`signup-role-tab ${signupRole === 'sales' ? 'active' : ''}`} onClick={() => setSignupRole('sales')}>Sotuvchi</button>
+            <button className={`signup-role-tab ${signupRole === 'manager' ? 'active' : ''}`} onClick={() => setSignupRole('manager')}>Rahbar</button>
+            <button className={`signup-role-tab ${signupRole === 'employer' ? 'active' : ''}`} onClick={() => setSignupRole('employer')}>HR</button>
+          </div>
           <p className="sub">{signupRole === 'sales' ? "AI mijoz bilan mashq qilib, sotuv mahoratingizni oshiring." : signupRole === 'manager' ? "Jamoangizni tayyorlash va mahorat o'sishini kuzatish uchun." : "Yollash moduli uchun hisob yarating."}</p>
           <div style={{ display: 'flex', gap: 10 }}>
             <div className="field" style={{ flex: 1 }}><label>Ism</label><input type="text" placeholder="Ismingiz" value={suFirstName} onChange={e => setSuFirstName(e.target.value)} /></div>
