@@ -74,6 +74,39 @@ const SALES_TESTS = [
   {id:150,text:"Mijoz mahsulotga qiziqmoqda, ehtiyojini aytdi, narxni ham biladi, lekin qaror qilishga ikkilanmoqda. Eng to'g'ri harakat qaysi?",options:["Bosim o'tkazish","Suhbatni tugatish","Ikkilanish sababini aniqlab, tegishli savollar bilan qaror qabul qilishga yordam berish","Darhol 50% chegirma berish"],correct:2},
 ];
 
+const OPEN_QUESTIONS_BANK = [
+  {id:201, text:"Nima sababdan aynan sotuv menejeri bo'lib ishlashni xohlaysiz?", category:"Motivatsiya"},
+  {id:202, text:"O'zingizni uchta sifat bilan qanday ta'riflagan bo'lardingiz?", category:"Motivatsiya"},
+  {id:203, text:"Siz uchun mas'uliyatli xodim qanday bo'ladi?", category:"Motivatsiya"},
+  {id:204, text:"Sizga yangi vazifa berilsa, uni o'rganishni qanday boshlaysiz?", category:"Motivatsiya"},
+  {id:205, text:"Oldin bilmagan narsangizni tez o'rganishingizga to'g'ri kelgan vaziyatni aytib bering.", category:"Motivatsiya"},
+  {id:206, text:"Ishda xato qilib qo'ysangiz, odatda qanday yo'l tutasiz?", category:"Motivatsiya"},
+  {id:207, text:"Qiyin yoki zerikarli vazifani bajarishga motivatsiyani qanday saqlab qolasiz?", category:"Motivatsiya"},
+  {id:208, text:"Siz uchun yaxshi ish kuni qanday o'tishi kerak?", category:"Motivatsiya"},
+  {id:209, text:"Mijoz bilan birinchi marta gaplashganda suhbatni qanday boshlagan bo'lardingiz?", category:"Mijoz bilan muloqot"},
+  {id:210, text:"Mijoz o'z ehtiyojini aniq tushuntira olmasa, uni qanday savollar orqali tushunishga harakat qilasiz?", category:"Mijoz bilan muloqot"},
+  {id:211, text:"Mijoz sizga juda ko'p savol bersa, qanday javob berasiz?", category:"Mijoz bilan muloqot"},
+  {id:212, text:"Mijoz jahli chiqib, noroziligini bildirsa, vaziyatni qanday boshqarasiz?", category:"Mijoz bilan muloqot"},
+  {id:213, text:"Mijoz sizni gapirayotgan paytingizda tez-tez bo'lsa, qanday yo'l tutasiz?", category:"Mijoz bilan muloqot"},
+  {id:214, text:"Mijozga murakkab mahsulot yoki xizmatni sodda qilib qanday tushuntirgan bo'lardingiz?", category:"Mijoz bilan muloqot"},
+  {id:215, text:"Mijoz sizga qo'pol gapirsa, qanday javob berasiz?", category:"Mijoz bilan muloqot"},
+  {id:216, text:"Mijoz \"Menga bu mahsulot kerak emas\" desa, suhbatni qanday davom ettirasiz?", category:"Sotuv vaziyatlari"},
+  {id:217, text:"Mijoz \"Qimmat ekan\" desa, qanday javob berasiz?", category:"Sotuv vaziyatlari"},
+  {id:218, text:"Mijoz \"O'ylab ko'raman\" desa, qanday harakat qilasiz?", category:"Sotuv vaziyatlari"},
+  {id:219, text:"Mijoz raqobatchida xuddi shunday mahsulot arzonroq ekanini aytsa, nima qilasiz?", category:"Sotuv vaziyatlari"},
+  {id:220, text:"Mijoz mahsulotga qiziqmoqda, lekin xarid qilishga ikkilanmoqda. Uni qanday tushunishga harakat qilasiz?", category:"Sotuv vaziyatlari"},
+  {id:221, text:"Sizningcha, mijozga mahsulotni sotishdan oldin nimalarni bilish kerak?", category:"Sotuv vaziyatlari"},
+  {id:222, text:"Mahsulot haqida mijoz bergan savolga javobni bilmasangiz, nima qilasiz?", category:"Sotuv vaziyatlari"},
+  {id:223, text:"Mijozga mahsulotning foydasini qanday ko'rsatib berasiz?", category:"Sotuv vaziyatlari"},
+  {id:224, text:"Sizningcha, yaxshi sotuvchi ko'proq gapirishi kerakmi yoki ko'proq tinglashi kerakmi? Nima uchun?", category:"Sotuv vaziyatlari"},
+  {id:225, text:"Mijoz xarid qilishga tayyorligini qanday belgilar orqali tushunish mumkin?", category:"Sotuv vaziyatlari"},
+  {id:226, text:"Bir vaqtning o'zida 3 ta mijoz sizdan javob kutayotgan bo'lsa, ishni qanday tashkil qilasiz?", category:"Real ish vaziyatlari"},
+  {id:227, text:"Kun davomida ko'plab mijozlar bilan gaplashib charchasangiz, keyingi mijoz bilan muloqot sifatini qanday saqlaysiz?", category:"Real ish vaziyatlari"},
+  {id:228, text:"Sizga kompaniyaning yangi mahsulotini o'rganish topshirildi. Birinchi kuningizni qanday tashkil qilgan bo'lardingiz?", category:"Real ish vaziyatlari"},
+  {id:229, text:"Bir oy davomida sotuv natijalaringiz past bo'lsa, sababini qanday izlagan bo'lardingiz?", category:"Real ish vaziyatlari"},
+  {id:230, text:"Agar sizni ishga qabul qilsak, dastlabki 30 kun ichida qanday natijaga erishishni maqsad qilgan bo'lardingiz?", category:"Real ish vaziyatlari"},
+];
+
 const initialDepartments = [
   {id:1, name:"IT va mahsulot", tests:[
     {id: 1, text:"React'da komponent holatini boshqarish uchun qaysi hook ishlatiladi?", options:["useEffect","useState","useMemo","useRef"], correct:1},
@@ -82,7 +115,7 @@ const initialDepartments = [
   {id:2, name:"Marketing", tests:[
     {id: 3, text:"SMM strategiyasining asosiy maqsadi nima?", options:["Faqat like yig'ish","Auditoriya bilan aloqa va brend tanilishini oshirish","Faqat reklama byudjetini sarflash","Raqobatchilarni nazorat qilish"], correct:1},
   ], openQs: [{id: 3, text: "Marketing byudjetini qanday taqsimlaysiz?"}]},
-  {id:3, name:"Sotuv", tests:SALES_TESTS, openQs: []},
+  {id:3, name:"Sotuv", tests:SALES_TESTS, openQs: OPEN_QUESTIONS_BANK},
   {id:4, name:"Moliya", tests:[
     {id: 4, text:"Debet va kredit tushunchalari qaysi sohaga tegishli?", options:["Marketing","Buxgalteriya","Dizayn","Logistika"], correct:1},
   ], openQs: []},
@@ -935,10 +968,13 @@ export default function HRPanel() {
                   );
                 } else {
                   const dbOqs = deptData?.openQs || [];
-                  if (dbOqs.length === 0) return <p>Ochiq savollar bazasi bo&apos;sh.</p>;
+                  const allOqs = [...dbOqs];
+                  OPEN_QUESTIONS_BANK.forEach((bq: any) => { if (!allOqs.some((q: any) => q.text === bq.text)) allOqs.push(bq); });
+                  if (allOqs.length === 0) return <p>Ochiq savollar bazasi bo&apos;sh.</p>;
                   const existingTexts = new Set(openQs);
-                  const available = dbOqs.filter((q: any) => !existingTexts.has(q.text));
+                  const available = allOqs.filter((q: any) => !existingTexts.has(q.text));
                   if (available.length === 0) return <p>Barcha savollar allaqachon qo&apos;shilgan.</p>;
+                  const categories = [...new Set(available.map((q: any) => q.category).filter(Boolean))];
                   return (
                     <>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, padding: '0 2px' }}>
@@ -948,7 +984,21 @@ export default function HRPanel() {
                           else setBaseSelected(new Set(available.map((_: any, i: number) => i)));
                         }}>{baseSelected.size === available.length ? 'Bekor qilish' : 'Hammasini tanlash'}</button>
                       </div>
-                      {available.map((q: any, idx: number) => (
+                      {categories.length > 0 ? categories.map((cat: string) => (
+                        <div key={cat}>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--violet)', textTransform: 'uppercase', letterSpacing: '.5px', padding: '10px 8px 4px', background: 'var(--paper)' }}>{cat}</div>
+                          {available.map((q: any, idx: number) => q.category === cat && (
+                            <label key={q.id || idx} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '10px 8px', borderBottom: '1px solid var(--line)', cursor: 'pointer' }}>
+                              <input type="checkbox" checked={baseSelected.has(idx)} onChange={() => {
+                                const ns = new Set(baseSelected);
+                                if (ns.has(idx)) ns.delete(idx); else ns.add(idx);
+                                setBaseSelected(ns);
+                              }} style={{ marginTop: 3, accentColor: 'var(--violet)', flexShrink: 0 }} />
+                              <div style={{ flex: 1 }}><strong style={{ fontSize: 13.5 }}>{q.text}</strong></div>
+                            </label>
+                          ))}
+                        </div>
+                      )) : available.map((q: any, idx: number) => (
                         <label key={q.id || idx} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '10px 8px', borderBottom: '1px solid var(--line)', cursor: 'pointer' }}>
                           <input type="checkbox" checked={baseSelected.has(idx)} onChange={() => {
                             const ns = new Set(baseSelected);
@@ -979,8 +1029,10 @@ export default function HRPanel() {
                   setTestQs([...testQs, ...picked.map((q: any) => ({ text: q.text, options: q.options, correct: q.correct }))]);
                 } else {
                   const dbOqs = deptData?.openQs || [];
+                  const allOqs = [...dbOqs];
+                  OPEN_QUESTIONS_BANK.forEach((bq: any) => { if (!allOqs.some((q: any) => q.text === bq.text)) allOqs.push(bq); });
                   const existingTexts = new Set(openQs);
-                  const available = dbOqs.filter((q: any) => !existingTexts.has(q.text));
+                  const available = allOqs.filter((q: any) => !existingTexts.has(q.text));
                   const picked = Array.from(baseSelected).map(i => available[i]).filter(Boolean);
                   setOpenQs([...openQs, ...picked.map((q: any) => q.text)]);
                 }

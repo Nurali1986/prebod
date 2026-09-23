@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Navbar from '../components/Navbar';
 
 const AI_META = {
@@ -12,16 +12,16 @@ const AI_META = {
 };
 
 const CHARACTERS = [
-  { id: 'ishonmaydigan', name: 'Rustam (Ishonchsiz)', description: 'Hech kimga ishonmaydi', greeting: 'Alo, assalomu alaykum. Eshitaman.' },
-  { id: 'band', name: 'Sardor (Band Rahbar)', description: 'Vaqti yo\'q, shoshyapti', greeting: 'Alo, assalomu alaykum. Kim bu?' },
-  { id: 'buhgalter', name: 'Madina (Buhgalter)', description: 'Faqat raqamlarga qaraydi', greeting: 'Assalomu alaykum. Eshitaman sizni.' },
-  { id: 'bazorchi', name: 'Aziza (Narx Talashuvchi)', description: 'Doim chegirma so\'raydi', greeting: 'Alo, assalomu alaykum. Qanaqa masala edi?' },
-  { id: 'bilagon', name: 'Jasur (Ekspert)', description: 'Hammasini "biladi"', greeting: 'Assalomu alaykum. Xo\'sh, qanday masalada telefon qildingiz?' },
-  { id: 'ikkilanuvchi', name: 'Nigora (Ikkilanuvchi)', description: 'Qaror berolmaydi', greeting: 'Alo... Assalomu alaykum, eshityapman.' },
-  { id: 'achchiq', name: 'Tohir (Asabiy)', description: 'Oldin yomon tajriba bo\'lgan', greeting: 'Alo, assalomu alaykum. Siz kimsiz?' },
-  { id: 'muloyim_sust', name: 'Zarina (Muloyim)', description: 'Hammaga "ha" deydi', greeting: 'Assalomu alaykum! Eshitaman, marhamat.' },
-  { id: 'raqobatchi', name: 'Sanjar (Sodiq Mijoz)', description: 'Boshqa firma bilan ishlaydi', greeting: 'Alo, assalomu alaykum. Nima deysiz?' },
-  { id: 'yangi', name: 'Sevara (Yangi Mijoz)', description: 'Sohani umuman bilmaydi', greeting: 'Assalomu alaykum. Eshitaman, gapiravering.' },
+  { id: 'ishonmaydigan', name: 'Rustam (Ishonchsiz)', firstName: 'Rustam', description: 'Hech kimga ishonmaydi', greeting: 'Alo, assalomu alaykum. Eshitaman.', voice: 'uz-UZ-SardorNeural', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
+  { id: 'band', name: 'Sardor (Band Rahbar)', firstName: 'Sardor', description: 'Vaqti yo\'q, shoshyapti', greeting: 'Alo, assalomu alaykum. Kim bu?', voice: 'uz-UZ-SardorNeural', avatar: 'https://randomuser.me/api/portraits/men/45.jpg' },
+  { id: 'buhgalter', name: 'Madina (Buhgalter)', firstName: 'Madina', description: 'Faqat raqamlarga qaraydi', greeting: 'Assalomu alaykum. Eshitaman sizni.', voice: 'uz-UZ-MadinaNeural', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
+  { id: 'bazorchi', name: 'Aziza (Narx Talashuvchi)', firstName: 'Aziza', description: 'Doim chegirma so\'raydi', greeting: 'Alo, assalomu alaykum. Qanaqa masala edi?', voice: 'uz-UZ-MadinaNeural', avatar: 'https://randomuser.me/api/portraits/women/68.jpg' },
+  { id: 'bilagon', name: 'Jasur (Ekspert)', firstName: 'Jasur', description: 'Hammasini "biladi"', greeting: 'Assalomu alaykum. Xo\'sh, qanday masalada telefon qildingiz?', voice: 'uz-UZ-SardorNeural', avatar: 'https://randomuser.me/api/portraits/men/76.jpg' },
+  { id: 'ikkilanuvchi', name: 'Nigora (Ikkilanuvchi)', firstName: 'Nigora', description: 'Qaror berolmaydi', greeting: 'Alo... Assalomu alaykum, eshityapman.', voice: 'uz-UZ-MadinaNeural', avatar: 'https://randomuser.me/api/portraits/women/65.jpg' },
+  { id: 'achchiq', name: 'Tohir (Asabiy)', firstName: 'Tohir', description: 'Oldin yomon tajriba bo\'lgan', greeting: 'Alo, assalomu alaykum. Siz kimsiz?', voice: 'uz-UZ-SardorNeural', avatar: 'https://randomuser.me/api/portraits/men/52.jpg' },
+  { id: 'muloyim_sust', name: 'Zarina (Muloyim)', firstName: 'Zarina', description: 'Hammaga "ha" deydi', greeting: 'Assalomu alaykum! Eshitaman, marhamat.', voice: 'uz-UZ-MadinaNeural', avatar: 'https://randomuser.me/api/portraits/women/33.jpg' },
+  { id: 'raqobatchi', name: 'Sanjar (Sodiq Mijoz)', firstName: 'Sanjar', description: 'Boshqa firma bilan ishlaydi', greeting: 'Alo, assalomu alaykum. Nima deysiz?', voice: 'uz-UZ-SardorNeural', avatar: 'https://randomuser.me/api/portraits/men/12.jpg' },
+  { id: 'yangi', name: 'Sevara (Yangi Mijoz)', firstName: 'Sevara', description: 'Sohani umuman bilmaydi', greeting: 'Assalomu alaykum. Eshitaman, gapiravering.', voice: 'uz-UZ-MadinaNeural', avatar: 'https://randomuser.me/api/portraits/women/90.jpg' },
 ];
 
 const SKILL_SUGGESTIONS = [
@@ -121,8 +121,9 @@ function ProfileResultsDashboard({ sessions }: { sessions: any[] }) {
     return [x, y];
   });
   const xpLine = xpPts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
-  const firstDate = xpData.length > 0 ? xpData[0].date.toLocaleDateString('uz-UZ') : '';
-  const lastDate = xpData.length > 0 ? xpData[xpData.length - 1].date.toLocaleDateString('uz-UZ') : '';
+  const fmtDate = (d: Date) => `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
+  const firstDate = xpData.length > 0 ? fmtDate(xpData[0].date) : '';
+  const lastDate = xpData.length > 0 ? fmtDate(xpData[xpData.length - 1].date) : '';
 
   return (
     <>
@@ -335,6 +336,22 @@ export default function CandidatePanel() {
   const [chatSending, setChatSending] = useState(false);
   const chatRef = useRef<HTMLDivElement>(null);
 
+  // Voice call state for sales simulation
+  const [vcIsListening, setVcIsListening] = useState(false);
+  const [vcIsSpeaking, setVcIsSpeaking] = useState(false);
+  const [vcIsLoading, setVcIsLoading] = useState(false);
+  const [vcCallSeconds, setVcCallSeconds] = useState(0);
+  const [vcStatusText, setVcStatusText] = useState('');
+  const [vcCallActive, setVcCallActive] = useState(false);
+  const vcRecognizerRef = useRef<any>(null);
+  const vcSpeechBufferRef = useRef('');
+  const vcSilenceTimerRef = useRef<any>(null);
+  const vcAudioRef = useRef<HTMLAudioElement | null>(null);
+  const vcAudioQueueRef = useRef<{ text: string; audioUrl: string | null; ready: boolean; failed: boolean }[]>([]);
+  const vcIsPlayingRef = useRef(false);
+  const vcTimerRef = useRef<any>(null);
+  const vcSalesLogRef = useRef<any[]>([]);
+
   const [practiceSessions, setPracticeSessions] = useState<any[]>([]);
 
   const loadPractice = React.useCallback(async () => {
@@ -365,7 +382,7 @@ export default function CandidatePanel() {
           id: c.id,
           vacancyId: c.vacancyId,
           vacancyTitle: c.vacancy?.title || '',
-          submittedDate: c.createdAt ? new Date(c.createdAt).toLocaleDateString('uz-UZ') : '—',
+          submittedDate: c.createdAt ? (() => { const d = new Date(c.createdAt); return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`; })() : '—',
           stageIdx: stageIdxMap[c.stage] ?? 0,
           stage: c.stage,
           draft: {
@@ -561,7 +578,13 @@ export default function CandidatePanel() {
   };
 
   const submitInfo = async () => {
-    if (!draft.cvFileName) {
+    if (draft.cvSource === 'profile') {
+      if (!pIsm && !pFam) {
+        setDraft({ ...draft, cvError: true });
+        return;
+      }
+      setDraft((prev: any) => ({ ...prev, cvFileName: 'Profil CV', cvError: false }));
+    } else if (!draft.cvFileName) {
       setDraft({ ...draft, cvError: true });
       return;
     }
@@ -618,17 +641,18 @@ export default function CandidatePanel() {
   const submitTest = async () => {
     const v = vacancies.find(x => x.id === draft.vacancyId);
     if (!v) return;
-    const qs = v.aiConfig.test.questions;
-    if (Object.keys(draft.testAnswers).length < qs.length) {
+    const allQs = v.aiConfig.test.questions;
+    const tc = v.testCount || 15;
+    const displayCount = allQs.length > tc ? Math.min(tc, allQs.length) : allQs.length;
+    if (Object.keys(draft.testAnswers).length < displayCount) {
       setDraft({ ...draft, testError: true });
       return;
     }
-    // Score on the server so correct answers are never exposed to the browser.
     try {
       const res = await fetch('/api/score-test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vacancyId: v.id, answers: draft.testAnswers }),
+        body: JSON.stringify({ vacancyId: v.id, answers: draft.testAnswers, testIds: draft.selectedTestIds || null }),
       });
       const data = await res.json();
       setDraft((prev: any) => ({ ...prev, testScore: typeof data.score === 'number' ? data.score : 0, testError: false }));
@@ -697,6 +721,189 @@ export default function CandidatePanel() {
     }
   };
 
+  // ---- Voice call TTS queue ----
+  const vcProcessQueue = useCallback(() => {
+    if (vcIsPlayingRef.current) return;
+    const next = vcAudioQueueRef.current[0];
+    if (!next) { setVcIsSpeaking(false); return; }
+    if (next.failed) { vcAudioQueueRef.current.shift(); vcProcessQueue(); return; }
+    if (!next.ready) return;
+    vcIsPlayingRef.current = true;
+    setVcIsSpeaking(true);
+    const audio = new Audio(next.audioUrl!);
+    vcAudioRef.current = audio;
+    const done = () => { vcAudioQueueRef.current.shift(); vcIsPlayingRef.current = false; vcProcessQueue(); };
+    audio.onended = done;
+    audio.onerror = done;
+    audio.play().catch(done);
+  }, []);
+
+  const vcEnqueueSpeech = useCallback((text: string, voiceName: string) => {
+    if (!text.trim()) return;
+    const item = { text, audioUrl: null as string | null, ready: false, failed: false };
+    vcAudioQueueRef.current.push(item);
+    const url = `/api/tts?text=${encodeURIComponent(text)}&voice=${encodeURIComponent(voiceName)}`;
+    const attempt = (tries: number) => {
+      fetch(url)
+        .then(res => { if (!res.ok) throw new Error('tts'); return res.blob(); })
+        .then(blob => { item.audioUrl = URL.createObjectURL(blob); item.ready = true; vcProcessQueue(); })
+        .catch(() => { if (tries > 0) setTimeout(() => attempt(tries - 1), 300); else { item.failed = true; vcProcessQueue(); } });
+    };
+    attempt(1);
+  }, [vcProcessQueue]);
+
+  const vcClearAudio = useCallback(() => {
+    vcAudioQueueRef.current = [];
+    vcIsPlayingRef.current = false;
+    setVcIsSpeaking(false);
+    if (vcAudioRef.current) { vcAudioRef.current.pause(); vcAudioRef.current.currentTime = 0; }
+  }, []);
+
+  // ---- Voice call STT ----
+  const vcStopRecognizer = useCallback(() => {
+    if (vcSilenceTimerRef.current) { clearTimeout(vcSilenceTimerRef.current); vcSilenceTimerRef.current = null; }
+    if (vcRecognizerRef.current) {
+      try { vcRecognizerRef.current.stopContinuousRecognitionAsync(); vcRecognizerRef.current.close(); } catch {}
+      vcRecognizerRef.current = null;
+    }
+    setVcIsListening(false);
+  }, []);
+
+  const vcSendVoice = useCallback(async (text: string) => {
+    if (!text.trim() || vcIsLoading) return;
+    setVcIsLoading(true);
+    vcClearAudio();
+
+    const v = vacancies.find(x => x.id === draft?.vacancyId);
+    const char = CHARACTERS.find(c => c.id === draft?.activePersonaId);
+    const newLog = [...vcSalesLogRef.current, { from: 'me', text }];
+    vcSalesLogRef.current = newLog;
+    setDraft((prev: any) => prev ? { ...prev, salesLog: newLog } : prev);
+
+    try {
+      const res = await fetch('/api/chat-simulator', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ history: newLog, product: v?.aiConfig.sales.product || '', personaId: draft?.activePersonaId, finalEval: false }),
+      });
+      const data = await res.json();
+      const reply = data.reply || '...';
+      const updatedLog = [...newLog, { from: 'ai', text: reply }];
+      vcSalesLogRef.current = updatedLog;
+      setDraft((prev: any) => prev ? { ...prev, salesLog: updatedLog } : prev);
+      if (char) vcEnqueueSpeech(reply, char.voice);
+    } catch {
+      const errLog = [...newLog, { from: 'ai', text: 'Uzr, aloqa uzildi.' }];
+      vcSalesLogRef.current = errLog;
+      setDraft((prev: any) => prev ? { ...prev, salesLog: errLog } : prev);
+    } finally {
+      setVcIsLoading(false);
+    }
+  }, [draft?.vacancyId, draft?.activePersonaId, vacancies, vcClearAudio, vcEnqueueSpeech]);
+
+  const vcAutoSend = useCallback(() => {
+    const text = vcSpeechBufferRef.current.trim();
+    vcStopRecognizer();
+    if (text) { setVcStatusText(''); vcSendVoice(text); }
+  }, [vcStopRecognizer, vcSendVoice]);
+
+  const vcResetSilenceTimer = useCallback(() => {
+    if (vcSilenceTimerRef.current) clearTimeout(vcSilenceTimerRef.current);
+    vcSilenceTimerRef.current = setTimeout(vcAutoSend, 1500);
+  }, [vcAutoSend]);
+
+  const vcStartListening = useCallback(async () => {
+    if (vcIsLoading || vcIsSpeaking) return;
+    try {
+      vcSpeechBufferRef.current = '';
+      const tokenRes = await fetch('/api/speech-token');
+      if (!tokenRes.ok) throw new Error('token');
+      const { token, region } = await tokenRes.json();
+      const sdk = await import('microsoft-cognitiveservices-speech-sdk');
+      const speechConfig = sdk.SpeechConfig.fromAuthorizationToken(token, region);
+      speechConfig.speechRecognitionLanguage = 'uz-UZ';
+      const recognizer = new sdk.SpeechRecognizer(speechConfig, sdk.AudioConfig.fromDefaultMicrophoneInput());
+      recognizer.recognized = (_s: unknown, e: any) => {
+        if (e.result.reason === sdk.ResultReason.RecognizedSpeech && e.result.text) {
+          vcSpeechBufferRef.current = (vcSpeechBufferRef.current ? vcSpeechBufferRef.current + ' ' : '') + e.result.text;
+          setVcStatusText(vcSpeechBufferRef.current);
+          vcResetSilenceTimer();
+        }
+      };
+      recognizer.canceled = () => vcStopRecognizer();
+      recognizer.startContinuousRecognitionAsync();
+      vcRecognizerRef.current = recognizer;
+      setVcIsListening(true);
+      setVcStatusText('Tinglayapman...');
+    } catch {
+      setVcIsListening(false);
+    }
+  }, [vcIsLoading, vcIsSpeaking, vcResetSilenceTimer, vcStopRecognizer]);
+
+  const vcStopAndSend = useCallback(() => {
+    if (vcSilenceTimerRef.current) { clearTimeout(vcSilenceTimerRef.current); vcSilenceTimerRef.current = null; }
+    const text = vcSpeechBufferRef.current.trim();
+    vcStopRecognizer();
+    if (text) { setVcStatusText(''); vcSendVoice(text); }
+    else setVcStatusText('Eshitilmadi — mikrofonni bosib qaytadan gapiring');
+  }, [vcStopRecognizer, vcSendVoice]);
+
+  const vcToggleMic = useCallback(() => {
+    if (vcIsListening) vcStopAndSend(); else vcStartListening();
+  }, [vcIsListening, vcStopAndSend, vcStartListening]);
+
+  const vcStartCall = useCallback(() => {
+    if (!draft) return;
+    const char = CHARACTERS.find(c => c.id === draft.activePersonaId);
+    if (!char) return;
+    setVcCallActive(true);
+    setVcCallSeconds(0);
+    vcSalesLogRef.current = draft.salesLog || [];
+    if (vcTimerRef.current) clearInterval(vcTimerRef.current);
+    vcTimerRef.current = setInterval(() => setVcCallSeconds(s => s + 1), 1000);
+    const greetingText = draft.salesLog?.[0]?.text || char.greeting;
+    vcEnqueueSpeech(greetingText, char.voice);
+  }, [draft, vcEnqueueSpeech]);
+
+  const vcEndCall = useCallback(async () => {
+    vcStopRecognizer();
+    vcClearAudio();
+    if (vcTimerRef.current) { clearInterval(vcTimerRef.current); vcTimerRef.current = null; }
+    setVcCallActive(false);
+
+    const userMsgs = vcSalesLogRef.current.filter((m: any) => m.from === 'me');
+    if (userMsgs.length < 2) return;
+
+    setChatSending(true);
+    const v = vacancies.find(x => x.id === draft?.vacancyId);
+    try {
+      const res = await fetch('/api/chat-simulator', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ history: vcSalesLogRef.current, product: v?.aiConfig.sales.product || '', personaId: draft?.activePersonaId, finalEval: true }),
+      });
+      const data = await res.json();
+      setDraft((prev: any) => prev ? { ...prev, salesScore: typeof data.score === 'number' ? data.score : 60, salesFeedback: data.feedback || '' } : prev);
+    } catch {
+      setDraft((prev: any) => prev ? { ...prev, salesScore: 60, salesFeedback: 'Baholab bo\'lmadi.' } : prev);
+    } finally {
+      setChatSending(false);
+    }
+  }, [vcStopRecognizer, vcClearAudio, draft?.vacancyId, draft?.activePersonaId, vacancies]);
+
+  useEffect(() => {
+    return () => {
+      if (vcTimerRef.current) clearInterval(vcTimerRef.current);
+      if (vcSilenceTimerRef.current) clearTimeout(vcSilenceTimerRef.current);
+      vcClearAudio();
+      if (vcRecognizerRef.current) {
+        try { vcRecognizerRef.current.stopContinuousRecognitionAsync(); vcRecognizerRef.current.close(); } catch {}
+      }
+    };
+  }, [vcClearAudio]);
+
+  const vcFmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+
   const submitVideo = () => {
     const url = draft.videoLink.trim();
     if (!/^https?:\/\/.+\..+/i.test(url)) {
@@ -709,6 +916,16 @@ export default function CandidatePanel() {
 
   const nextStep = () => {
     if (stepIdx < stepDefs.length - 1) {
+      const nextKey = stepDefs[stepIdx + 1]?.key;
+      if (nextKey === 'test' && !draft.selectedTestIds) {
+        const v = vacancies.find(x => x.id === draft.vacancyId);
+        const allQs = v?.aiConfig?.test?.questions || [];
+        const tc = v?.testCount || 15;
+        if (allQs.length > tc) {
+          const shuffled = [...allQs].sort(() => Math.random() - 0.5).slice(0, tc);
+          setDraft((prev: any) => ({ ...prev, selectedTestIds: shuffled.map((q: any) => q.id) }));
+        }
+      }
       setStepIdx(prev => prev + 1);
       window.scrollTo({ top: 0, behavior: 'instant' });
     }
@@ -900,11 +1117,36 @@ export default function CandidatePanel() {
         .chat-input input{flex:1;padding:10px 14px;border:1px solid var(--line-strong);border-radius:20px;font-size:14px;outline:none;}
         .chat-input input:focus{border-color:var(--violet);}
         
+        @keyframes vcRingPulse{0%{transform:scale(1);opacity:.6;}70%{transform:scale(1.3);opacity:0;}100%{opacity:0;}}
+        @keyframes vcMicPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.45);}50%{box-shadow:0 0 0 12px rgba(239,68,68,0);}}
+        .vc-avatar-sm{width:64px;height:64px;border-radius:50%;object-fit:cover;}
+        .vc-avatar-lg{width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid var(--line);}
+        .vc-avatar-wrap{position:relative;display:inline-block;}
+        .vc-ring::before,.vc-ring::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--accent);animation:vcRingPulse 2s ease-out infinite;}
+        .vc-ring::after{animation-delay:1s;}
+        .vc-call-screen{display:flex;flex-direction:column;align-items:center;min-height:380px;justify-content:space-between;padding:20px 0;}
+        .vc-call-top{display:flex;flex-direction:column;align-items:center;flex:1;justify-content:center;gap:8px;}
+        .vc-name{font-family:var(--font-display);font-weight:700;font-size:22px;margin-top:16px;}
+        .vc-timer{font-size:15px;font-variant-numeric:tabular-nums;}
+        .vc-status{font-size:13px;margin-top:6px;min-height:20px;}
+        .vc-call-controls{display:flex;align-items:center;justify-content:center;gap:28px;padding:16px 0;}
+        .vc-mic-btn{width:60px;height:60px;border-radius:50%;border:1px solid var(--line-strong);background:var(--paper);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;}
+        .vc-mic-btn:hover{background:var(--line);}
+        .vc-mic-btn:disabled{opacity:.4;cursor:default;}
+        .vc-mic-live{background:var(--danger)!important;border-color:var(--danger)!important;animation:vcMicPulse 1.4s ease-out infinite;}
+        .vc-mic-live svg{fill:#fff;stroke:#fff;}
+        .vc-end-btn{width:60px;height:60px;border-radius:50%;border:none;background:var(--danger);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;}
+        .vc-end-btn:hover{background:#dc2626;}
+        .vc-call-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 32px;border-radius:50px;border:none;background:#22c55e;color:#fff;font-family:var(--font-body);font-weight:600;font-size:15px;cursor:pointer;transition:.15s;margin-top:20px;}
+        .vc-call-btn:hover{background:#16a34a;}
+
         .review-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px;}
         .review-row:last-child{border-bottom:none;}
         .review-row .k{color:var(--muted);}
         .review-row .v{font-weight:600;text-align:right;}
         
+        .cv-upload-label{display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px dashed var(--line-strong);border-radius:12px;padding:35px 20px;cursor:pointer;background:#FAFAFA;transition:.2s;text-align:center;}
+        .cv-upload-label:hover{border-color:var(--accent);}
         .loader-box{text-align:center;padding:40px 0;}
         .spinner{width:30px;height:30px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px;}
         @keyframes spin { 100% { transform:rotate(360deg); } }
@@ -1319,55 +1561,62 @@ export default function CandidatePanel() {
                 <div className="apply-card">
                   {stepDefs[stepIdx].key === 'info' && (
                     <div>
-                      <h2>Shaxsiy ma'lumotlar va CV</h2>
-                      <p className="sub">Tizim CV'ingizni avtomatik o'qib, mosligini tekshiradi.</p>
-                      
-                      <div style={{ marginTop: 24, marginBottom: 24 }}>
-                        <label style={{ display: 'block', fontSize: 15, fontWeight: 600, color: 'var(--ink)', marginBottom: 8 }}>
-                          Rezyume yuklash (PDF, DOCX)
-                        </label>
-                        
-                        <label htmlFor="cv-upload" style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          border: '2px dashed var(--line-strong)',
-                          borderRadius: '12px',
-                          padding: '35px 20px',
-                          cursor: 'pointer',
-                          background: '#FAFAFA',
-                          transition: '0.2s',
-                          textAlign: 'center'
-                        }}
-                        onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--accent)'}
-                        onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--line-strong)'}
-                        >
-                          <div style={{ fontSize: 28, marginBottom: 12 }}>📄</div>
-                          <div style={{ fontSize: 15, fontWeight: 500, color: 'var(--ink)' }}>
-                            {draft.cvFileName ? draft.cvFileName : "+ Fayl tanlash uchun bosing"}
-                          </div>
-                          {!draft.cvFileName && (
-                            <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 8 }}>
-                              Maksimal hajm: 5MB. PDF, DOC yoki DOCX
-                            </div>
-                          )}
-                          
-                          <input 
-                            type="file" 
-                            id="cv-upload" 
-                            style={{ display: 'none' }} 
-                            accept=".pdf,.doc,.docx"
-                            onChange={onFilePick} 
-                          />
-                        </label>
-                        
-                        {draft.cvError && (
-                          <div style={{ color: 'var(--danger)', fontSize: 13, marginTop: 8, fontWeight: 500 }}>
-                            Iltimos, rezyumengizni yuklang (Keyingi bosqichga o'tish uchun majburiy)
-                          </div>
-                        )}
+                      <h2>CV yuborish</h2>
+                      <p className="sub">Tizim CV&apos;ingizni vakansiya talablariga mosligini AI orqali tekshiradi.</p>
+
+                      <div style={{ display: 'flex', gap: 0, marginTop: 20, marginBottom: 20, background: 'var(--paper)', borderRadius: 10, padding: 4 }}>
+                        <button onClick={() => setDraft({ ...draft, cvSource: 'profile', cvFileName: 'Profil CV', cvError: false })} style={{ flex: 1, padding: '11px 0', border: 'none', borderRadius: 8, fontFamily: 'var(--font-body)', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', transition: 'all .15s', background: draft.cvSource === 'profile' ? 'var(--card)' : 'none', color: draft.cvSource === 'profile' ? 'var(--ink)' : 'var(--muted)', boxShadow: draft.cvSource === 'profile' ? '0 1px 3px rgba(0,0,0,.1)' : 'none' }}>
+                          Profil CV yuborish
+                        </button>
+                        <button onClick={() => setDraft({ ...draft, cvSource: 'file', cvFileName: draft.fileObj?.name || null, cvError: false })} style={{ flex: 1, padding: '11px 0', border: 'none', borderRadius: 8, fontFamily: 'var(--font-body)', fontSize: 13.5, fontWeight: 600, cursor: 'pointer', transition: 'all .15s', background: draft.cvSource === 'file' ? 'var(--card)' : 'none', color: draft.cvSource === 'file' ? 'var(--ink)' : 'var(--muted)', boxShadow: draft.cvSource === 'file' ? '0 1px 3px rgba(0,0,0,.1)' : 'none' }}>
+                          Hujjat yuklash
+                        </button>
                       </div>
+
+                      {draft.cvSource === 'profile' && (
+                        <div style={{ border: '1px solid var(--line)', borderRadius: 12, padding: '18px 20px', background: '#FAFBFA', marginBottom: 20 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
+                            {profilePhoto ? (
+                              <img src={profilePhoto} alt="" style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover' }} />
+                            ) : (
+                              <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--accent)', color: 'var(--accent-ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16 }}>
+                                {`${pIsm?.charAt(0) || ''}${pFam?.charAt(0) || ''}`.toUpperCase() || '?'}
+                              </div>
+                            )}
+                            <div>
+                              <div style={{ fontWeight: 600, fontSize: 15 }}>{pFam} {pIsm}</div>
+                              <div style={{ fontSize: 13, color: 'var(--muted)' }}>{rTitle || 'Lavozim ko\'rsatilmagan'}</div>
+                            </div>
+                          </div>
+                          {skills.length > 0 && <div style={{ fontSize: 12.5, color: 'var(--ink-soft)', marginBottom: 6 }}><strong>Ko&apos;nikmalar:</strong> {skills.join(', ')}</div>}
+                          {rCity && <div style={{ fontSize: 12.5, color: 'var(--ink-soft)', marginBottom: 6 }}><strong>Shahar:</strong> {rCity}</div>}
+                          {expList.some((e: any) => e.company) && <div style={{ fontSize: 12.5, color: 'var(--ink-soft)' }}><strong>Tajriba:</strong> {expList.filter((e: any) => e.company).map((e: any) => `${e.company} — ${e.position || ''}`).join(', ')}</div>}
+                          {(!pIsm && !pFam) && <div style={{ color: 'var(--danger)', fontSize: 13, marginTop: 8 }}>Profil ma&apos;lumotlari to&apos;ldirilmagan. Avval profilingizni to&apos;ldiring.</div>}
+                        </div>
+                      )}
+
+                      {draft.cvSource === 'file' && (
+                        <div style={{ marginBottom: 20 }}>
+                          <label htmlFor="cv-upload" className="cv-upload-label">
+                            <div style={{ fontSize: 28, marginBottom: 12 }}>&#128196;</div>
+                            <div style={{ fontSize: 15, fontWeight: 500, color: 'var(--ink)' }}>
+                              {draft.cvFileName ? draft.cvFileName : "+ Fayl tanlash uchun bosing"}
+                            </div>
+                            {!draft.cvFileName && (
+                              <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 8 }}>
+                                Maksimal hajm: 5MB. PDF, DOC yoki DOCX
+                              </div>
+                            )}
+                            <input type="file" id="cv-upload" style={{ display: 'none' }} accept=".pdf,.doc,.docx" onChange={onFilePick} />
+                          </label>
+                        </div>
+                      )}
+
+                      {draft.cvError && (
+                        <div style={{ color: 'var(--danger)', fontSize: 13, marginTop: 8, fontWeight: 500 }}>
+                          {draft.cvSource === 'profile' ? 'Profilingizda ma\'lumot yetarli emas.' : 'Iltimos, rezyumengizni yuklang.'}
+                        </div>
+                      )}
 
                       {draft.isCvLoading && (
                         <div className="loader-box">
@@ -1390,14 +1639,17 @@ export default function CandidatePanel() {
 
                   {stepDefs[stepIdx].key === 'test' && (
                     <div>
-                      <h2>Test topshirig'i</h2>
-                      <p className="sub">Quyidagi savollarga javob bering.</p>
-                      {activeJob?.aiConfig.test.questions.map((q: any, qi: number) => (
-                        <div key={qi} className="q-block">
+                      <h2>Test topshirig&apos;i</h2>
+                      <p className="sub">{(draft.selectedTestIds ? draft.selectedTestIds.length : (activeJob?.aiConfig.test.questions || []).length)} ta savolga javob bering.</p>
+                      {(draft.selectedTestIds
+                        ? draft.selectedTestIds.map((id: number) => (activeJob?.aiConfig.test.questions || []).find((q: any) => q.id === id)).filter(Boolean)
+                        : (activeJob?.aiConfig.test.questions || [])
+                      ).map((q: any, qi: number) => (
+                        <div key={q.id || qi} className="q-block">
                           <div className="qt">{qi + 1}. {q.text}</div>
                           {q.options.map((op: string, oi: number) => (
                             <label key={oi} className="opt-radio">
-                              <input type="radio" name={`tq-\${qi}`} checked={draft.testAnswers[qi] === oi} onChange={() => setDraft({ ...draft, testAnswers: { ...draft.testAnswers, [qi]: oi } })} />
+                              <input type="radio" name={`tq-${qi}`} checked={draft.testAnswers[qi] === oi} onChange={() => setDraft({ ...draft, testAnswers: { ...draft.testAnswers, [qi]: oi } })} />
                               {op}
                             </label>
                           ))}
@@ -1429,42 +1681,83 @@ export default function CandidatePanel() {
                     </div>
                   )}
 
-                  {stepDefs[stepIdx].key === 'sales' && (
+                  {stepDefs[stepIdx].key === 'sales' && (() => {
+                    const salesChar = CHARACTERS.find(c => c.id === draft.activePersonaId);
+                    return (
                     <div>
-                      <h2>Sotuv simulyatsiyasi</h2>
-                      <p className="sub">Mijoz e'tiroziga qanday javob berishingizni ko'ramiz. Bu jonli chat, javobingizni yozib yuboring.</p>
-                      
-                      <div className="chat-box">
-                        <div className="chat-log" ref={chatRef}>
-                          {draft.salesLog.map((m: any, mi: number) => (
-                            <div key={mi} className={`msg ${m.from}`}>{m.text}</div>
-                          ))}
-                          {chatSending && <div className="msg ai" style={{ opacity: 0.7 }}>...</div>}
+                      {draft.salesScore !== null ? (
+                        <div>
+                          <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                            {salesChar && <img src={salesChar.avatar} alt="" className="vc-avatar-sm" />}
+                            <h2 style={{ marginTop: 12 }}>{salesChar?.firstName || 'Mijoz'} bilan suhbat yakunlandi</h2>
+                          </div>
+                          <div style={{ textAlign: 'center', margin: '16px 0' }}>
+                            <div style={{ fontSize: 48, fontWeight: 800, color: draft.salesScore >= 80 ? 'var(--success)' : draft.salesScore >= 60 ? '#f59e0b' : 'var(--danger)' }}>
+                              {draft.salesScore}<span style={{ fontSize: 22, color: 'var(--muted)' }}>/100</span>
+                            </div>
+                          </div>
+                          {draft.salesFeedback && (
+                            <div style={{ background: 'var(--paper)', borderRadius: 12, padding: '16px 20px', fontSize: 14, lineHeight: 1.6, color: 'var(--ink-soft)', whiteSpace: 'pre-wrap' }}>
+                              {draft.salesFeedback}
+                            </div>
+                          )}
+                          <div className="step-actions">
+                            <button className="btn btn-ghost" onClick={prevStep}>Ortga</button>
+                            <div className="right"><button className="btn btn-primary" onClick={nextStep}>Keyingisi</button></div>
+                          </div>
                         </div>
-                        {draft.salesScore === null ? (
-                          <div className="chat-input">
-                            <input type="text" value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendChat()} placeholder="Javobingizni yozing..." disabled={chatSending} />
-                            <button className="btn btn-primary btn-sm" onClick={sendChat} disabled={chatSending || !chatInput.trim()}>Yuborish</button>
+                      ) : !vcCallActive ? (
+                        <div style={{ textAlign: 'center', padding: '30px 0' }}>
+                          <h2>Sotuv simulyatsiyasi</h2>
+                          <p className="sub">Mijozga telefon qo&apos;ng&apos;iroq qilib, mahsulotni sotishga harakat qiling.</p>
+                          {salesChar && (
+                            <div style={{ margin: '24px auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+                              <img src={salesChar.avatar} alt="" className="vc-avatar-lg" />
+                              <div style={{ fontWeight: 600, fontSize: 16 }}>{salesChar.firstName}</div>
+                              <div style={{ fontSize: 13, color: 'var(--muted)' }}>{salesChar.description}</div>
+                            </div>
+                          )}
+                          <button className="vc-call-btn" onClick={vcStartCall}>
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                            Qo&apos;ng&apos;iroq qilish
+                          </button>
+                          <div className="step-actions">
+                            <button className="btn btn-ghost" onClick={prevStep}>Ortga</button>
                           </div>
-                        ) : (
-                          <div style={{ padding: '14px 20px', background: 'var(--success-bg)', borderTop: '1px solid var(--success)' }}>
-                            <p className="comment"><b>Baho: {draft.salesScore}%.</b> {draft.salesFeedback}</p>
+                        </div>
+                      ) : (
+                        <div className="vc-call-screen">
+                          <div className="vc-call-top">
+                            <div className={`vc-avatar-wrap ${vcIsSpeaking ? 'vc-ring' : ''}`}>
+                              {salesChar && <img src={salesChar.avatar} alt="" className="vc-avatar-lg" />}
+                            </div>
+                            <div className="vc-name">{salesChar?.firstName || 'Mijoz'}</div>
+                            <div className="vc-timer" style={{ color: vcCallSeconds > 240 ? 'var(--danger)' : 'var(--muted)' }}>
+                              {vcFmt(vcCallSeconds)}
+                            </div>
+                            <div className="vc-status" style={{ color: vcIsSpeaking ? 'var(--accent)' : vcIsListening ? '#f87171' : 'var(--muted)' }}>
+                              {vcIsSpeaking ? 'gapiryapti...' : vcIsLoading ? 'javob tayyorlayapti...' : vcIsListening ? 'tinglayapman...' : 'gapirish uchun mikrofonni bosing'}
+                            </div>
+                            {vcStatusText && !vcIsSpeaking && !vcIsLoading && (
+                              <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginTop: 4, maxWidth: 280, textAlign: 'center' }}>{vcStatusText}</div>
+                            )}
                           </div>
-                        )}
-                      </div>
-
-                      {draft.salesScore === null && (
-                        <button className="btn btn-ghost" style={{ marginTop: 12 }} onClick={finalizeSales} disabled={chatSending || draft.salesLog.filter((m: any) => m.from === 'me').length < 2}>
-                          Suhbatni yakunlash va baho olish
-                        </button>
+                          <div className="vc-call-controls">
+                            <button onClick={vcToggleMic} disabled={vcIsLoading || vcIsSpeaking}
+                              className={`vc-mic-btn ${vcIsListening ? 'vc-mic-live' : ''}`} title="Gapirish">
+                              {vcIsListening
+                                ? <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--accent-ink)"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+                                : <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4"/></svg>}
+                            </button>
+                            <button onClick={vcEndCall} className="vc-end-btn" title="Tugatish">
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" style={{ transform: 'rotate(135deg)' }}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                            </button>
+                          </div>
+                        </div>
                       )}
-
-                      <div className="step-actions">
-                        <button className="btn btn-ghost" onClick={prevStep}>Ortga</button>
-                        <div className="right"><button className="btn btn-primary" onClick={nextStep} disabled={draft.salesScore === null}>Keyingisi</button></div>
-                      </div>
                     </div>
-                  )}
+                    );
+                  })()}
 
                   {stepDefs[stepIdx].key === 'video' && (
                     <div>
@@ -1712,7 +2005,7 @@ export default function CandidatePanel() {
                             <div className="field"><label>Ism</label><input type="text" placeholder="Masalan: Dilnoza" value={pIsm} onChange={e => setPIsm(e.target.value)} /></div>
                             <div className="field"><label>Familiya</label><input type="text" placeholder="Masalan: Yusupova" value={pFam} onChange={e => setPFam(e.target.value)} /></div>
                             <div className="field"><label>Otasining ismi</label><input type="text" placeholder="Ixtiyoriy" value={rPatronymic} onChange={e => setRPatronymic(e.target.value)} /></div>
-                            <div className="field"><label>Tug&apos;ilgan sana</label><input type="date" value={rBirthDate} onChange={e => setRBirthDate(e.target.value)} /></div>
+                            <div className="field"><label>Tug&apos;ilgan sana</label><input type="text" placeholder="kk.oo.yyyy" value={rBirthDate} onChange={e => { let v = e.target.value.replace(/[^\d.]/g, ''); if (v.length === 2 && !v.includes('.') && rBirthDate.length < 3) v += '.'; if (v.length === 5 && v.split('.').length === 2 && rBirthDate.length < 6) v += '.'; if (v.length <= 10) setRBirthDate(v); }} maxLength={10} /></div>
                             <div className="field">
                               <label>Jinsi</label>
                               <select value={rGender} onChange={e => setRGender(e.target.value)}><option value="">Tanlang</option><option>Ayol</option><option>Erkak</option></select>
@@ -1800,7 +2093,7 @@ export default function CandidatePanel() {
                       </div>
                       <div className="field-grid">
                         <div className="field"><label>To&apos;liq ism-familiya</label><input type="text" placeholder="Yusupova Dilnoza" value={rFio || `${pFam} ${pIsm}`.trim()} onChange={e => setRFio(e.target.value)} /></div>
-                        <div className="field"><label>Tug&apos;ilgan sana</label><input type="date" value={rBirthDate} onChange={e => setRBirthDate(e.target.value)} /></div>
+                        <div className="field"><label>Tug&apos;ilgan sana</label><input type="text" placeholder="kk.oo.yyyy" value={rBirthDate} onChange={e => { let v = e.target.value.replace(/[^\d.]/g, ''); if (v.length === 2 && !v.includes('.') && rBirthDate.length < 3) v += '.'; if (v.length === 5 && v.split('.').length === 2 && rBirthDate.length < 6) v += '.'; if (v.length <= 10) setRBirthDate(v); }} maxLength={10} /></div>
                         <div className="field"><label>Yashash manzili</label><input type="text" placeholder="Toshkent, Uzbekistan" value={rAddress || rCity} onChange={e => setRAddress(e.target.value)} /></div>
                         <div className="field"><label>Telefon</label><input type="tel" placeholder="+998 90 123 45 67" value={rPhone} onChange={e => { setRPhone(e.target.value); setContactOk(e.target.value.length > 5); }} /></div>
                         <div className="field"><label>Email</label><input type="email" placeholder="ism@pochta.uz" value={userObj?.email || ""} readOnly /></div>
@@ -1957,7 +2250,7 @@ export default function CandidatePanel() {
                             <summary style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', listStyle: 'none' }}>
                               <span>
                                 <b>{p.personaName || p.persona}</b>
-                                <span style={{ color: '#8B93A8', fontSize: 12, marginLeft: 8 }}>{new Date(p.createdAt).toLocaleString('uz-UZ')}</span>
+                                <span style={{ color: '#8B93A8', fontSize: 12, marginLeft: 8 }}>{(() => { const d = new Date(p.createdAt); return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; })()}</span>
                               </span>
                               <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontWeight: 600, padding: '3px 10px', borderRadius: 6, background: p.score >= 80 ? 'var(--green-bg)' : p.score >= 60 ? 'var(--brass-bg)' : 'var(--red-bg)', color: p.score >= 80 ? 'var(--green)' : p.score >= 60 ? 'var(--brass)' : 'var(--red)' }}>{p.score}%</span>
                             </summary>

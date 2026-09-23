@@ -17,27 +17,29 @@ export async function POST(request: Request) {
   try {
     await requireRole(request, 'sales');
     const contentType = request.headers.get('content-type') || '';
-    
+
     let vacancy: any = {};
     let candidateInfo = "";
 
     if (contentType.includes('multipart/form-data')) {
       const formData = await request.formData();
       vacancy = JSON.parse(formData.get('vacancy') as string || '{}');
-      
+
       const file = formData.get('file') as File;
       if (file) {
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
-        
+
         candidateInfo = await new Promise((resolve) => {
           const pdfParser = new PDFParser(null, 1);
           pdfParser.on("pdfParser_dataError", (errData: any) => {
             console.error("PDF parse error:", errData.parserError);
             resolve("Yuklangan hujjat matnini o'qib bo'lmadi.");
           });
-          pdfParser.on("pdfParser_dataReady", (pdfData: any) => {
-            resolve(`Yuklangan rezyume (PDF) matni:\n${pdfParser.getRawTextContent()}`);
+          pdfParser.on("pdfParser_dataReady", () => {
+            const raw = pdfParser.getRawTextContent();
+            const decoded = decodeURIComponent(raw);
+            resolve(`Yuklangan rezyume (PDF) matni:\n${decoded}`);
           });
           pdfParser.parseBuffer(buffer);
         });
@@ -46,22 +48,50 @@ export async function POST(request: Request) {
       const body = await request.json();
       vacancy = body.vacancy || {};
       const profile = body.profile || {};
-      candidateInfo = `Ismi: ${profile.pIsm || ''} ${profile.pFam || ''}\nMutaxassislik: ${profile.rTitle || ''}\nO'zi haqida: ${profile.rAbout || ''}\nTajribasi: ${JSON.stringify(profile.expList || [])}\nTa'limi: ${JSON.stringify(profile.eduList || [])}\nKo'nikmalari: ${JSON.stringify(profile.skills || [])}`;
+      const parts: string[] = [];
+      if (profile.pIsm || profile.pFam) parts.push(`Ismi: ${profile.pIsm || ''} ${profile.pFam || ''}`);
+      if (profile.rTitle) parts.push(`Mutaxassislik: ${profile.rTitle}`);
+      if (profile.rAbout) parts.push(`O'zi haqida: ${profile.rAbout}`);
+      if (profile.rCity) parts.push(`Shahar: ${profile.rCity}`);
+      if (profile.rPhone) parts.push(`Telefon: ${profile.rPhone}`);
+      if (Array.isArray(profile.skills) && profile.skills.length > 0) parts.push(`Ko'nikmalari: ${profile.skills.join(', ')}`);
+      if (Array.isArray(profile.expList) && profile.expList.length > 0) {
+        const exps = profile.expList.map((e: any) => `${e.company || ''} — ${e.position || ''} (${e.from || ''} — ${e.to || 'hozir'})`).join('; ');
+        parts.push(`Ish tajribasi: ${exps}`);
+      }
+      if (Array.isArray(profile.eduList) && profile.eduList.length > 0) {
+        const edus = profile.eduList.map((e: any) => `${e.school || ''} — ${e.faculty || ''} (${e.year || ''})`).join('; ');
+        parts.push(`Ta'lim: ${edus}`);
+      }
+      if (Array.isArray(profile.langList) && profile.langList.length > 0) {
+        const langs = profile.langList.map((l: any) => `${l.lang || ''} (${l.level || ''})`).join(', ');
+        parts.push(`Tillar: ${langs}`);
+      }
+      if (Array.isArray(profile.scheduleList) && profile.scheduleList.length > 0) parts.push(`Ish grafigi: ${profile.scheduleList.join(', ')}`);
+      candidateInfo = parts.join('\n');
     }
 
-    const prompt = `Vakansiya talablari:
-Nomi: ${vacancy.title}
-Bo'lim: ${vacancy.dept}
-Tavsif: ${vacancy.desc}
-Maosh: ${vacancy.salary}
-Joylashuv: ${vacancy.loc}
+    const vacDesc = vacancy.desc || vacancy.description || 'Tavsif kiritilmagan';
 
-Nomzodning ma'lumotlari:
-${candidateInfo}
+    const prompt = `Sen HR mutaxassisisisan. Nomzodning rezyumesi yoki profil ma'lumotlari vakansiyaga qanchalik mos kelishini baholab ber.
 
-Ushbu nomzod yuqoridagi vakansiyaga qanchalik mos keladi? 
-Iltimos, e'tibor bering, agar bu hujjat umuman boshqa mavzudagi kitob (masalan maktab darsligi) yoki rezyumega umuman aloqador bo'lmagan matn bo'lsa, moslik foizini 0 deb belgilang!
-Faqatgina 0 dan 100 gacha bo'lgan bitta raqamni (foizni) yozing. Hech qanday qo'shimcha so'zlarsiz.`;
+Vakansiya:
+Lavozim: ${vacancy.title || 'Noma\'lum'}
+Bo'lim: ${vacancy.dept || vacancy.department?.name || ''}
+Tavsif va talablar: ${vacDesc}
+Maosh: ${vacancy.salary || ''}
+Joylashuv: ${vacancy.loc || ''}
+
+Nomzod ma'lumotlari:
+${candidateInfo || 'Ma\'lumot kiritilmagan'}
+
+Qoidalar:
+- Agar hujjat umuman rezyume bo'lmasa (masalan kitob, rasm, bo'sh fayl), 0 foiz ber.
+- Agar nomzod ko'nikmalari, tajribasi yoki yo'nalishi vakansiyaga tegishli bo'lsa, tegishli darajada yuqori ball ber.
+- Agar to'liq mos kelmasa ham, lekin o'rganish potensiali bo'lsa (masalan "tajriba talab qilinmaydi" deyilgan va nomzod ko'nikmali bo'lsa), 50-70% ber.
+- "Tajriba talab qilinmaydi" degan vakansiyalarda nomzodning motivatsiyasi va asosiy ko'nikmalari muhimroq.
+
+Javobingiz faqat bitta raqam bo'lsin (0 dan 100 gacha). Hech qanday qo'shimcha matn yozmang.`;
 
     const response = await openai.chat.completions.create({
       model: deploymentName,
@@ -79,7 +109,6 @@ Faqatgina 0 dan 100 gacha bo'lgan bitta raqamni (foizni) yozing. Hech qanday qo'
   } catch (error) {
     if (error instanceof AuthError) return authErrorResponse(error);
     console.error('AI Error:', error);
-    // Signal that scoring could not be completed rather than inventing a score.
     return NextResponse.json({ score: null, error: 'ai_unavailable' }, { status: 503 });
   }
 }
